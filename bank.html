@@ -165,7 +165,7 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 'use strict';
 /* ============ 設定 ============ */
 // ★ Supabase の「Project URL」と「anon public key」を入れてください（Settings → API）
-const SUPABASE={url:'https://rzqhvomycxqqzudhpzen.supabase.co',key:'sb_publishable_8p4zhhVZ1qavPtPSi595WQ_1ZtblEBi'};
+const SUPABASE={url:'',key:''};
 const KEY='cj_bank_v1', WK='cj_wallet', AK='cj_bank_auth', UK='cj_bank_ui';   // KEY：カジノが資産判定に読む写し／WK：カジノと共通の手持ちチップ
 
 /* ============ ユーティリティ ============ */
@@ -323,7 +323,7 @@ function chartSVG(h){const W=600,H=220,a=h.length<2?[h[0],h[0]]:h;let mn=Math.mi
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="株価チャート">${grid}<line x1="0" x2="${W}" y1="${Y(a[0]).toFixed(1)}" y2="${Y(a[0]).toFixed(1)}" stroke="#8d9db8" stroke-dasharray="4 4"/><polygon points="0,${H} ${pts} ${W},${H}" fill="${c}" opacity=".10"/><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round"/><circle cx="${W}" cy="${Y(a[a.length-1]).toFixed(1)}" r="4.5" fill="${c}"/></svg>`}
 
 /* ============ 定期預金 ============ */
-const rateFor=m=>Math.min(80,Math.round(1.5*Math.sqrt(m)*10)/10);   // サーバーと同じ式（表示用）
+const rateFor=m=>Math.min(8,Math.round(0.15*Math.sqrt(m)*100)/100);   // サーバーと同じ式（表示用）
 function fdMins(){return clamp(Math.round((+$('#fv').value||0)*(+$('#fu').value)),1,43200)}
 function fdPrev(){const a=num('#fa'),m=fdMins(),r=rateFor(m),i=Math.round(a*r/100);
   $('#fp').innerHTML=`ロック <b>${fmtMin(m)}</b> ／ 利率 <b>${r}%</b> ／ 満期受取 <b>${fmt(a+i)}</b>（利息 ${fmt(i)}）<br><span class="mut">満期日時 ${fmtDate(now()+m*60000)}</span>`}
@@ -354,7 +354,7 @@ function repay(id){act('bank_loan_repay',{p_id:id},r=>r.late?'延滞分も含め
 /* ============ 画面 ============ */
 const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
 function ledger(){return `<div class="book"><div class="bk-h"><span>日付</span><span>摘要</span><span>お支払</span><span>お預り</span><span>差引残高</span></div>${
-  S.led.slice(0,25).map(e=>`<div class="bk-r"><span>${fmtD(e.t)}</span><span class="m">${esc(e.m)}</span><span>${e.o?fmt(e.o):''}</span><span>${e.i?fmt(e.i):''}</span><span>${fmt(e.b)}</span></div>`).join('')||'<div class="bk-e">取引はまだありません。手持ちチップを入金してみましょう。</div>'}</div>`}
+  S.led.slice(0,5).map(e=>`<div class="bk-r"><span>${fmtD(e.t)}</span><span class="m">${esc(e.m)}</span><span>${e.o?fmt(e.o):''}</span><span>${e.i?fmt(e.i):''}</span><span>${fmt(e.b)}</span></div>`).join('')||'<div class="bk-e">取引はまだありません。手持ちチップを入金してみましょう。</div>'}</div>`}
 function coCard(c){
   const used=S.loans.filter(l=>l.co==c.id).reduce((a,l)=>a+l.amt,0),pend=S.apps.some(a=>a.co==c.id),left=c.max-used,mx=Math.floor(left/c.step)*c.step,ok=mx>=c.min&&!pend;
   const v=clamp(Math.round(c.max*.3/c.step)*c.step,c.min,Math.max(c.min,mx));
