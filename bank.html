@@ -164,34 +164,16 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 <script>
 'use strict';
 /* ============ 設定 ============ */
-const KEY='cj_bank_v1', WK='cj_wallet';          // WK：カジノと共通の手持ちチップ
-// 振込をSupabaseに送るときはここに入れる（空のままなら「形だけ」で保留になります）
-// テーブル例: create table transfers(id text primary key, from_acct text, to_acct text, amount int, memo text, created_at timestamptz default now());
-const SUPABASE={url:'',key:''};
-const SYMS=[
-  {id:'KDK',name:'ケイ電機',sub:'安定型・電機',tag:'低リスク',p0:500,vol:.0020},
-  {id:'MRM',name:'ミライ・モータース',sub:'成長型・自動車',tag:'中リスク',p0:1200,vol:.0045},
-  {id:'NVB',name:'ノヴァ・バイオ',sub:'急騰急落型・バイオ',tag:'高リスク',p0:150,vol:.0090}
-];
-// rate=期間中の利息(％)、term=返済期限(分)、max=最大融資額、diff=審査の厳しさ、rv=[審査基本秒,満額時の追加秒]
-const LOANS=[
-  {id:'sagi',name:'白鷺信用金庫',tier:'ホワイト',cls:'t1',rate:2,term:1440,max:3000,min:100,step:100,diff:70,stars:5,rv:[90,210]},
-  {id:'aozora',name:'あおぞらファイナンス',tier:'優良',cls:'t2',rate:5,term:720,max:6000,min:200,step:200,diff:55,stars:4,rv:[60,120]},
-  {id:'midori',name:'ミドリ・クレジット',tier:'ふつう',cls:'t3',rate:12,term:180,max:15000,min:500,step:500,diff:35,stars:3,rv:[40,80]},
-  {id:'ogon',name:'黄金屋ローン',tier:'グレー',cls:'t4',rate:30,term:60,max:40000,min:1000,step:1000,diff:15,stars:2,rv:[20,40]},
-  {id:'kuro',name:'ブラックキャット金融',tier:'ブラック',cls:'t5',rate:80,term:15,max:100000,min:2000,step:2000,diff:0,stars:1,rv:[10,20]}
-];
-const CO=id=>LOANS.find(c=>c.id==id);
+// ★ Supabase の「Project URL」と「anon public key」を入れてください（Settings → API）
+const SUPABASE={url:'https://rzqhvomycxqqzudhpzen.supabase.co',key:'sb_publishable_8p4zhhVZ1qavPtPSi595WQ_1ZtblEBi'};
+const KEY='cj_bank_v1', WK='cj_wallet', AK='cj_bank_auth', UK='cj_bank_ui';   // KEY：カジノが資産判定に読む写し／WK：カジノと共通の手持ちチップ
 
 /* ============ ユーティリティ ============ */
 const $=s=>document.querySelector(s);
 const fmt=n=>Math.round(n).toLocaleString('ja-JP');
-const now=()=>Date.now();
-const uid=()=>Math.random().toString(36).slice(2,9);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const num=s=>Math.max(0,Math.floor(+$(s).value)||0);
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const randn=()=>{let u=0;while(!u)u=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*Math.random())};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const p2=n=>String(n).padStart(2,'0');
 const fmtDate=t=>{const d=new Date(t);return `${d.getMonth()+1}/${d.getDate()} ${p2(d.getHours())}:${p2(d.getMinutes())}`};
 const fmtD=t=>{const d=new Date(t),n=new Date();return d.toDateString()==n.toDateString()?`${p2(d.getHours())}:${p2(d.getMinutes())}`:`${d.getMonth()+1}/${d.getDate()}`};
@@ -199,83 +181,137 @@ function fmtDur(ms){const s=Math.max(0,Math.ceil(ms/1000)),d=Math.floor(s/86400)
   if(d)return `${d}日${h}時間`;if(h)return `${h}時間${p2(m)}分`;if(m)return `${m}分${p2(x)}秒`;return `${x}秒`}
 function fmtMin(m){if(m>=1440&&m%1440==0)return `${m/1440}日`;if(m>=60&&m%60==0)return `${m/60}時間`;if(m>=60)return `${Math.floor(m/60)}時間${m%60}分`;return `${m}分`}
 
+/* ============ Supabase（RPC） ============ */
+async function rpc(fn,args){
+  if(!SUPABASE.url||!SUPABASE.key)throw new Error('Supabaseの設定がまだです（bank.html の SUPABASE に URL と key を入れてください）');
+  let r;
+  try{r=await fetch(SUPABASE.url.replace(/\/$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',
+    headers:{'Content-Type':'application/json',apikey:SUPABASE.key,Authorization:'Bearer '+SUPABASE.key},body:JSON.stringify(args||{})})}
+  catch(e){throw new Error('通信に失敗しました。ネットワークを確認してください')}
+  let j=null;try{j=await r.json()}catch(e){}
+  if(!r.ok)throw new Error((j&&j.message)||'エラーが発生しました（'+r.status+'）');
+  return j;
+}
+
 /* ============ 手持ちチップ（カジノと共通） ============ */
 let memW=null;
 function wRaw(){try{const v=JSON.parse(localStorage.getItem(WK));if(v&&Number.isFinite(v.chips))return v}catch(e){}return null}
 function wallet(){const v=wRaw();if(v)return Math.max(0,Math.floor(v.chips));if(memW==null){memW=1000;setWallet(1000)}return memW}
-function setWallet(n){memW=Math.max(0,Math.floor(n));try{localStorage.setItem(WK,JSON.stringify({chips:memW,t:now(),src:'bank'}))}catch(e){}}
-
-/* ============ 株価シミュレーション ============ */
-function stepSym(s,d,dt){
-  const k=.0004;
-  if(Math.random()<dt/60)s.mu=randn()*d.vol*.35;               // 平均60秒ごとにトレンドが変わる
-  let lp=Math.log(s.p),j=0;
-  lp+=(-k*(lp-Math.log(d.p0))+s.mu)*dt+d.vol*Math.sqrt(dt)*randn();
-  if(Math.random()<.003*dt){j=(Math.random()<.5?-1:1)*(.02+Math.random()*.05)*Math.sqrt(d.vol/.0045);lp+=j}  // ニュースで急変
-  s.p=Math.max(d.p0*.2,Math.exp(lp));
-  return j;
-}
-const push=s=>{s.h.push(s.p);if(s.h.length>600)s.h.shift()};
+function setWallet(n){memW=Math.max(0,Math.floor(n));try{localStorage.setItem(WK,JSON.stringify({chips:memW,t:Date.now(),src:'bank'}))}catch(e){}}
 
 /* ============ 状態 ============ */
-function fresh(){
-  const s={v:1,acct:String(100000+Math.floor(Math.random()*900000)),name:'',dep:0,hold:{},mk:{t:now(),s:{}},
-    fixed:[],apps:[],loans:[],tx:[],led:[],log:[],credit:50,linked:false,tab:'acct',sel:'KDK'};
-  SYMS.forEach(d=>{s.hold[d.id]={q:0,c:0};s.mk.s[d.id]={p:d.p0,mu:0,h:[d.p0]}});
-  for(let i=0;i<120;i++)SYMS.forEach(d=>{const m=s.mk.s[d.id];stepSym(m,d,5);push(m)});
-  return s;
-}
-function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.v==1){SYMS.forEach(d=>{j.hold[d.id]=j.hold[d.id]||{q:0,c:0};j.mk.s[d.id]=j.mk.s[d.id]||{p:d.p0,mu:0,h:[d.p0]}});return j}}catch(e){}return null}
-let S=load()||fresh();
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let A=(()=>{try{const v=JSON.parse(localStorage.getItem(AK));if(v&&v.acct&&v.secret)return v}catch(e){}return null})();   // {acct, secret}
+let ui=(()=>{try{return Object.assign({tab:'acct',sel:''},JSON.parse(localStorage.getItem(UK))||{})}catch(e){return{tab:'acct',sel:''}}})();
+let S=null;            // サーバーから受け取った口座の状態
+let SYMS=[],LOANS=[];  // 銘柄・融資会社（サーバー定義）
+let MK={};             // 株価 {sym:{p,h:[...]}}
+let skew=0,seq=0,busy=false,mkBusy=false,lastFetch=0,lastSig='',seenNotice=0,seenNews=0,loginErr='';
+const now=()=>Date.now()+skew;
+const CO=id=>LOANS.find(c=>c.id==id)||{name:id};
+const H=id=>(S&&S.hold[id])||{q:0,c:0};
+const P=id=>MK[id]?MK[id].p:(S&&S.px[id])||0;
+const saveUi=()=>{try{localStorage.setItem(UK,JSON.stringify(ui))}catch(e){}};
+const saveAuth=()=>{try{A?localStorage.setItem(AK,JSON.stringify(A)):localStorage.removeItem(AK)}catch(e){}};
 
 let tt;
 function toast(m,k){const e=$('#toast');e.textContent=m;e.className='on '+(k||'');clearTimeout(tt);tt=setTimeout(()=>e.className='',3400)}
-function note(m,k){S.log.unshift({t:now(),m,k:k||''});S.log=S.log.slice(0,30);toast(m,k)}
-function dep(n,memo){n=Math.round(n);S.dep+=n;S.led.unshift({t:now(),m:memo,o:n<0?-n:0,i:n>0?n:0,b:S.dep});S.led=S.led.slice(0,40)}
 
 /* 集計 */
-const invV=()=>SYMS.reduce((a,d)=>a+S.hold[d.id].q*S.mk.s[d.id].p,0);
-const fixV=()=>S.fixed.reduce((a,f)=>a+f.amt,0);
+const invV=()=>S?SYMS.reduce((a,d)=>a+H(d.id).q*P(d.id),0):0;
+const fixV=()=>S?S.fixed.reduce((a,f)=>a+f.amt,0):0;
 const owed=(l,t)=>l.amt+l.int+(t>l.due?Math.round(l.amt*.01*Math.floor((t-l.due)/60000)):0);
-const loanV=t=>S.loans.reduce((a,l)=>a+owed(l,t),0);
+const loanV=t=>S?S.loans.reduce((a,l)=>a+owed(l,t),0):0;
 
-/* ============ 時間経過の処理 ============ */
-function advance(t,live){
-  const el=(t-S.mk.t)/1000;if(el<=0)return;
-  if(el>3){const n=Math.floor(Math.min(el,3600)/5);for(let i=0;i<n;i++)SYMS.forEach(d=>{const s=S.mk.s[d.id];stepSym(s,d,5);push(s)})}
-  else SYMS.forEach(d=>{const s=S.mk.s[d.id],j=stepSym(s,d,el);push(s);
-    if(j&&live)note(j>0?`📈 ${d.name}に好材料のニュース！株価が急上昇`:`📉 ${d.name}に悪材料のニュース… 株価が急落`,j>0?'ok':'err')});
-  S.mk.t=t;
+/* カジノ側の「資産あり？」判定用に、サーバーの状態の写しを置く */
+function mirror(){try{const hold={},s={};SYMS.forEach(d=>{hold[d.id]={q:H(d.id).q};s[d.id]={p:P(d.id)}});
+  localStorage.setItem(KEY,JSON.stringify({v:2,srv:1,dep:S.dep,fixed:S.fixed.map(f=>({amt:f.amt})),hold,mk:{s}}))}catch(e){}}
+
+/* ============ サーバーとの同期 ============ */
+async function refresh(){
+  if(!A)return;
+  const my=++seq;lastFetch=Date.now();
+  try{
+    const s=await rpc('bank_state',{p_acct:A.acct,p_secret:A.secret});
+    if(my<seq)return;
+    applyState(s);
+  }catch(e){
+    if(/口座が見つかりません/.test(e.message)){A=null;S=null;saveAuth();loginErr=e.message;render();return}
+    toast(e.message,'err');
+  }
 }
-function processEvents(t){
-  let ch=false;
-  for(const f of S.fixed.slice()){if(t>=f.end){S.fixed=S.fixed.filter(x=>x!==f);dep(f.amt+f.int,`定期満期（${fmtMin(f.mins)}）`);note(`定期預金が満期！ 元本${fmt(f.amt)}＋利息${fmt(f.int)}を預金に戻しました`,'ok');ch=true}}
-  for(const a of S.apps.slice()){if(t>=a.end){S.apps=S.apps.filter(x=>x!==a);const c=CO(a.co);ch=true;
-    if(a.roll*100<a.p){dep(a.amt,`融資（${c.name}）`);S.loans.push({id:uid(),co:a.co,amt:a.amt,int:Math.round(a.amt*c.rate/100),start:t,due:t+c.term*60000,od:false});note(`${c.name}の審査に通過！ ${fmt(a.amt)}を預金に入金しました`,'ok')}
-    else{S.credit=Math.max(0,S.credit-1);note(`${c.name}の審査に通りませんでした（信用スコア−1）`,'err')}}}
-  for(const l of S.loans){if(!l.od&&t>l.due){l.od=true;S.credit=Math.max(0,S.credit-15);note(`${CO(l.co).name}の返済が延滞！ 信用スコア−15。延滞金が毎分増えます`,'err');ch=true}}
-  return ch;
+function applyState(s){
+  const first=!S;
+  skew=s.now-Date.now();S=s;SYMS=s.syms;LOANS=s.cos;
+  for(const k in s.px){MK[k]=MK[k]||{p:+s.px[k],h:[+s.px[k]]};MK[k].p=+s.px[k]}
+  if(!SYMS.some(d=>d.id==ui.sel)){ui.sel=SYMS[0].id;saveUi()}
+  const maxId=Math.max(0,...s.notices.map(n=>n.id));
+  if(first){seenNotice=maxId;seenNews=s.news?s.news.at:0;pollMk()}
+  else{
+    s.notices.filter(n=>n.id>seenNotice).reverse().forEach(n=>toast(n.m,n.k));
+    seenNotice=Math.max(seenNotice,maxId);
+    if(s.news&&s.news.at>seenNews){if(now()-s.news.at<60000)toast(s.news.msg,s.news.msg.startsWith('📈')?'ok':'err');seenNews=s.news.at}
+  }
+  mirror();
+  const sig=JSON.stringify([s.dep,s.credit,s.name,s.hold,s.fixed,s.apps,s.loans,s.led,s.tx,s.notices]);
+  if(first||sig!=lastSig){lastSig=sig;render()}else updateLive();
+}
+async function pollMk(){
+  if(mkBusy||!S)return;mkBusy=true;
+  try{const m=await rpc('bank_market_get');for(const k in m)MK[k]={p:+m[k].p,h:m[k].h.map(Number)};if(S)updateLive()}
+  catch(e){}finally{mkBusy=false}
+}
+/* 操作を実行 → 状態を取り直す */
+async function act(fn,args,okMsg){
+  if(busy)return{ok:false};busy=true;
+  try{
+    const r=await rpc(fn,Object.assign({p_acct:A.acct,p_secret:A.secret},args||{}));
+    await refresh();
+    if(okMsg)toast(typeof okMsg=='function'?okMsg(r):okMsg,'ok');
+    return{ok:true,r};
+  }catch(e){toast(e.message,'err');return{ok:false}}
+  finally{busy=false}
+}
+
+/* ============ 口座のひらき方 ============ */
+async function doCreate(){
+  if(busy)return;busy=true;
+  try{const r=await rpc('bank_create',{p_name:$('#cn').value.trim().slice(0,12)});
+    A={acct:r.acct,secret:r.secret};saveAuth();loginErr='';S=null;await refresh();
+    toast('口座を開設しました。「振込」タブの引き継ぎコードを必ず控えてください','ok');
+  }catch(e){toast(e.message,'err')}finally{busy=false}
+}
+async function doImport(){
+  const m=$('#cc').value.trim().match(/^(\d{6})-([0-9A-Za-z]{64})$/);
+  if(!m)return toast('引き継ぎコードの形式が正しくありません','err');
+  A={acct:m[1],secret:m[2]};saveAuth();loginErr='';S=null;await refresh();
+  if(S)toast('口座に入りました','ok');
+}
+function copyCode(){
+  const c=A.acct+'-'+A.secret;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(c).then(()=>toast('引き継ぎコードをコピーしました','ok'),()=>prompt('コピーしてください',c));
+  else prompt('コピーしてください',c);
+}
+function logout(){
+  if(!confirm('この端末から口座を外します。引き継ぎコードを控えていないと、二度と入れなくなります。よろしいですか？'))return;
+  A=null;S=null;saveAuth();try{localStorage.removeItem(KEY)}catch(e){}lastSig='';render();
 }
 
 /* ============ 口座 ============ */
 function setV(sel,v){$(sel).value=v;if(sel=='#qty')qtyPrev()}
-function afterAct(msg){save();render();toast(msg,'ok')}
-function doIn(){const a=num('#ma');if(a<1)return toast('金額を入力してください','err');if(a>wallet())return toast('手持ちチップが足りません','err');
-  setWallet(wallet()-a);dep(a,'入金（カジノから）');afterAct(`${fmt(a)}チップを入金しました`)}
-function doOut(){const a=num('#ma');if(a<1)return toast('金額を入力してください','err');if(a>S.dep)return toast('預金残高が足りません','err');
-  dep(-a,'出金（カジノへ）');setWallet(wallet()+a);afterAct(`${fmt(a)}チップを手持ちに出金しました`)}
+async function doIn(){const a=num('#ma');if(a<1)return toast('金額を入力してください','err');if(a>wallet())return toast('手持ちチップが足りません','err');
+  setWallet(wallet()-a);const r=await act('bank_deposit',{p_amt:a},`${fmt(a)}チップを入金しました`);if(!r.ok)setWallet(wallet()+a);updateLive()}
+async function doOut(){const a=num('#ma');if(a<1)return toast('金額を入力してください','err');if(a>S.dep)return toast('預金残高が足りません','err');
+  const r=await act('bank_withdraw',{p_amt:a},`${fmt(a)}チップを手持ちに出金しました`);if(r.ok)setWallet(wallet()+a);updateLive()}
 
 /* ============ 投資 ============ */
-function selSym(id){S.sel=id;save();render()}
-const maxBuy=()=>Math.floor(S.dep/S.mk.s[S.sel].p);
-function qtyPrev(){const e=$('#qty');if(!e)return;const q=Math.max(0,Math.floor(+e.value)||0),p=S.mk.s[S.sel].p;$('#qc').textContent=q?`${fmt(q)}株 × ${p.toFixed(1)} ＝ 約${fmt(Math.round(p*q))}チップ`:''}
-function buy(){const q=num('#qty');if(q<1)return toast('株数を入力してください','err');const d=SYMS.find(x=>x.id==S.sel),p=S.mk.s[d.id].p,cost=Math.round(p*q);
-  if(cost>S.dep)return toast(`預金が足りません（必要 ${fmt(cost)}）`,'err');
-  const h=S.hold[d.id];h.q+=q;h.c+=cost;dep(-cost,`株購入 ${d.id}×${q}`);afterAct(`${d.name}を${q}株買いました（${p.toFixed(1)}）`)}
-function sell(){const q=num('#qty');const d=SYMS.find(x=>x.id==S.sel),h=S.hold[d.id];if(q<1)return toast('株数を入力してください','err');if(q>h.q)return toast(`保有は${h.q}株です`,'err');
-  const p=S.mk.s[d.id].p,got=Math.round(p*q);h.c=q==h.q?0:h.c*(1-q/h.q);h.q-=q;dep(got,`株売却 ${d.id}×${q}`);afterAct(`${d.name}を${q}株売りました（${p.toFixed(1)}）`)}
-function hinfo(){const h=S.hold[S.sel],p=S.mk.s[S.sel].p,v=h.q*p,pl=v-h.c;
+function selSym(id){ui.sel=id;saveUi();render();pollMk()}
+const maxBuy=()=>Math.floor(S.dep/P(ui.sel));
+function qtyPrev(){const e=$('#qty');if(!e)return;const q=Math.max(0,Math.floor(+e.value)||0),p=P(ui.sel);$('#qc').textContent=q?`${fmt(q)}株 × ${p.toFixed(1)} ＝ 約${fmt(Math.round(p*q))}チップ`:''}
+function buy(){const q=num('#qty');if(q<1)return toast('株数を入力してください','err');const d=SYMS.find(x=>x.id==ui.sel);
+  act('bank_buy',{p_sym:d.id,p_qty:q},r=>`${d.name}を${q}株買いました（${(+r.price).toFixed(1)}）`)}
+function sell(){const q=num('#qty');const d=SYMS.find(x=>x.id==ui.sel);if(q<1)return toast('株数を入力してください','err');if(q>H(d.id).q)return toast(`保有は${H(d.id).q}株です`,'err');
+  act('bank_sell',{p_sym:d.id,p_qty:q},r=>`${d.name}を${q}株売りました（${(+r.price).toFixed(1)}）`)}
+function hinfo(){const h=H(ui.sel),p=P(ui.sel),v=h.q*p,pl=v-h.c;
   return h.q?`保有 <b>${fmt(h.q)}株</b> ／ 評価額 <b>${fmt(v)}</b> ／ 取得平均 ${(h.c/h.q).toFixed(1)} ／ 評価損益 <b class="${pl>=0?'up':'dn'}">${pl>=0?'+':''}${fmt(pl)}</b>`:'この銘柄は持っていません'}
 function spark(h){const a=h.length<2?[h[0],h[0]]:h;let mn=Math.min(...a),mx=Math.max(...a);if(mx-mn<1e-9){mx+=1;mn-=1}
   const pts=a.map((v,i)=>`${(i/(a.length-1)*100).toFixed(1)},${(26-(v-mn)/(mx-mn)*24).toFixed(1)}`).join(' ');
@@ -287,43 +323,33 @@ function chartSVG(h){const W=600,H=220,a=h.length<2?[h[0],h[0]]:h;let mn=Math.mi
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="株価チャート">${grid}<line x1="0" x2="${W}" y1="${Y(a[0]).toFixed(1)}" y2="${Y(a[0]).toFixed(1)}" stroke="#8d9db8" stroke-dasharray="4 4"/><polygon points="0,${H} ${pts} ${W},${H}" fill="${c}" opacity=".10"/><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round"/><circle cx="${W}" cy="${Y(a[a.length-1]).toFixed(1)}" r="4.5" fill="${c}"/></svg>`}
 
 /* ============ 定期預金 ============ */
-const rateFor=m=>Math.min(80,Math.round(1.5*Math.sqrt(m)*10)/10);   // ロックが長いほど利率アップ（上限80％）
+const rateFor=m=>Math.min(80,Math.round(1.5*Math.sqrt(m)*10)/10);   // サーバーと同じ式（表示用）
 function fdMins(){return clamp(Math.round((+$('#fv').value||0)*(+$('#fu').value)),1,43200)}
 function fdPrev(){const a=num('#fa'),m=fdMins(),r=rateFor(m),i=Math.round(a*r/100);
   $('#fp').innerHTML=`ロック <b>${fmtMin(m)}</b> ／ 利率 <b>${r}%</b> ／ 満期受取 <b>${fmt(a+i)}</b>（利息 ${fmt(i)}）<br><span class="mut">満期日時 ${fmtDate(now()+m*60000)}</span>`}
 function fdSet(v,u){$('#fv').value=v;$('#fu').value=u;fdPrev()}
 function fdOpen(){const a=num('#fa');if(a<10)return toast('10チップ以上で預けられます','err');if(a>S.dep)return toast('預金が足りません','err');
-  const m=fdMins(),r=rateFor(m),t=now();dep(-a,`定期預金（${fmtMin(m)}）`);
-  S.fixed.push({id:uid(),amt:a,mins:m,rate:r,start:t,end:t+m*60000,int:Math.round(a*r/100)});afterAct(`定期預金を開始：${fmt(a)}チップを${fmtMin(m)}ロック`)}
+  const m=fdMins();act('bank_fixed_open',{p_amt:a,p_mins:m},`定期預金を開始：${fmt(a)}チップを${fmtMin(m)}ロック`)}
 
-/* ============ 振込（形だけ／Supabase接続で実送信） ============ */
-const Remote={on:()=>!!(SUPABASE.url&&SUPABASE.key),
-  async send(tx){if(!Remote.on())return{ok:false};
-    try{const r=await fetch(SUPABASE.url+'/rest/v1/transfers',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE.key,Authorization:'Bearer '+SUPABASE.key,Prefer:'return=minimal'},
-      body:JSON.stringify({id:tx.id,from_acct:S.acct,to_acct:tx.to,amount:tx.a,memo:tx.memo})});return{ok:r.ok}}catch(e){return{ok:false}}}};
-function setName(v){S.name=v.trim().slice(0,12);save()}
+/* ============ 振込 ============ */
+async function setName(v){const r=await act('bank_set_name',{p_name:v.trim().slice(0,12)},'口座名義を変更しました');if(!r.ok)render()}
+let lkT;
+function lkPrev(){const v=$('#tt').value.trim(),o=$('#tn');clearTimeout(lkT);if(!/^\d{6}$/.test(v)){o.textContent='';return}
+  lkT=setTimeout(async()=>{try{const n=await rpc('bank_lookup',{p_acct:v});if($('#tt')&&$('#tt').value.trim()==v)$('#tn').textContent=n?`宛先：${n}`:'この口座番号は見つかりません'}catch(e){}},250)}
 async function doTx(){const to=$('#tt').value.trim(),a=num('#ta'),memo=$('#tm').value.trim().slice(0,30);
   if(!/^\d{6}$/.test(to))return toast('相手の口座番号は6桁の数字です','err');if(to==S.acct)return toast('自分の口座には振り込めません','err');
   if(a<1)return toast('金額を入力してください','err');if(a>S.dep)return toast('預金が足りません','err');
-  const tx={id:uid(),to,a,memo,t:now(),st:'pend'};dep(-a,`振込（${to}）`);S.tx.unshift(tx);S.tx=S.tx.slice(0,30);
-  const r=await Remote.send(tx);if(r.ok)tx.st='sent';save();render();
-  toast(r.ok?'振込を送信しました':'振込を受け付けました（DB未接続のため保留中）','ok')}
-function cancelTx(id){const x=S.tx.find(t=>t.id==id);if(!x||x.st!='pend')return;x.st='cancel';dep(x.a,`振込取消（${x.to}）`);afterAct('振込を取り消して預金に戻しました')}
+  const r=await act('bank_transfer',{p_to:to,p_amt:a,p_memo:memo},`${to} に ${fmt(a)}チップを振り込みました`);
+  if(r.ok){$('#ta').value='';$('#tm').value='';$('#tt').value='';$('#tn').textContent=''}}
 
 /* ============ 融資 ============ */
 const pApprove=(c,amt)=>clamp(Math.round(110-c.diff+(S.credit-50)*.6-30*(amt/c.max)),3,97);
 const reviewSec=(c,amt)=>Math.round(c.rv[0]+c.rv[1]*amt/c.max);
 function lprev(id){const c=CO(id),e=$('#la-'+id),o=$('#lp-'+id);if(!e||!o)return;const a=+e.value,p=pApprove(c,a),i=Math.round(a*c.rate/100);
   o.innerHTML=`借入 <b>${fmt(a)}</b> → 返済 <b>${fmt(a+i)}</b><br>審査 約<b>${fmtDur(reviewSec(c,a)*1000)}</b> ／ 通過の見込み <b>${p}%</b>`}
-function apply(id){const c=CO(id),a=+$('#la-'+id).value,t=now();
-  if(S.loans.some(l=>l.od))return toast('延滞中の借入があるため、新しい申込はできません','err');
-  if(S.apps.some(x=>x.co==id))return toast('この会社はすでに審査中です','err');
-  const used=S.loans.filter(l=>l.co==id).reduce((s,l)=>s+l.amt,0);if(a+used>c.max)return toast(`この会社の融資枠を超えます（残り ${fmt(c.max-used)}）`,'err');
-  S.apps.push({id:uid(),co:id,amt:a,start:t,end:t+reviewSec(c,a)*1000,p:pApprove(c,a),roll:Math.random()});
-  afterAct(`${c.name}に${fmt(a)}チップの融資を申し込みました。審査結果をお待ちください`)}
-function repay(id){const l=S.loans.find(x=>x.id==id);if(!l)return;const t=now(),o=owed(l,t);if(o>S.dep)return toast(`預金が足りません（返済額 ${fmt(o)}）`,'err');
-  dep(-o,`融資返済（${CO(l.co).name}）`);S.loans=S.loans.filter(x=>x!==l);if(!l.od)S.credit=Math.min(100,S.credit+4);
-  afterAct(l.od?'延滞分も含めて返済しました':'期限内に返済しました。信用スコア＋4')}
+function apply(id){const c=CO(id),a=+$('#la-'+id).value;
+  act('bank_loan_apply',{p_co:id,p_amt:a},()=>`${c.name}に${fmt(a)}チップの融資を申し込みました。審査結果をお待ちください`)}
+function repay(id){act('bank_loan_repay',{p_id:id},r=>r.late?'延滞分も含めて返済しました':'期限内に返済しました。信用スコア＋4')}
 
 /* ============ 画面 ============ */
 const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
@@ -337,6 +363,15 @@ function coCard(c){
   <div><span>最大融資　</span><b>${fmt(c.max)}</b></div><div><span>審査　</span><b class="stars">${stars(c.stars)}</b></div></div>
   ${ok?`<input type="range" id="la-${c.id}" min="${c.min}" max="${mx}" step="${c.step}" value="${v}" oninput="lprev('${c.id}')" aria-label="${c.name}の借入額"><div class="lp" id="lp-${c.id}"></div><button class="btn" style="width:100%" onclick="apply('${c.id}')">この金額で申し込む</button>`
   :`<div class="lp">${pend?'審査中です。結果が出るまでお待ちください。':'この会社の融資枠は使い切っています。'}</div>`}</div>`}
+function loginView(){
+  if(!SUPABASE.url||!SUPABASE.key)return `<div class="card"><h2>Supabase の設定が必要です</h2><div class="demo">bank.html の先頭付近にある <b>const SUPABASE={url:'',key:''}</b> に、Supabase の Project URL と anon public key を入れてください。</div></div>`;
+  return `<div class="card"><h2>口座をひらく</h2><p class="mut">はじめての方はこちら。口座番号と引き継ぎコードが発行されます。</p>
+  ${loginErr?`<div class="demo">${esc(loginErr)}</div>`:''}
+  <label class="lab" for="cn">口座名義（任意・12文字まで）</label><input id="cn" maxlength="12" placeholder="ニックネーム">
+  <button class="btn" style="width:100%;margin-top:12px" onclick="doCreate()">口座を開設する</button></div>
+  <div class="card"><h2>引き継ぎコードで入る</h2><p class="mut">別の端末で使うときや、ブラウザのデータを消した後はこちら。</p>
+  <label class="lab" for="cc">引き継ぎコード</label><input id="cc" placeholder="123456-xxxxxxxx…" autocomplete="off">
+  <button class="btn alt" style="width:100%;margin-top:12px" onclick="doImport()">この口座に入る</button></div>`}
 const views={
 acct(){return `<div class="card"><h2>入出金</h2><p class="mut">手持ちチップはカジノと共通です。預金に移すと、投資・定期預金・振込に使えます。</p>
   <div class="two"><div><span class="lab">手持ち（カジノ）</span><b class="amt" data-w></b></div><div><span class="lab">預金</span><b class="amt">${fmt(S.dep)}</b></div></div>
@@ -344,17 +379,17 @@ acct(){return `<div class="card"><h2>入出金</h2><p class="mut">手持ちチ�
   <div class="qs"><button class="q" onclick="setV('#ma',100)">100</button><button class="q" onclick="setV('#ma',500)">500</button><button class="q" onclick="setV('#ma',1000)">1000</button><button class="q" onclick="setV('#ma',wallet())">手持ち全部</button><button class="q" onclick="setV('#ma',S.dep)">預金全部</button></div>
   <div class="btns"><button class="btn" onclick="doIn()">預金に入金</button><button class="btn alt" onclick="doOut()">手持ちへ出金</button></div></div>
   <div class="card"><h2>通帳</h2>${ledger()}</div>
-  <div class="card"><h2>お知らせ</h2>${S.log.slice(0,8).map(n=>`<div class="notice ${n.k}"><time>${fmtD(n.t)}</time><span>${esc(n.m)}</span></div>`).join('')||'<p class="mut">お知らせはありません。</p>'}</div>`},
-inv(){const d=SYMS.find(x=>x.id==S.sel);
-  return `<div class="syms">${SYMS.map(x=>`<button class="sym${x.id==S.sel?' on':''}" onclick="selSym('${x.id}')" aria-pressed="${x.id==S.sel}"><span class="tk">${x.id}</span><b>${x.name}</b><span class="pr" data-pr="${x.id}"></span><span class="chg" data-chg="${x.id}"></span><span class="spark" data-sp="${x.id}"></span></button>`).join('')}</div>
+  <div class="card"><h2>お知らせ</h2>${S.notices.slice(0,8).map(n=>`<div class="notice ${n.k}"><time>${fmtD(n.t)}</time><span>${esc(n.m)}</span></div>`).join('')||'<p class="mut">お知らせはありません。</p>'}</div>`},
+inv(){const d=SYMS.find(x=>x.id==ui.sel);
+  return `<div class="syms">${SYMS.map(x=>`<button class="sym${x.id==ui.sel?' on':''}" onclick="selSym('${x.id}')" aria-pressed="${x.id==ui.sel}"><span class="tk">${x.id}</span><b>${x.name}</b><span class="pr" data-pr="${x.id}"></span><span class="chg" data-chg="${x.id}"></span><span class="spark" data-sp="${x.id}"></span></button>`).join('')}</div>
   <div class="card"><div class="ch-h"><div><h2>${d.name} <small>${d.id}</small></h2><span class="mut">${d.sub}（${d.tag}）</span></div><div><div class="amt" data-pr="${d.id}"></div><span class="chg" data-chg="${d.id}"></span></div></div>
-  <div id="chart"></div><p class="mut">直近のチャート（点線は期間の最初の値）。株価は1秒ごとに変わり、ページを閉じている間も動き続けます。</p>
+  <div id="chart"></div><p class="mut">直近のチャート（点線は期間の最初の値）。株価はサーバーで動いていて、全員に同じ値が見えます。ページを閉じている間も動き続けます。</p>
   <div id="hinfo"></div>
   <label class="lab" for="qty">株数</label><input id="qty" type="number" inputmode="numeric" min="1" step="1" value="1" oninput="qtyPrev()">
-  <div class="qs"><button class="q" onclick="setV('#qty',1)">1</button><button class="q" onclick="setV('#qty',10)">10</button><button class="q" onclick="setV('#qty',100)">100</button><button class="q" onclick="setV('#qty',maxBuy())">買える最大</button><button class="q" onclick="setV('#qty',S.hold[S.sel].q)">全部売る</button></div>
+  <div class="qs"><button class="q" onclick="setV('#qty',1)">1</button><button class="q" onclick="setV('#qty',10)">10</button><button class="q" onclick="setV('#qty',100)">100</button><button class="q" onclick="setV('#qty',maxBuy())">買える最大</button><button class="q" onclick="setV('#qty',H(ui.sel).q)">全部売る</button></div>
   <div id="qc"></div><div class="btns"><button class="btn buy" onclick="buy()">買う</button><button class="btn sell" onclick="sell()">売る</button></div>
   <p class="mut" style="margin-top:8px">売買には預金を使います（預金残高 ${fmt(S.dep)}）。</p></div>`},
-fix(){const t=now();
+fix(){
   return `<div class="card"><h2>定期預金</h2><p class="mut">預けた時間のあいだは引き出せません。ロックが長いほど利率が上がります。</p>
   <div class="ladder">${[[1,1],[10,1],[1,60],[6,60],[24,60]].map(([v,u])=>{const m=v*u;return `<button class="q" onclick="fdSet(${v},${u})">${fmtMin(m)}<small>+${rateFor(m)}%</small></button>`}).join('')}</div>
   <label class="lab" for="fa">預ける金額（預金残高 ${fmt(S.dep)}）</label><input id="fa" type="number" inputmode="numeric" min="10" step="1" placeholder="10以上" oninput="fdPrev()">
@@ -365,12 +400,14 @@ fix(){const t=now();
     <div class="prog"><i data-prog="${f.start},${f.end}"></i></div><div class="mut">満期まで <b data-cd="${f.end}"></b>（${fmtDate(f.end)}）</div></div>`).join('')||'<p class="mut">定期預金はありません。</p>'}</div>`},
 tx(){return `<div class="card"><h2>自分の口座</h2><div class="acno">${S.acct}</div>
   <label class="lab" for="nm">口座名義（相手に表示されます）</label><input id="nm" maxlength="12" value="${esc(S.name)}" placeholder="ニックネーム" onchange="setName(this.value)"></div>
-  <div class="card"><h2>振込</h2>${Remote.on()?'':'<div class="demo">いまは形だけの動作です。相手にはまだ届きません。Supabaseをつなぐと実際に送られます。</div>'}
-  <label class="lab" for="tt">相手の口座番号（6桁）</label><input id="tt" inputmode="numeric" maxlength="6" placeholder="123456">
+  <div class="card"><h2>振込</h2>
+  <label class="lab" for="tt">相手の口座番号（6桁）</label><input id="tt" inputmode="numeric" maxlength="6" placeholder="123456" oninput="lkPrev()"><div id="tn" class="mut"></div>
   <label class="lab" for="ta">金額（預金残高 ${fmt(S.dep)}）</label><input id="ta" type="number" inputmode="numeric" min="1" step="1" placeholder="例：300">
   <label class="lab" for="tm">メモ（任意）</label><input id="tm" maxlength="30" placeholder="ありがとう">
   <button class="btn" style="width:100%;margin-top:12px" onclick="doTx()">振り込む</button></div>
-  <div class="card"><h2>振込履歴</h2>${S.tx.map(x=>`<div class="tx-i"><div><b>${x.to}</b> <span class="mut">${esc(x.memo)}</span><br><span class="mut">${fmtDate(x.t)}</span></div><div><b class="amt" style="font-size:18px">${fmt(x.a)}</b> <span class="st ${x.st}">${{pend:'保留中（DB未接続）',sent:'送信済み',cancel:'取消'}[x.st]}</span>${x.st=='pend'?` <button class="btn s alt" onclick="cancelTx('${x.id}')">取消</button>`:''}</div></div>`).join('')||'<p class="mut">振込の履歴はありません。</p>'}</div>`},
+  <div class="card"><h2>振込履歴</h2>${S.tx.map(x=>`<div class="tx-i"><div><b>${x.dir=='out'?'→ ':'← '}${esc(x.peer_name||'')}</b> <span class="mut">${x.peer}</span> <span class="mut">${esc(x.memo)}</span><br><span class="mut">${fmtDate(x.t)}</span></div><div><b class="amt" style="font-size:18px">${x.dir=='out'?'−':'+'}${fmt(x.a)}</b> <span class="st sent">${x.dir=='out'?'送金':'受取'}</span></div></div>`).join('')||'<p class="mut">振込の履歴はありません。</p>'}</div>
+  <div class="card"><h2>引き継ぎコード</h2><p class="mut">別の端末やブラウザで同じ口座を使うための合言葉です。<b>他人に教えないでください</b>（知られると、その人がこの口座を操作できます）。</p>
+  <div class="btns"><button class="btn" onclick="copyCode()">コードをコピー</button><button class="btn alt" onclick="logout()">この端末から外す</button></div></div>`},
 loan(){return `<div class="card"><h2>信用スコア</h2><div class="cs"><b>${S.credit}</b><div class="bar"><i style="width:${S.credit}%"></i></div></div>
   <p class="mut" style="margin-top:8px">期限内の返済で上がり、延滞や否決で下がります。高いほど審査に通りやすくなります。</p></div>
   ${S.loans.length?`<div class="card"><h2>借入中</h2>${S.loans.map(l=>`<div class="row-l"><div><b>${CO(l.co).name}</b> <span class="mut">借入 ${fmt(l.amt)}</span></div><div>返済額 <b class="amt" data-owed="${l.id}"></b></div><div class="due" data-due="${l.id}"></div><button class="btn s" style="justify-self:start" onclick="repay('${l.id}')">全額返済</button></div>`).join('')}</div>`:''}
@@ -378,42 +415,59 @@ loan(){return `<div class="card"><h2>信用スコア</h2><div class="cs"><b>${S.
   <h2 class="sec">融資会社を選ぶ</h2>${LOANS.map(coCard).join('')}`}
 };
 function render(){
-  $('#view').innerHTML=views[S.tab]();
-  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==S.tab));
-  if(S.tab=='fix')fdPrev();
-  if(S.tab=='loan')LOANS.forEach(c=>lprev(c.id));
+  const tabs=$('#tabs'),v=$('#view');
+  if(!S){tabs.style.display='none';v.innerHTML=loginView();updateLive();return}
+  tabs.style.display='';
+  // 入力途中の値とフォーカスを保つ
+  const keep={};v.querySelectorAll('input,select').forEach(e=>{if(e.id)keep[e.id]=e.value});
+  const fid=document.activeElement&&v.contains(document.activeElement)?document.activeElement.id:null;
+  if(!views[ui.tab])ui.tab='acct';
+  v.innerHTML=views[ui.tab]();
+  for(const id in keep){const e=document.getElementById(id);if(e)e.value=keep[id]}
+  if(fid){const e=document.getElementById(fid);if(e){e.focus();try{const n=e.value.length;e.setSelectionRange(n,n)}catch(_){}}}
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==ui.tab));
+  if(ui.tab=='fix')fdPrev();
+  if(ui.tab=='loan')LOANS.forEach(c=>lprev(c.id));
+  if(ui.tab=='inv')qtyPrev();
   updateLive();
 }
-function setTab(t){S.tab=t;save();render();window.scrollTo(0,0)}
+function setTab(t){ui.tab=t;saveUi();if(S){render();pollMk()}window.scrollTo(0,0)}
 function updateLive(){
-  const t=now(),w=wallet(),iv=invV(),fv=fixV(),lv=loanV(t),r=wRaw();
-  $('#s-w').textContent=fmt(w);$('#s-d').textContent=fmt(S.dep);$('#s-i').textContent=fmt(iv);$('#s-f').textContent=fmt(fv);$('#s-l').textContent=fmt(lv);
+  const w=wallet();$('#s-w').textContent=fmt(w);
+  if(!S){['#s-d','#s-i','#s-f','#s-l','#net'].forEach(s=>$(s).textContent='—');$('#acct').textContent=A?A.acct:'------';$('#link').textContent='口座未開設';return}
+  const t=now(),iv=invV(),fv=fixV(),lv=loanV(t),r=wRaw();
+  $('#s-d').textContent=fmt(S.dep);$('#s-i').textContent=fmt(iv);$('#s-f').textContent=fmt(fv);$('#s-l').textContent=fmt(lv);
   $('#net').textContent=fmt(w+S.dep+iv+fv-lv);$('#acct').textContent=S.acct;
-  if(r&&r.src=='casino')S.linked=true;
-  $('#link').textContent=S.linked?'カジノと連携中':'カジノ未連携（同じ場所に置くと連携）';
+  $('#link').textContent=(r&&r.src=='casino')?'カジノと連携中':'カジノ未連携（同じ場所に置くと連携）';
   document.querySelectorAll('[data-w]').forEach(e=>e.textContent=fmt(w));
   document.querySelectorAll('[data-cd]').forEach(e=>{const x=+e.dataset.cd-t;e.textContent=x>0?fmtDur(x):'まもなく'});
   document.querySelectorAll('[data-prog]').forEach(e=>{const[a,b]=e.dataset.prog.split(',').map(Number);e.style.width=clamp((t-a)/(b-a),0,1)*100+'%'});
   document.querySelectorAll('[data-owed]').forEach(e=>{const l=S.loans.find(x=>x.id==e.dataset.owed);if(l)e.textContent=fmt(owed(l,t))});
   document.querySelectorAll('[data-due]').forEach(e=>{const l=S.loans.find(x=>x.id==e.dataset.due);if(!l)return;const x=l.due-t;e.textContent=x>0?'期限まで '+fmtDur(x):'延滞中 '+fmtDur(-x)+'（延滞金が増加中）';e.classList.toggle('bad',x<=0)});
-  if(S.tab=='inv'){
-    SYMS.forEach(d=>{const s=S.mk.s[d.id],c=s.p/s.h[0]-1;
-      document.querySelectorAll(`[data-pr="${d.id}"]`).forEach(e=>e.textContent=s.p.toFixed(1));
+  if(ui.tab=='inv'&&$('#chart')){
+    SYMS.forEach(d=>{const m=MK[d.id];if(!m)return;const c=m.p/m.h[0]-1;
+      document.querySelectorAll(`[data-pr="${d.id}"]`).forEach(e=>e.textContent=m.p.toFixed(1));
       document.querySelectorAll(`[data-chg="${d.id}"]`).forEach(e=>{e.textContent=(c>=0?'▲ +':'▼ −')+Math.abs(c*100).toFixed(2)+'%';e.className='chg '+(c>=0?'up':'dn')});
-      const sp=document.querySelector(`[data-sp="${d.id}"]`);if(sp)sp.innerHTML=spark(s.h)});
-    $('#chart').innerHTML=chartSVG(S.mk.s[S.sel].h);$('#hinfo').innerHTML=hinfo();qtyPrev();
+      const sp=document.querySelector(`[data-sp="${d.id}"]`);if(sp)sp.innerHTML=spark(m.h)});
+    if(MK[ui.sel])$('#chart').innerHTML=chartSVG(MK[ui.sel].h);
+    $('#hinfo').innerHTML=hinfo();
   }
 }
 
 /* ============ 実行 ============ */
-let lastSave=0;
-function tick(){const t=now();advance(t,true);const ch=processEvents(t);
-  if(ch){save();render()}else updateLive();
-  if(t-lastSave>5000){save();lastSave=t}}
-advance(now(),false);processEvents(now());render();save();
-setInterval(tick,1000);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else tick()});
-addEventListener('beforeunload',save);
+let cnt=0;
+function due(){const t=now();return S.fixed.some(f=>t>=f.end)||S.apps.some(a=>t>=a.end)||S.loans.some(l=>!l.od&&t>l.due)}
+setInterval(()=>{
+  if(document.hidden||!S)return;
+  cnt++;updateLive();
+  if(due()&&Date.now()-lastFetch>2500)refresh();          // 満期・審査結果・延滞はサーバーが処理
+  else if(cnt%5==0)refresh();
+  if(ui.tab=='inv'&&cnt%2==0)pollMk();
+},1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S){refresh();pollMk()}});
 addEventListener('storage',e=>{if(e.key==WK)updateLive()});
+addEventListener('pageshow',()=>{if(S)updateLive()});
+render();
+if(A)refresh();
 </script>
 </body></html>
