@@ -63,7 +63,7 @@ input[type=range]{accent-color:var(--g);width:min(240px,55vw)}
 <div class="scr" id="s1"><div class="hud"><span class="sign" style="font-size:22px">2−1 情報処理科ジノ</span><span class="bank"></span></div><p>ゲームを選んでください</p>
 <div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>チンチロ</b><span>親はCPU</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button></div></div>
 <div class="scr" id="s2"><div class="hud"><button class="btn s d" onclick="back()">← ロビー</button><b id="gt"></b><span class="bank"></span></div><div class="table" id="stage"></div></div>
-<div id="over"><div><h2>破産…</h2><p>チップがなくなりました</p><button class="btn" onclick="again()">再入店（1000チップ）</button></div></div>
+<div id="over"><div><h2>破産…</h2><p id="ovp">チップがなくなりました</p><button class="btn" id="ovb" onclick="again()">再入店（1000チップ）</button></div></div>
 <script>
 const $=s=>document.querySelector(s),col={10:'#2b6cb0',50:'#c0242b',100:'#222',500:'#7a3aa8'},RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 const WK='cj_wallet';const ldW=()=>{try{const v=JSON.parse(localStorage.getItem(WK));if(v&&Number.isFinite(v.chips))return Math.max(0,Math.floor(v.chips))}catch(e){}return null};
@@ -75,17 +75,21 @@ const L=r=>r<11?r:'JQKA'[r-11],cd=(c,h)=>{const n=!c.d;c.d=1;return`<div class="
 const dispW=()=>document.querySelectorAll('.bank').forEach(e=>e.textContent='🪙 '+chips.toLocaleString());
 const saveW=()=>{try{localStorage.setItem(WK,JSON.stringify({chips:Math.floor(chips),t:Date.now(),src:'casino'}))}catch(e){}};
 const upd=()=>{dispW();saveW()};
-const syncW=()=>{const v=ldW();if(v!=null&&v!=chips){chips=v;dispW();if(chips>0)$('#over').classList.remove('on')}};
+const syncW=()=>{const v=ldW();if(v!=null&&v!=chips){chips=v;dispW();if(chips>0)$('#over').classList.remove('on');else showOver()}};
 addEventListener('storage',e=>{if(e.key==WK)syncW()});addEventListener('pageshow',syncW);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>document.hidden?saveW():syncW());
-const st=h=>{$('#stage').innerHTML=h;base=seq},msg=t=>$('#m').textContent=t,chk=()=>{upd();if(chips<=0)$('#over').classList.add('on')};
+const st=h=>{$('#stage').innerHTML=h;base=seq},msg=t=>$('#m').textContent=t,chk=()=>{upd();if(chips<=0)showOver()};
 const show=i=>document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id==i));
 const betRow=()=>`<div class="chips">${[10,50,100,500].map(v=>`<button class="ch${v==bet?' on':''}" style="--c:${col[v]}" onclick="setBet(${v})">${v}</button>`).join('')}</div>`;
 function setBet(v){bet=v;document.querySelectorAll('.ch').forEach(b=>b.classList.toggle('on',+b.textContent==bet))}
 const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['チンチロ',()=>chPre()],ru:['ルーレット',()=>ruPre()]};
 function play(k){pkT++;show('s2');$('#gt').textContent=G[k][0];G[k][1]()}
 function back(){pkT++;ruClr();show('s1')}
-function again(){chips=1000;$('#over').classList.remove('on');upd();show('s1')}
-upd();
+function bankAssets(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1'));if(!b)return 0;let a=Math.max(0,b.dep||0);(b.fixed||[]).forEach(f=>a+=f.amt||0);for(const k in(b.hold||{})){const q=b.hold[k].q||0,p=b.mk&&b.mk.s&&b.mk.s[k]?b.mk.s[k].p:0;a+=q*p}return Math.floor(a)}catch(e){return 0}}
+function showOver(){const a=bankAssets(),bt=$('#ovb'),rich=a>=10;
+$('#ovp').textContent=rich?`チップがなくなりました。銀行に約${a.toLocaleString()}チップの資産があります。出金してから遊ぼう`:'チップがなくなりました';
+bt.textContent=rich?'🏦 銀行へ行く':'再入店（1000チップ）';bt.onclick=rich?()=>{location.href='bank.html'}:again;$('#over').classList.add('on')}
+function again(){if(bankAssets()>=10)return showOver();chips=1000;$('#over').classList.remove('on');upd();show('s1')}
+upd();if(chips<=0)showOver();
 /* ブラックジャック */
 const val=h=>{let s=0,a=0;h.forEach(c=>{if(c.r==14){s+=11;a++}else s+=Math.min(c.r,10)});while(s>21&&a){s-=10;a--}return s};
 function bjPre(){st(`<div class="msg" id="m">ベット額を選んでディール</div>${betRow()}<button class="btn" onclick="bjDeal()">ディール</button>`)}
