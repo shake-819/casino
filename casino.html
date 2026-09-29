@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="dark"><title>2−1 情報処理科ジノ</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--g:#d4af37;--g2:#f6e27a;--f:#0b5d3b;--f2:#063d27;--tx:#f5efe0;--red:#c0242b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:inherit;margin:0}
+body{min-height:100dvh;background:radial-gradient(ellipse at top,#3a0d12,#120a0a 70%) fixed;color:var(--tx);font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;-webkit-tap-highlight-color:transparent}
+.scr{display:none;min-height:100dvh;padding:16px;flex-direction:column;align-items:center}.scr.on{display:flex}
+#s0{justify-content:center;text-align:center;gap:34px;overflow:hidden}
+.sign{font-weight:800;line-height:1.2;background:linear-gradient(#f6e27a,#d4af37 60%,#8a6a12);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px #d4af3788)}
+.box{position:relative;padding:34px 26px;border:3px solid var(--g);border-radius:20px;background:#0006;box-shadow:0 0 34px #d4af3766,inset 0 0 30px #d4af3733}
+.box::before{content:'';position:absolute;inset:-14px;border:6px dotted var(--g2);border-radius:30px;animation:bl 1.2s steps(2) infinite}
+@keyframes bl{50%{border-color:#6a4d10}}
+.box .sign{font-size:clamp(28px,8vw,58px)}.box small{display:block;margin-top:10px;letter-spacing:.5em;color:var(--g2);font-size:13px}
+.suit{position:absolute;font-size:60px;opacity:.12;animation:fl 8s ease-in-out infinite alternate}@keyframes fl{to{transform:translateY(-30px) rotate(15deg)}}
+.btn{font:inherit;font-weight:800;font-size:18px;padding:12px 30px;border-radius:999px;border:2px solid var(--g2);background:linear-gradient(#e8c24a,#a67c14);color:#2a1c00;cursor:pointer;box-shadow:0 4px 0 #5c430a,0 0 18px #d4af3755}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #5c430a}.btn.s{padding:8px 16px;font-size:15px}.btn.d{background:linear-gradient(#5b1a1e,#3a0d12);color:var(--g2)}.btn:disabled{opacity:.4}
+.btn:focus-visible,.ch:focus-visible,.gc:focus-visible{outline:3px solid #fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;width:min(720px,100%);margin-top:18px}
+.gc{font:inherit;color:inherit;padding:22px 10px;border-radius:16px;border:2px solid var(--g);background:linear-gradient(160deg,#1c5a3f,#0a3323);cursor:pointer;box-shadow:inset 0 0 30px #0008;transition:.2s}
+.gc i{font-size:46px;font-style:normal;display:block}.gc b{font-size:19px;display:block;margin-top:4px}.gc span{font-size:12px;opacity:.75}.gc:hover{transform:translateY(-4px);box-shadow:0 0 22px #d4af3788}
+.hud{display:flex;justify-content:space-between;align-items:center;width:min(900px,100%);gap:8px;margin-bottom:10px}
+.bank{padding:6px 14px;border-radius:999px;background:#000a;border:1px solid var(--g);color:var(--g2);font-weight:800;white-space:nowrap}
+.table{width:min(900px,100%);flex:1;border-radius:28px;padding:16px;background:radial-gradient(ellipse at center,var(--f),var(--f2));border:10px solid #4a2a12;box-shadow:0 0 0 3px var(--g),inset 0 0 60px #000a,0 20px 40px #000a;text-align:center}
+.row{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:6px 0;min-height:80px;align-items:center}.lab{font-size:13px;opacity:.85;margin-top:6px}
+.msg{min-height:30px;font-size:19px;font-weight:800;color:var(--g2);margin:8px 0}
+.cd{width:54px;height:78px;border-radius:7px;background:#fffdf5;color:#111;font:800 18px/1 Georgia,serif;display:flex;flex-direction:column;align-items:flex-start;padding:5px;box-shadow:0 3px 8px #0009;}
+.cd b{font-size:26px;align-self:center;margin-top:6px}.cd.r{color:var(--red)}
+.cd.bk{background:repeating-linear-gradient(45deg,#7a1520 0 5px,#4a0b12 5px 10px);border:3px solid #fffdf5;color:transparent}.cd.bk b{color:transparent}
+.ph{width:54px;height:78px;border:2px dashed #fff4;border-radius:7px}
+.nw{animation:dl .4s cubic-bezier(.2,.8,.3,1) backwards}@keyframes dl{from{transform:translateY(-150px);opacity:0}}
+input[type=range]{accent-color:var(--g);width:min(240px,55vw)}
+.dice.tm{animation:tm .32s linear infinite}@keyframes tm{0%{transform:translate(-16px,0) rotate(0)}25%{transform:translate(6px,-26px) rotate(110deg)}50%{transform:translate(18px,2px) rotate(220deg)}75%{transform:translate(-4px,-16px) rotate(290deg)}100%{transform:translate(-16px,0) rotate(360deg)}}
+.dice.ld{animation:lnd .3s ease-out}@keyframes lnd{from{transform:scale(1.3) rotate(12deg)}}
+.bowl{width:min(270px,100%);margin:6px auto;padding:14px 10px;border-radius:50%/45%;background:radial-gradient(ellipse,#5b1a1e,#2a0a0e);border:4px solid var(--g);box-shadow:inset 0 0 26px #000,0 4px 10px #0008}.bowl .row{min-height:70px;gap:14px}
+.wn{position:absolute;left:calc(50% - 8px);width:16px;text-align:center;top:0;height:50%;transform-origin:50% 100%;font:800 11px Georgia,serif;color:#fff;padding-top:4px}
+.wheel::after{content:'';position:absolute;inset:23%;border-radius:50%;background:radial-gradient(#4a2e14,#1c1008);border:3px solid var(--g)}
+.pkt{display:grid;grid-template-columns:1fr 1.3fr 1fr;grid-template-areas:"l t r" "c c c";gap:4px 6px;align-items:start}
+.s1{grid-area:l;margin-top:40px}.s2{grid-area:t}.s3{grid-area:r;margin-top:40px}.ctr{grid-area:c}
+.seat{padding:4px;border-radius:14px;background:#0004;border:1px solid #d4af3766}.seat.fd{opacity:.35}.seat.act{box-shadow:0 0 16px #f6e27a;border-color:var(--g2)}
+.seat .lab{font-size:11px;margin:0 0 3px}.seat .row{min-height:0;gap:3px;flex-wrap:nowrap}
+.seat .cd,.seat .ph{width:32px;height:46px;font-size:12px;padding:3px}.seat .cd b{font-size:16px;margin-top:2px}
+@media(min-width:600px){.seat .cd,.seat .ph{width:46px;height:66px;font-size:16px}.seat .cd b{font-size:22px}}
+.stk{gap:0}.stk .cd+.cd{margin-left:-34px}
+@media(max-width:480px){.cd,.ph{width:44px;height:64px;font-size:15px}.cd b{font-size:20px}.stk .cd+.cd{margin-left:-26px}}
+.chips{display:flex;gap:8px;justify-content:center;margin:8px 0;flex-wrap:wrap;align-items:center}
+.ch{width:52px;height:52px;border-radius:50%;border:4px dashed #fffb;background:var(--c);color:#fff;font:800 13px Georgia,serif;cursor:pointer;box-shadow:0 3px 0 #0008,inset 0 0 0 3px var(--c);transition:.15s}
+.ch.on{transform:translateY(-6px);box-shadow:0 0 14px #f6e27a,inset 0 0 0 3px var(--c)}
+.dice{font-size:60px;line-height:1;background:#fffdf5;color:#111;border-radius:12px;padding:0 2px;box-shadow:0 3px 8px #0009;}.dice.nw{animation:rl .5s cubic-bezier(.3,1.4,.5,1) backwards}.dice.nw:nth-child(2){animation-delay:.12s}.dice.nw:nth-child(3){animation-delay:.24s}@keyframes rl{from{transform:translateY(-90px);opacity:0}}
+.wrap{position:relative;width:280px;margin:16px auto}.wrap::before{content:'▼';position:absolute;top:-18px;left:calc(50% - 9px);color:var(--g2);z-index:2}
+.wheel{position:relative;width:280px;height:280px;border-radius:50%;border:8px solid #4a2a12;box-shadow:0 0 0 3px var(--g),inset 0 0 25px #000;transition:transform 4s cubic-bezier(.1,.7,.1,1)}
+#rn{position:absolute;inset:32%;border-radius:50%;display:grid;place-items:center;font:800 26px Georgia,serif;border:3px solid var(--g);background:#0d6b42;color:#fff}#rn.rd{background:var(--red)}#rn.bl{background:#111}
+.mat{display:grid;grid-template-columns:repeat(14,1fr);gap:2px;min-width:560px;font:800 15px Georgia,serif;padding:4px;background:#0a3323;border:2px solid var(--g2);border-radius:6px}
+.mat>div{position:relative;border:1px solid #fffc;display:flex;align-items:center;justify-content:center;height:40px;cursor:pointer;color:#fff;user-select:none}.mat>div:hover{filter:brightness(1.4)}
+.rd{background:var(--red)}.bl{background:#111}.gr{background:#0d6b42}
+.st{position:absolute;right:1px;bottom:1px;min-width:22px;height:22px;border-radius:50%;background:radial-gradient(#fff,#f6e27a);color:#000;font-size:10px;display:grid;place-items:center;box-shadow:0 1px 3px #000}
+#over{position:fixed;inset:0;background:#000d;display:none;place-items:center;text-align:center;z-index:9}#over.on{display:grid}#over h2{font-size:44px;color:var(--g2);margin-bottom:10px}#over p{margin-bottom:20px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head><body>
+<div class="scr on" id="s0"><span class="suit" style="left:8%;top:12%">♠</span><span class="suit" style="right:10%;top:20%;color:#c0242b">♥</span><span class="suit" style="left:14%;bottom:12%;color:#c0242b">♦</span><span class="suit" style="right:8%;bottom:10%">♣</span>
+<div class="box"><div class="sign">2−1 情報処理科ジノ</div><small>CASINO</small></div>
+<button class="btn" onclick="show('s1')">入店</button></div>
+<div class="scr" id="s1"><div class="hud"><span class="sign" style="font-size:22px">2−1 情報処理科ジノ</span><span class="bank"></span></div><p>ゲームを選んでください</p>
+<div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>チンチロ</b><span>親はCPU</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button></div></div>
+<div class="scr" id="s2"><div class="hud"><button class="btn s d" onclick="back()">← ロビー</button><b id="gt"></b><span class="bank"></span></div><div class="table" id="stage"></div></div>
+<div id="over"><div><h2>破産…</h2><p>チップがなくなりました</p><button class="btn" onclick="again()">再入店（1000チップ）</button></div></div>
+<script>
+const $=s=>document.querySelector(s),col={10:'#2b6cb0',50:'#c0242b',100:'#222',500:'#7a3aa8'},RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+const WK='cj_wallet';const ldW=()=>{try{const v=JSON.parse(localStorage.getItem(WK));if(v&&Number.isFinite(v.chips))return Math.max(0,Math.floor(v.chips))}catch(e){}return null};
+let chips=ldW()??1000,bet=50,bets={},rot=0,busy=0,seq=0,base=0,bj,ch,pk;
+const R=n=>{const a=new Uint32Array(1),m=Math.floor(2**32/n)*n;do crypto.getRandomValues(a);while(a[0]>=m);return a[0]%n};
+const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const deck=()=>shuf([...Array(52)].map((_,i)=>({r:i%13+2,s:Math.floor(i/13)})));
+const L=r=>r<11?r:'JQKA'[r-11],cd=(c,h)=>{const n=!c.d;c.d=1;return`<div class="cd${n?' nw':''}${h?' bk':''}${c.s==1||c.s==2?' r':''}"${n?` style="animation-delay:${(c.o-base)*.3}s"`:''}>${L(c.r)}<b>${'♠♥♦♣'[c.s]}</b></div>`},dr=d=>{const c=d.pop();c.o=seq++;return c};
+const dispW=()=>document.querySelectorAll('.bank').forEach(e=>e.textContent='🪙 '+chips.toLocaleString());
+const saveW=()=>{try{localStorage.setItem(WK,JSON.stringify({chips:Math.floor(chips),t:Date.now(),src:'casino'}))}catch(e){}};
+const upd=()=>{dispW();saveW()};
+const syncW=()=>{const v=ldW();if(v!=null&&v!=chips){chips=v;dispW();if(chips>0)$('#over').classList.remove('on')}};
+addEventListener('storage',e=>{if(e.key==WK)syncW()});addEventListener('pageshow',syncW);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>document.hidden?saveW():syncW());
+const st=h=>{$('#stage').innerHTML=h;base=seq},msg=t=>$('#m').textContent=t,chk=()=>{upd();if(chips<=0)$('#over').classList.add('on')};
+const show=i=>document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id==i));
+const betRow=()=>`<div class="chips">${[10,50,100,500].map(v=>`<button class="ch${v==bet?' on':''}" style="--c:${col[v]}" onclick="setBet(${v})">${v}</button>`).join('')}</div>`;
+function setBet(v){bet=v;document.querySelectorAll('.ch').forEach(b=>b.classList.toggle('on',+b.textContent==bet))}
+const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['チンチロ',()=>chPre()],ru:['ルーレット',()=>ruPre()]};
+function play(k){pkT++;show('s2');$('#gt').textContent=G[k][0];G[k][1]()}
+function back(){pkT++;ruClr();show('s1')}
+function again(){chips=1000;$('#over').classList.remove('on');upd();show('s1')}
+upd();
+/* ブラックジャック */
+const val=h=>{let s=0,a=0;h.forEach(c=>{if(c.r==14){s+=11;a++}else s+=Math.min(c.r,10)});while(s>21&&a){s-=10;a--}return s};
+function bjPre(){st(`<div class="msg" id="m">ベット額を選んでディール</div>${betRow()}<button class="btn" onclick="bjDeal()">ディール</button>`)}
+function bjDeal(){if(bet>chips)return msg('チップが足りません');chips-=bet;upd();const d=deck(),p=[],h=[];p.push(dr(d));h.push(dr(d));p.push(dr(d));h.push(dr(d));bj={d,p,h,b:bet,done:0,t:''};val(p)==21?bjEnd():bjR()}
+function bjR(){const{p,h,done}=bj;st(`<div class="lab">ディーラー ${done?val(h):''}</div><div class="row stk">${h.map((c,i)=>cd(c,!done&&i==1)).join('')}</div><div class="msg" id="m">${bj.t}</div><div class="row stk">${p.map(c=>cd(c)).join('')}</div><div class="lab">あなた ${val(p)} ・ ベット ${bj.b}</div><div class="chips">${done?'<button class="btn" onclick="bjPre()">もう一度</button>':`<button class="btn s" onclick="bjHit()">ヒット</button><button class="btn s" onclick="bjEnd()">スタンド</button>${p.length==2&&chips>=bj.b?'<button class="btn s d" onclick="bjDbl()">ダブル</button>':''}`}</div>`)}
+function bjHit(){bj.p.push(dr(bj.d));val(bj.p)>21?bjEnd():bjR()}
+function bjDbl(){chips-=bj.b;bj.b*=2;bj.p.push(dr(bj.d));bjEnd()}
+function bjEnd(){const{p,h,d,b}=bj,pv=val(p),pb=p.length==2&&pv==21;bj.done=1;if(pv<=21)while(val(h)<17)h.push(dr(d));const hv=val(h),hb=h.length==2&&hv==21;let r=0,t='負け…';
+if(pv>21)t='バスト…';else if(pb&&!hb){r=b*2.5;t='ブラックジャック！'}else if(hb&&!pb)t='ディーラーBJ…';else if(hv>21||pv>hv){r=b*2;t='勝ち！'}else if(pv==hv){r=b;t='引き分け'}
+chips+=r;bj.t=`${t} ${r>b?'+'+(r-b):r==b?'±0':'-'+(b-r)}`;bjR();chk()}
+/* チンチロ */
+const dg=n=>'⚀⚁⚂⚃⚄⚅'[n-1],r3=()=>[R(6)+1,R(6)+1,R(6)+1].sort(),dv=(d,a)=>d.map(x=>`<span class="dice${a?' nd':''}" data-f="${x}">${dg(a?R(6)+1:x)}</span>`).join('');
+function yk(d){const[a,b,c]=d;if(a==c)return a==1?{v:100,n:'ピンゾロ',m:5}:{v:90+a,n:'アラシ',m:3};if(d+''=='4,5,6')return{v:80,n:'シゴロ',m:2};if(d+''=='1,2,3')return{v:-1,n:'ヒフミ',m:-2};if(a==b)return{v:10+c,n:c+'の目',m:1};if(b==c)return{v:10+a,n:a+'の目',m:1};return null}
+function chPre(){st(`<div class="msg" id="m">ベット額を選んで勝負</div>${betRow()}<button class="btn" onclick="chGo()">勝負！</button>`)}
+function chGo(){if(bet>chips)return msg('チップが足りません');chips-=bet;upd();let pd,py,n=0;do{pd=r3();py=yk(pd);n++}while(!py&&n<3);ch={b:bet,pd,py:py||{v:0,n:'目なし',m:1},t:0};chR('あなたの番。最大3回振れます',[])}
+function chR(t,d,end){st(`<div class="lab">親（CPU）<span id="pn"></span></div><div class="bowl"><div class="row">${dv(ch.pd,!ch.ps&&(ch.ps=1))}</div></div><div class="msg" id="m">…</div><div class="bowl"><div class="row">${d.length?dv(d,1):'<span class="lab">—</span>'}</div></div><div class="lab">あなた（子） ベット ${ch.b}</div><div class="chips" id="ab" style="opacity:.3;pointer-events:none">${end?'<button class="btn" onclick="chPre()">もう一度</button>':`<button class="btn" onclick="chRoll()">サイコロを振る (${ch.t}/3)</button>`}</div>`);rollFx(()=>{if(end)chk();if(!$('#ab'))return;msg(t);$('#pn').textContent='：'+ch.py.n;$('#ab').removeAttribute('style')})}
+function rollFx(cb){const ds=[...document.querySelectorAll('.dice.nd')];if(!ds.length)return cb();ds.forEach((e,i)=>{e.classList.add('tm');const t=setInterval(()=>e.textContent=dg(R(6)+1),80);setTimeout(()=>{clearInterval(t);e.textContent=dg(+e.dataset.f);e.classList.replace('tm','ld')},800+i*300)});setTimeout(cb,800+ds.length*300+200)}
+function chRoll(){const d=r3();ch.t++;let y=yk(d);if(!y&&ch.t<3)return chR('役なし… 振り直し',d);y=y||{v:0,n:'目なし',m:1};const c=ch.py,b=ch.b;let t;
+if(y.v>c.v){const m=Math.max(y.m,1)*(c.m<0?2:1);chips+=b+b*m;t=`${y.n}！ 勝ち +${b*m}`}
+else if(y.v<c.v){const m=Math.max(c.m,1)*(y.m<0?2:1),x=Math.min(chips,b*(m-1));chips-=x;t=`${y.n}… 負け -${b+x}`}
+else{chips+=b;t=`${y.n}。引き分け`}saveW();chR(t,d,1)}
+/* ルーレット */
+const ORDER=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const win=(k,n)=>{if(k[0]=='n')return+k.slice(1)==n?36:0;if(!n)return 0;const r=RED.includes(n);return{d0:n<13?3:0,d1:n>12&&n<25?3:0,d2:n>24?3:0,c0:n%3==0?3:0,c1:n%3==1?3:0,c2:n%3==2?3:0,lo:n<19?2:0,hi:n>18?2:0,ev:n%2?0:2,od:n%2?2:0,rd:r?2:0,bk:r?0:2}[k]};
+const tot=()=>Object.values(bets).reduce((a,b)=>a+b,0);
+function mk(){document.querySelectorAll('.mat [data-k]').forEach(e=>{const v=bets[e.dataset.k];let s=e.querySelector('.st');if(v){if(!s){s=document.createElement('span');s.className='st';e.append(s)}s.textContent=v}else if(s)s.remove()})}
+function ruPre(){bets={};busy=0;const sg=360/37,lb=ORDER.map((n,i)=>`<span class="wn" style="transform:rotate(${(i+.5)*sg}deg)">${n}</span>`).join(''),g=ORDER.map((n,i)=>`${n==0?'#0d6b42':RED.includes(n)?'#c0242b':'#111'} ${i*sg}deg ${(i+1)*sg}deg`).join(',');
+let h='<div class="mat"><div data-k="n0" class="gr" style="grid-area:1/1/4/2" onclick="ruB(this)">0</div>';
+for(let n=1;n<=36;n++)h+=`<div data-k="n${n}" class="${RED.includes(n)?'rd':'bl'}" style="grid-area:${3-(n-1)%3}/${Math.ceil(n/3)+1}" onclick="ruB(this)">${n}</div>`;
+[[1,'c0'],[2,'c2'],[3,'c1']].forEach(([r,k])=>h+=`<div data-k="${k}" class="gr" style="grid-area:${r}/14" onclick="ruB(this)">2:1</div>`);
+[['d0','1st 12'],['d1','2nd 12'],['d2','3rd 12']].forEach(([k,t],i)=>h+=`<div data-k="${k}" class="gr" style="grid-area:4/${2+i*4}/5/${6+i*4}" onclick="ruB(this)">${t}</div>`);
+[['lo','1-18','gr'],['ev','EVEN','gr'],['rd','赤','rd'],['bk','黒','bl'],['od','ODD','gr'],['hi','19-36','gr']].forEach(([k,t,c],i)=>h+=`<div data-k="${k}" class="${c}" style="grid-area:5/${2+i*2}/6/${4+i*2}" onclick="ruB(this)">${t}</div>`);
+st(`<div class="wrap"><div class="wheel" id="wh" style="background:conic-gradient(${g});transform:rotate(${rot}deg)">${lb}</div><div id="rn">?</div></div><div class="msg" id="m">チップを選んでマットをタップ</div><div style="overflow-x:auto;padding:4px 0">${h}</div></div>${betRow()}<div class="chips"><button class="btn s d" onclick="ruClr()">クリア</button><button class="btn" id="spn" onclick="ruSpin()">スピン</button></div>`)}
+function ruB(e){if(busy)return;if(chips<bet)return msg('チップが足りません');const k=e.dataset.k;chips-=bet;bets[k]=(bets[k]||0)+bet;mk();upd()}
+function ruClr(){if(busy)return;chips+=tot();bets={};mk();upd()}
+function ruSpin(){const t=tot();if(!t)return msg('マットをタップしてチップを置いてください');busy=1;$('#spn').disabled=1;const n=R(37),i=ORDER.indexOf(n);rot=(Math.floor(rot/360)+6)*360-(i+.5)*360/37;$('#wh').style.transform=`rotate(${rot}deg)`;msg('回転中…');
+setTimeout(()=>{const c=n==0?'gr':RED.includes(n)?'rd':'bl';$('#rn').textContent=n;$('#rn').className=c;let r=0;for(const k in bets)r+=bets[k]*win(k,n);chips+=r;
+msg(`${n} ${n?(c=='rd'?'赤':'黒'):'緑'}！ ${r>t?'当たり！ +'+(r-t):r==t?'±0':(r?'一部的中 -':'ハズレ… -')+(t-r)}`);bets={};mk();busy=0;$('#spn').disabled=0;chk()},4300)}
+/* ポーカー（テキサスホールデム） */
+const HN=['ハイカード','ワンペア','ツーペア','スリーカード','ストレート','フラッシュ','フルハウス','フォーカード','ストレートフラッシュ'],NM=['CPU 太郎','CPU 花子','CPU 次郎'];
+const cmp=(a,b)=>{for(let i=0;i<6;i++){const d=(a[i]||0)-(b[i]||0);if(d)return d}return 0};
+function sc(c){const r=c.map(x=>x.r).sort((a,b)=>b-a),fl=c.every(x=>x.s==c[0].s);let s=r.every((v,i)=>!i||r[i-1]-v==1)?r[0]:0;if(r+''=='14,5,4,3,2')s=5;const n={};r.forEach(v=>n[v]=(n[v]||0)+1);const g=Object.entries(n).map(([v,k])=>[k,+v]).sort((a,b)=>b[0]-a[0]||b[1]-a[1]),p=g.map(x=>x[0]).join('');
+return[s&&fl?8:p=='41'?7:p=='32'?6:fl?5:s?4:p=='311'?3:p=='221'?2:p=='2111'?1:0,...(s?[s]:g.map(x=>x[1]))]}
+function best(c){let b=null;(function f(s,a){if(a.length==5){const v=sc(a);if(!b||cmp(v,b)>0)b=v;return}for(let i=s;i<c.length;i++)f(i+1,[...a,c[i]])})(0,[]);return b}
+const pkS=i=>{const h=pk.h[i];if(pk.b.length<3){const[a,b]=h.map(x=>x.r);return(a+b)/40+(a==b?.3:0)+(h[0].s==h[1].s?.05:0)}return .2+best([...h,...pk.b])[0]*.12};
+function pkPre(){st(`<div class="msg" id="m">テキサスホールデム（アンテ＝ベット額）</div>${betRow()}<button class="btn" onclick="pkGo()">ディール</button>`)}
+let pkT=0;const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function pkGo(){if(bet>chips)return msg('チップが足りません');chips-=bet;upd();const d=deck(),h=[[],[],[],[]];for(let k=0;k<2;k++)for(let i=0;i<4;i++)h[i].push(dr(d));const T=++pkT;pk={d,u:bet,pot:bet*4,b:[],r:0,ph:'w',al:[1,1,1,1],h,need:0,cur:0,put:[0,0,0,0],todo:[],rc:0,act:-1,t:'カードを配っています…',sd:0};pkR();wait(2600).then(()=>{if(T==pkT)pkRound(T)})}
+function pkR(){const{h,b,al,sd,ph,u}=pk,cp=i=>`<div class="seat s${i}${al[i]?'':' fd'}${pk.act==i?' act':''}"><div class="lab">${NM[i-1]}${al[i]?'':'（フォールド）'}${sd&&al[i]&&b.length==5?'<br>'+HN[best([...h[i],...b])[0]]:''}</div><div class="row">${h[i].map(c=>cd(c,!sd)).join('')}</div></div>`;
+st(`<div class="pkt">${cp(1)}${cp(2)}${cp(3)}<div class="ctr"><div class="row">${b.map(c=>cd(c)).join('')}${'<div class="ph"></div>'.repeat(5-b.length)}</div><div class="lab">ポット ${pk.pot}</div><div class="msg" id="m">${pk.t}</div></div></div><div class="row">${h[0].map(c=>cd(c)).join('')}</div><div class="lab">あなた${sd&&al[0]&&b.length==5?' — '+HN[best([...h[0],...b])[0]]:''}</div>${sd||ph=='w'?'':ph=='p'?sl(chips):sl(chips-pk.need)}<div class="chips">${sd?'<button class="btn" onclick="pkPre()">もう一度</button>':ph=='w'?'':ph=='p'?`<button class="btn s" onclick="pkA('k')">チェック</button>${chips>0?`<button class="btn s" onclick="pkA('b')">ベット <b id="sv">${Math.min(u,chips)}</b></button>`:''}<button class="btn s d" onclick="pkA('f')">フォールド</button>`:`<button class="btn s" onclick="pkA('c')">コール ${pk.need}</button>${chips-pk.need>0?`<button class="btn s" onclick="pkA('r')">レイズ +<b id="sv">${Math.min(u,chips-pk.need)}</b></button>`:''}<button class="btn s d" onclick="pkA('f')">フォールド</button>`}</div>`)}
+const sl=mx=>{if(mx<1)return'';const m=Math.min(pk.u,mx);return`<div class="chips"><input type="range" id="sl" min="${m}" max="${mx}" step="1" value="${m}" oninput="sv(this.value)"><button class="btn s" onclick="sv(0)">最小</button><button class="btn s" onclick="sv(${Math.floor(pk.pot/2)})">½ポット</button><button class="btn s" onclick="sv(${pk.pot})">ポット</button><button class="btn s d" onclick="sv(${mx})">ALL IN</button></div>`};
+function sv(v){const s=$('#sl');if(s){s.value=v;$('#sv').textContent=s.value}}
+const pkOthers=i=>[1,2,3].map(k=>(i+k)%4).filter(j=>pk.al[j]);
+function pkA(a){const p=pk,T=pkT;if(p.ph=='w'||p.sd)return;
+if(a=='f'){p.al[0]=0;p.sd=1;pkT++;p.act=-1;p.t='フォールド… 負け';pkR();return chk()}
+const x=$('#sl')?+$('#sl').value:0,need=p.cur-p.put[0],pay=n=>{n=Math.min(chips,n);chips-=n;p.pot+=n;upd()};let t;
+if(a=='k')t='あなたはチェック';
+else if(a=='c'){pay(need);p.put[0]=p.cur;t='あなたはコール'}
+else{pay(need+x);p.put[0]=p.cur+x;p.cur+=x;p.rc++;p.todo=pkOthers(0);t=`あなたが${a=='b'?'ベット':'レイズ'} +${x}‼`}
+p.ph='w';p.act=-1;p.t=t;pkR();wait(1100).then(()=>{if(T==pkT)pkNext(T)})}
+function pkRound(T){const p=pk;p.cur=0;p.put=[0,0,0,0];p.rc=0;p.todo=[0,1,2,3].filter(i=>p.al[i]);pkNext(T)}
+async function pkNext(T){const p=pk,al=p.al;
+if(![1,2,3].some(i=>al[i])){p.sd=1;p.act=-1;p.ph='w';chips+=p.pot;p.t=`全員フォールド！ +${p.pot}`;pkR();return chk()}
+if(!p.todo.length)return pkN(T);
+const i=p.todo.shift();
+if(!i){p.need=p.cur-p.put[0];p.ph=p.need>0?'c':'p';p.act=0;p.t=p.need>0?`あなたの番（コール ${p.need}）`:'あなたの番';return pkR()}
+p.ph='w';p.act=i;p.t=`${NM[i-1]}の番…`;pkR();await wait(1100);if(T!=pkT)return;
+const n=p.cur-p.put[i],s=pkS(i),q=s+R(100)/200,th=.5+Math.min(.2,n/(p.pot+n)*.4),nn=NM[i-1];let m='k',A=0;
+if(n<=0){if(s+R(100)/300>.62&&p.rc<3){m='b';A=p.u*(1+R(3))}}
+else if(q<=th)m='f';else if(q>th+.3&&p.rc<3&&!R(3)){m='r';A=p.u*(1+R(2))}else m='c';
+if(m=='f'){al[i]=0;p.t=`${nn}はフォールドした`}
+else if(m=='k')p.t=`${nn}はチェック`;
+else if(m=='c'){p.pot+=n;p.put[i]=p.cur;p.t=`${nn}がコール`}
+else{p.pot+=n+A;p.put[i]=p.cur+A;p.cur+=A;p.rc++;p.todo=pkOthers(i);p.t=`${nn}が${m=='b'?'ベット':'レイズ'} +${A}‼`}
+pkR();await wait(1400);if(T!=pkT)return;pkNext(T)}
+function pkN(T){const p=pk;upd();p.ph='w';p.act=-1;if(++p.r>3){p.t='ショーダウン…';pkR();return wait(1500).then(()=>{if(T==pkT)pkSD()})}
+for(let i=0;i<(p.r==1?3:1);i++)p.b.push(dr(p.d));p.t=['','フロップ！','ターン！','リバー！'][p.r];pkR();wait(1800).then(()=>{if(T==pkT)pkRound(T)})}
+function pkSD(){const p=pk,s=[0,1,2,3].filter(i=>p.al[i]).map(i=>[i,best([...p.h[i],...p.b])]);let m=s[0][1];s.forEach(x=>{if(cmp(x[1],m)>0)m=x[1]});const w=s.filter(x=>!cmp(x[1],m)).map(x=>x[0]);p.sd=1;p.act=-1;
+if(w.includes(0)){const g=Math.floor(p.pot/w.length);chips+=g;p.t=`勝ち！ +${g}`}else p.t=NM[w[0]-1]+'の勝ち…';pkR();chk()}
+</script></body></html>
