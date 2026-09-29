@@ -137,7 +137,7 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 <div id="app">
   <header class="cover">
     <div class="brand"><div class="logo">2−1 情報処理銀行</div><small>JOHO BANK</small></div>
-    <a class="btn s gold" href="index.html">カジノへ</a>
+    <a class="btn s gold" href="./">カジノへ</a>
   </header>
   <section class="net">
     <div><span class="lab">純資産（手持ち＋預金＋投資＋定期−借入）</span><b id="net">0</b></div>
@@ -165,7 +165,7 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 'use strict';
 /* ============ 設定 ============ */
 // ★ Supabase の「Project URL」と「anon public key」を入れてください（Settings → API）
-const SUPABASE={url:'https://rzqhvomycxqqzudhpzen.supabase.co',key:'sb_publishable_8p4zhhVZ1qavPtPSi595WQ_1ZtblEBi'};
+const SUPABASE={url:'',key:''};
 const KEY='cj_bank_v1', WK='cj_wallet', AK='cj_bank_auth', UK='cj_bank_ui';   // KEY：カジノが資産判定に読む写し／WK：カジノと共通の手持ちチップ
 
 /* ============ ユーティリティ ============ */
@@ -438,7 +438,9 @@ function updateLive(){
   const t=now(),iv=invV(),fv=fixV(),lv=loanV(t),r=wRaw();
   $('#s-d').textContent=fmt(S.dep);$('#s-i').textContent=fmt(iv);$('#s-f').textContent=fmt(fv);$('#s-l').textContent=fmt(lv);
   $('#net').textContent=fmt(w+S.dep+iv+fv-lv);$('#acct').textContent=S.acct;
-  $('#link').textContent=(r&&r.src=='casino')?'カジノと連携中':'カジノ未連携（同じ場所に置くと連携）';
+  if(r&&r.src=='casino'){try{localStorage.setItem('cj_linked','1')}catch(e){}}
+  let lk=false;try{lk=!!localStorage.getItem('cj_linked')}catch(e){}
+  $('#link').textContent=(lk||(r&&r.src=='casino'))?'カジノと連携中':'カジノ未連携（カジノを一度開くと連携）';
   document.querySelectorAll('[data-w]').forEach(e=>e.textContent=fmt(w));
   document.querySelectorAll('[data-cd]').forEach(e=>{const x=+e.dataset.cd-t;e.textContent=x>0?fmtDur(x):'まもなく'});
   document.querySelectorAll('[data-prog]').forEach(e=>{const[a,b]=e.dataset.prog.split(',').map(Number);e.style.width=clamp((t-a)/(b-a),0,1)*100+'%'});
