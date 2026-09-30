@@ -56,18 +56,53 @@ input[type=range]{accent-color:var(--g);width:min(240px,55vw)}
 .rd{background:var(--red)}.bl{background:#111}.gr{background:#0d6b42}
 .st{position:absolute;right:1px;bottom:1px;min-width:22px;height:22px;border-radius:50%;background:radial-gradient(#fff,#f6e27a);color:#000;font-size:10px;display:grid;place-items:center;box-shadow:0 1px 3px #000}
 #over{position:fixed;inset:0;background:#000d;display:none;place-items:center;text-align:center;z-index:9}#over.on{display:grid}#over h2{font-size:44px;color:var(--g2);margin-bottom:10px}#over p{margin-bottom:20px}
+.jg{--jh:64px;max-width:420px;margin:0 auto}@media(max-width:480px){.jg{--jh:54px}}
+.jg-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.jg-m{flex:1;text-align:left;font-weight:800;color:var(--g2);font-size:14px;min-height:40px;display:flex;align-items:center;line-height:1.4}
+.rls{position:relative;display:flex;gap:6px;justify-content:center;padding:10px;border-radius:14px;background:linear-gradient(#3a0d12,#1c0a0c);border:4px solid var(--g);box-shadow:inset 0 0 20px #000}
+.rl{position:relative;width:calc(var(--jh)*1.25);height:calc(var(--jh)*3);overflow:hidden;background:linear-gradient(90deg,#d8d4c6,#fffdf5 30%,#fffdf5 70%,#d8d4c6);border-radius:6px;box-shadow:inset 0 0 14px #0009;color:#111}
+.strip{position:absolute;left:0;right:0;top:0;will-change:transform}
+.cell{height:var(--jh);display:flex;align-items:center;justify-content:center;font-size:calc(var(--jh)*.56);line-height:1;border-bottom:1px solid #0001}
+.s7{color:#d3161f;font-family:Georgia,serif;font-weight:900;font-size:calc(var(--jh)*.75);text-shadow:1px 1px 0 #7a0a10}
+.sbar{font-family:Georgia,serif;font-weight:900;font-size:calc(var(--jh)*.3);background:#111;color:#fff;padding:2px 6px;border-radius:4px;letter-spacing:.05em}
+.pl{position:absolute;left:6px;right:6px;top:calc(10px + var(--jh)*1.5 - 1px);height:3px;background:#e00;box-shadow:0 0 6px #f00;pointer-events:none;opacity:.85}
+.jg-i{display:flex;gap:6px;margin:10px 0}.jg-i>div{flex:1;background:#000a;border:1px solid var(--g);border-radius:10px;padding:4px 2px}
+.jg-i small{display:block;font-size:11px;opacity:.8;letter-spacing:.1em}.jg-i b{font-family:Georgia,serif;font-weight:800;font-size:22px;color:#7cfc7c;text-shadow:0 0 6px #0f0}
+.jg-s{display:flex;gap:8px;justify-content:center;margin:8px 0}.jg-s .btn{flex:1;max-width:120px;padding:14px 0;font-size:18px;border-radius:14px}
+.jg-t{font-size:12px;opacity:.85;line-height:1.7;margin-top:8px}
+.lamp{position:relative;width:150px;height:80px;flex:none;filter:drop-shadow(0 2px 4px #000c)}
+.lp-o,.lp-i{position:absolute;clip-path:polygon(50.0% 0.0%,56.9% 10.6%,67.1% 3.0%,70.0% 15.4%,82.1% 11.7%,80.6% 24.3%,93.3% 25.0%,87.6% 36.3%,99.2% 41.3%,90.0% 50.0%,99.2% 58.7%,87.6% 63.7%,93.3% 75.0%,80.6% 75.7%,82.1% 88.3%,70.0% 84.6%,67.1% 97.0%,56.9% 89.4%,50.0% 100.0%,43.1% 89.4%,32.9% 97.0%,30.0% 84.6%,17.9% 88.3%,19.4% 75.7%,6.7% 75.0%,12.4% 63.7%,0.8% 58.7%,10.0% 50.0%,0.8% 41.3%,12.4% 36.3%,6.7% 25.0%,19.4% 24.3%,17.9% 11.7%,30.0% 15.4%,32.9% 3.0%,43.1% 10.6%);transition:background .2s}
+.lp-o{inset:0;background:#2b1a1c}
+.lp-i{inset:5px;background:radial-gradient(ellipse at center,#3a2a2c,#241618)}
+.lp-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 25px/1 Georgia,'Arial Black',sans-serif;letter-spacing:-.02em;filter:grayscale(1) brightness(.35)}
+.lp-t i{font-style:normal;text-shadow:-2px 0 #3a0000,2px 0 #3a0000,0 -2px #3a0000,0 2px #3a0000,-1px -1px #3a0000,1px 1px #3a0000,-1px 1px #3a0000,1px -1px #3a0000}
+.lp-t i:nth-child(1){color:#ff2a2a}.lp-t i:nth-child(2){color:#ff9d00}.lp-t i:nth-child(3){color:#39d43a}.lp-t i:nth-child(4){color:#1e9bff}.lp-t i:nth-child(5){color:#ff2ad4}
+.lamp.on{animation:gg .42s steps(2) infinite}
+.lamp.on .lp-o{background:conic-gradient(#ff2a2a,#ff9d00,#ffe600,#39d43a,#1e9bff,#c02aff,#ff2a2a)}
+.lamp.on .lp-i{background:radial-gradient(ellipse at center,#fff,#fff6a8 55%,#ffd21e)}
+.lamp.on .lp-t{filter:none}
+@keyframes gg{50%{filter:drop-shadow(0 0 14px #ffdf3a) brightness(.8)}}
+.jg-c{display:flex;align-items:center;justify-content:center;gap:34px;margin:10px 0}
+.betb{width:92px;height:92px;border-radius:50%;padding:0;font-size:24px;line-height:1.05}.betb small{display:block;font-size:12px;font-weight:700}
+.lever{position:relative;width:56px;height:124px;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.lever::before{content:'';position:absolute;left:24px;top:24px;width:8px;height:86px;border-radius:4px;background:linear-gradient(90deg,#777,#eee,#777)}
+.lever::after{content:'';position:absolute;left:6px;bottom:0;width:44px;height:20px;border-radius:8px;background:linear-gradient(#777,#222)}
+.knob{position:absolute;left:8px;top:0;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff9a9a,#d3161f 55%,#7a0a10);box-shadow:0 4px 8px #0009;z-index:1}
+.lever.pull .knob{animation:lvp .32s ease-in-out}@keyframes lvp{0%{transform:translateY(0)}45%{transform:translateY(66px)}100%{transform:translateY(0)}}
+.lever.off{opacity:.4;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style></head><body>
 <div class="scr on" id="s0"><span class="suit" style="left:8%;top:12%">♠</span><span class="suit" style="right:10%;top:20%;color:#c0242b">♥</span><span class="suit" style="left:14%;bottom:12%;color:#c0242b">♦</span><span class="suit" style="right:8%;bottom:10%">♣</span>
 <div class="box"><div class="sign">2−1 情報処理科ジノ</div><small>CASINO</small></div>
 <button class="btn" onclick="show('s1')">入店</button></div>
 <div class="scr" id="s1"><div class="hud"><span class="sign" style="font-size:22px">2−1 情報処理科ジノ</span><span class="bank"></span></div><p>ゲームを選んでください</p>
-<div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>チンチロ</b><span>親はCPU</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button></div></div>
+<div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>チンチロ</b><span>親はCPU</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="play('sl')"><i>🎰</i><b>スロット</b><span>ジャグラー風・目押し</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button></div></div>
 <div class="scr" id="s2"><div class="hud"><button class="btn s d" onclick="back()">← ロビー</button><b id="gt"></b><span class="bank"></span></div><div class="table" id="stage"></div></div>
 <div id="over"><div><h2>破産…</h2><p id="ovp">チップがなくなりました</p><button class="btn" id="ovb">🏦 銀行へ行く</button></div></div>
 <script>
 const $=s=>document.querySelector(s),col={10:'#2b6cb0',50:'#c0242b',100:'#222',500:'#7a3aa8'},RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 const WK='cj_wallet';const ldW=()=>{try{const v=JSON.parse(localStorage.getItem(WK));if(v&&Number.isFinite(v.chips))return Math.max(0,Math.floor(v.chips))}catch(e){}return null};
+const slotAlive=()=>{try{const v=JSON.parse(localStorage.getItem('cj_slot'));return!!v&&(v.cr>=3||!!v.free||!!v.betOn||!!(v.bonus&&v.bonus.left>0))}catch(e){return false}};
 let chips=ldW()??1000,bet=50,bets={},rot=0,busy=0,seq=0,base=0,bj,ch,pk;
 const R=n=>{const a=new Uint32Array(1),m=Math.floor(2**32/n)*n;do crypto.getRandomValues(a);while(a[0]>=m);return a[0]%n};
 const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -76,20 +111,21 @@ const L=r=>r<11?r:'JQKA'[r-11],cd=(c,h)=>{const n=!c.d;c.d=1;return`<div class="
 const dispW=()=>document.querySelectorAll('.bank').forEach(e=>e.textContent='🪙 '+chips.toLocaleString());
 const saveW=()=>{try{localStorage.setItem(WK,JSON.stringify({chips:Math.floor(chips),t:Date.now(),src:'casino'}))}catch(e){}};
 const upd=()=>{dispW();saveW()};
-const syncW=()=>{const v=ldW();if(v!=null&&v!=chips){chips=v;dispW();if(chips>0)$('#over').classList.remove('on');else showOver()}};
+const broke=()=>chips<=0&&!slotAlive();
+const syncW=()=>{const v=ldW();if(v!=null&&v!=chips){chips=v;dispW();if(!broke())$('#over').classList.remove('on');else showOver()}};
 addEventListener('storage',e=>{if(e.key==WK)syncW()});addEventListener('pageshow',syncW);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>document.hidden?saveW():syncW());
-const st=h=>{$('#stage').innerHTML=h;base=seq},msg=t=>$('#m').textContent=t,chk=()=>{upd();if(chips<=0)showOver()};
+const st=h=>{$('#stage').innerHTML=h;base=seq},msg=t=>$('#m').textContent=t,chk=()=>{upd();if(broke())showOver()};
 const show=i=>document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id==i));
 const betRow=()=>`<div class="chips">${[10,50,100,500].map(v=>`<button class="ch${v==bet?' on':''}" style="--c:${col[v]}" onclick="setBet(${v})">${v}</button>`).join('')}</div>`;
 function setBet(v){bet=v;document.querySelectorAll('.ch').forEach(b=>b.classList.toggle('on',+b.textContent==bet))}
-const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['チンチロ',()=>chPre()],ru:['ルーレット',()=>ruPre()]};
+const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['チンチロ',()=>chPre()],ru:['ルーレット',()=>ruPre()],sl:['スロット',()=>slPre()]};
 function play(k){pkT++;show('s2');$('#gt').textContent=G[k][0];G[k][1]()}
-function back(){pkT++;ruClr();show('s1')}
+function back(){if(JG&&(JG.ph=='spin'||JG.ph=='pull'))return;slHalt();pkT++;ruClr();show('s1')}
 function bankAssets(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1'));if(!b)return 0;let a=Math.max(0,b.dep||0);(b.fixed||[]).forEach(f=>a+=f.amt||0);for(const k in(b.hold||{})){const q=b.hold[k].q||0,p=b.mk&&b.mk.s&&b.mk.s[k]?b.mk.s[k].p:0;a+=q*p}return Math.floor(a)}catch(e){return 0}}
 function showOver(){const a=bankAssets(),bt=$('#ovb');
 $('#ovp').textContent=a>=10?`チップがなくなりました。銀行に約${a.toLocaleString()}チップの資産があります。出金するか、融資を受けて再挑戦しよう`:'チップがなくなりました。再入店はできません。銀行で融資を受けて再挑戦しよう';
 bt.textContent='🏦 銀行へ行く';bt.onclick=()=>{location.href='bank.html'};$('#over').classList.add('on')}
-upd();if(chips<=0)showOver();
+upd();if(broke())showOver();
 /* ブラックジャック */
 const val=h=>{let s=0,a=0;h.forEach(c=>{if(c.r==14){s+=11;a++}else s+=Math.min(c.r,10)});while(s>21&&a){s-=10;a--}return s};
 function bjPre(){st(`<div class="msg" id="m">ベット額を選んでディール</div>${betRow()}<button class="btn" onclick="bjDeal()">ディール</button>`)}
@@ -171,4 +207,100 @@ function pkN(T){const p=pk;upd();p.ph='w';p.act=-1;if(++p.r>3){p.t='ショーダ
 for(let i=0;i<(p.r==1?3:1);i++)p.b.push(dr(p.d));p.t=['','フロップ！','ターン！','リバー！'][p.r];pkR();wait(1800).then(()=>{if(T==pkT)pkRound(T)})}
 function pkSD(){const p=pk,s=[0,1,2,3].filter(i=>p.al[i]).map(i=>[i,best([...p.h[i],...p.b])]);let m=s[0][1];s.forEach(x=>{if(cmp(x[1],m)>0)m=x[1]});const w=s.filter(x=>!cmp(x[1],m)).map(x=>x[0]);p.sd=1;p.act=-1;
 if(w.includes(0)){const g=Math.floor(p.pot/w.length);chips+=g;p.t=`勝ち！ +${g}`}else p.t=NM[w[0]-1]+'の勝ち…';pkR();chk()}
+/* スロット（ジャグラー風）：中段ラインのみ／引き込み4コマ／目押しあり */
+const JN=20,JSPD=26.7,JK='cj_slot';
+// 0=7 1=BAR 2=ぶどう 3=チェリー 4=リプレイ 5=ベル
+const JS=[[3,4,5,5,2,3,4,5,2,2,3,4,0,1,2,3,4,4,5,2],[2,4,5,2,5,4,5,5,2,5,4,2,5,5,4,5,2,0,1,4],[2,4,5,5,2,4,5,5,2,5,4,4,2,5,0,1,4,2,5,5]];
+const JSY=['<b class="s7">7</b>','<b class="sbar">BAR</b>','🍇','🍒','🔁','🔔'];
+const jgRole=s=>{const a=JS[0][s[0]],b=JS[1][s[1]],c=JS[2][s[2]];if(a==0&&b==0&&c==0)return'BB';if(a==0&&b==0&&c==1)return'RB';if(a==4&&b==4&&c==4)return'REP';if(a==2&&b==2&&c==2)return'GRP';if(a==3)return'CHR';return'NON'};
+const jgOk=(fl,o)=>fl.sm!='NON'?o==fl.sm:(o=='NON'||o==fl.hold);
+const jgMemo=new Map();
+function jgFeas(fl,s){const key=fl.sm+fl.hold+s.join(',');if(jgMemo.has(key))return jgMemo.get(key);let r=true;const un=[0,1,2].filter(i=>s[i]<0);
+if(!un.length)r=jgOk(fl,jgRole(s));else out:for(const k of un)for(let p=0;p<JN;p++){let f=false;for(let d=0;d<5&&!f;d++){const n=s.slice();n[k]=(p-d+JN)%JN;if(jgFeas(fl,n))f=true}if(!f){r=false;break out}}
+jgMemo.set(key,r);return r}
+function jgPick(fl,s,k,p){const tg=k<2?0:(fl.hold=='RB'?1:0),pref=fl.sm=='NON'&&fl.hold,c=[];
+for(let d=0;d<5;d++){const i=(p-d+JN)%JN,n=s.slice();n[k]=i;if(jgFeas(fl,n))c.push({d,i})}
+if(!c.length)return{d:0,i:p};
+if(pref){const x=c.find(v=>JS[k][v.i]==tg);if(x)return x}
+return c[0]}
+let JG=null;
+function jgLoad(){let v=null;try{v=JSON.parse(localStorage.getItem(JK))}catch(e){}v=v||{};
+return{cr:Math.max(0,Math.floor(v.cr||0)),hold:v.hold==='BB'||v.hold==='RB'?v.hold:null,bonus:v.bonus&&v.bonus.left>0?{t:v.bonus.t,left:v.bonus.left|0,tot:v.bonus.tot|0}:null,free:v.free?1:0,betOn:v.betOn?1:0}}
+const jgSave=()=>{try{localStorage.setItem(JK,JSON.stringify({cr:JG.cr,hold:JG.hold,bonus:JG.bonus,free:JG.free,betOn:JG.betOn}))}catch(e){}};
+const jgMsg=t=>{const e=$('#jm');if(e)e.textContent=t};
+function slPre(){const v=jgLoad();
+JG=Object.assign(v,{ph:'idle',stops:[-1,-1,-1],fl:null,win:0,pre:false,lamp:!!v.hold,auto:0,run:0,t:0,tm:0,rl:[0,1,2].map(()=>({f:JN+R(JN),mode:'idle',tg:0}))});
+st(`<div class="jg"><div class="jg-h"><div class="lamp" id="lamp"><div class="lp-o"></div><div class="lp-i"></div><span class="lp-t"><i>G</i><i>O</i><i>G</i><i>O</i><i>!</i></span></div><div class="jg-m" id="jm"></div></div>
+<div class="rls">${[0,1,2].map(r=>`<div class="rl"><div class="strip">${[...Array(60)].map((_,i)=>`<div class="cell">${JSY[JS[r][i%JN]]}</div>`).join('')}</div></div>`).join('')}<div class="pl"></div></div>
+<div class="jg-i"><div><small>CREDIT</small><b id="jc">0</b></div><div><small>WIN</small><b id="jw">0</b></div><div><small>BET</small><b id="jb">3</b></div><div><small>状態</small><b id="jbn" style="font-size:15px">—</b></div></div>
+<div class="jg-s"><button class="btn" id="jt0" onclick="jgStop(0)">左</button><button class="btn" id="jt1" onclick="jgStop(1)">中</button><button class="btn" id="jt2" onclick="jgStop(2)">右</button></div>
+<div class="jg-c"><button class="btn betb" id="jbet" onclick="jgBet()">BET<small>3枚</small></button><div class="lever" id="jlv" aria-label="レバー（下に引く／タップ）"><div class="knob"></div></div></div>
+<div class="chips"><button class="btn s" id="jby" onclick="jgBuy()">1000チップ → 46クレジット</button><button class="btn s d" id="jca" onclick="jgCash()">精算</button><button class="btn s" id="ja" onclick="jgAuto()">ボーナスオート</button></div>
+<div class="jg-t">🍇🍇🍇 8枚 ／ 🍒（左リール） 2枚 ／ 🔁🔁🔁 リプレイ<br>7-7-7 ＝ BIG（240枚） ／ 7-7-BAR ＝ REG（96枚）<br>有効ラインは中段のみ。ボタンを押した位置から最大4コマ先まで引き込みます。<br>操作：BETボタン → レバーを下に引く（タップでもOK）→ 停止ボタン<br>キー操作：Space=BET／レバー ／ ←・↓・→（Z・X・C）=停止</div></div>`);
+jgLvInit();jgUI();jgDraw();
+jgMsg(JG.betOn?'BET済み。レバーを下げよう':JG.bonus?`${JG.bonus.t} 消化中！ レバーを下げて続けよう`:JG.hold?'GOGOランプ点灯中！ 7を目押ししよう（7-7-7=BIG／7-7-BAR=REG）':JG.cr<3&&!JG.free?'まずは「1000チップ → 46クレジット」で投入しよう':'BETボタン → レバーでスタート。7が来たら目押し！')}
+function jgUI(){if(!JG||!$('#jc'))return;const idle=JG.ph=='idle';
+$('#jc').textContent=JG.cr;$('#jw').textContent=JG.win;$('#jb').textContent=JG.betOn||JG.free?3:0;
+$('#lamp').classList.toggle('on',JG.lamp);
+$('#jbn').textContent=JG.bonus?`${JG.bonus.t} 残${JG.bonus.left}G`:JG.free?'REPLAY':'—';
+const rdy=idle&&(JG.betOn||JG.bonus||JG.free);$('#jbet').disabled=!(idle&&!JG.betOn&&!JG.bonus&&!JG.free);$('#jlv').classList.toggle('off',!rdy);[0,1,2].forEach(i=>$('#jt'+i).disabled=!(JG.ph=='spin'&&JG.rl[i].mode=='spin'));
+$('#jby').disabled=!idle;$('#jca').disabled=!idle||!!JG.betOn;
+$('#ja').style.display=JG.bonus?'':'none';$('#ja').textContent=JG.auto?'オート停止':'ボーナスオート'}
+function jgDraw(){if(!JG)return;const r=document.querySelectorAll('.rl');if(r.length<3)return;const H=r[0].offsetHeight/3;if(!H)return;
+JG.rl.forEach((x,i)=>{const fp=JN+(((x.f%JN)+JN)%JN);r[i].firstChild.style.transform=`translateY(${(1-fp)*H}px)`})}
+function jgBet(){if(!JG||JG.ph!='idle'||JG.betOn||JG.bonus)return;
+if(JG.free)return jgMsg('リプレイ！ 投入は不要です。レバーを下げよう');
+if(JG.cr<3)return jgMsg('クレジットが足りません。「1000チップ → 46クレジット」で投入してください');
+JG.cr-=3;JG.betOn=1;jgSave();jgUI();jgMsg('BET完了！ レバーを下げよう')}
+function jgLever(){if(!JG||JG.ph!='idle')return;
+if(!JG.betOn&&!JG.bonus&&!JG.free)return jgMsg(JG.cr<3?'クレジットが足りません。「1000チップ → 46クレジット」で投入してください':'先にBETボタンを押してください');
+JG.ph='pull';const lv=$('#jlv');if(lv){lv.classList.remove('pull');void lv.offsetWidth;lv.classList.add('pull')}
+jgUI();clearTimeout(JG.tm);JG.tm=setTimeout(jgSpin,260)}
+function jgLvInit(){const lv=$('#jlv');if(!lv)return;let y0=null,dy=0;const kn=lv.firstChild;
+lv.onpointerdown=e=>{y0=e.clientY;dy=0;try{lv.setPointerCapture(e.pointerId)}catch(_){}};
+lv.onpointermove=e=>{if(y0==null)return;dy=Math.max(0,Math.min(66,e.clientY-y0));kn.style.transform=`translateY(${dy}px)`};
+lv.onpointerup=lv.onpointercancel=()=>{if(y0==null)return;const d=dy;y0=null;kn.style.transform='';if(d>=30||d<8)jgLever()}}
+function jgSpin(){if(!JG||JG.ph!='pull')return;
+if(!JG.bonus){if(JG.betOn)JG.betOn=0;else if(JG.free)JG.free=0}
+let fl;
+if(JG.bonus)fl={sm:'GRP',nw:0};
+else{fl={sm:'NON',nw:0};const u=R(100000);
+if(!JG.hold&&u<594){JG.hold=u<366?'BB':'RB';fl.nw=1}
+else{const v=R(100000);fl.sm=v<13699?'REP':v<30092?'GRP':v<32949?'CHR':'NON'}}
+fl.hold=JG.hold;JG.fl=fl;JG.win=0;JG.stops=[-1,-1,-1];JG.pre=false;
+if(fl.nw&&R(5)==0){JG.pre=true;JG.lamp=true}
+jgSave();JG.ph='spin';JG.rl.forEach(r=>r.mode='spin');
+jgMsg(JG.bonus?'ボーナスゲーム！ 停止ボタンで止めよう':JG.pre?'✨ ペカッ！！ GOGO!! BIGかREG確定！ 7を狙え！':JG.hold?'GOGOランプ点灯中！ 7を目押ししよう':'停止ボタンで止めよう');
+JG.run=1;JG.t=performance.now();requestAnimationFrame(jgLoop);jgUI();
+clearTimeout(JG.tm);
+if(JG.auto&&JG.bonus)JG.tm=setTimeout(()=>{jgStop(0);JG.tm=setTimeout(()=>{jgStop(1);JG.tm=setTimeout(()=>jgStop(2),350)},350)},450)}
+function jgStop(r){if(!JG||JG.ph!='spin'||JG.rl[r].mode!='spin')return;
+const f=Math.floor(JG.rl[r].f),p=((f%JN)+JN)%JN,c=jgPick(JG.fl,JG.stops,r,p);
+JG.stops[r]=c.i;JG.rl[r].tg=f-c.d;JG.rl[r].mode='stop';jgUI()}
+function jgLoop(t){if(!JG||!JG.run)return;const dt=Math.min(.05,Math.max(0,(t-JG.t)/1000));JG.t=t;let any=0,fin=0;
+JG.rl.forEach(r=>{if(r.mode=='spin'||r.mode=='stop'){any=1;r.f-=JSPD*dt;if(r.mode=='stop'&&r.f<=r.tg){r.f=r.tg;r.mode='done';fin=1}}});
+jgDraw();
+if(fin&&JG.ph=='spin'&&JG.rl.every(r=>r.mode=='done'))jgEnd();
+if(any&&JG.run)requestAnimationFrame(jgLoop);else JG.run=0}
+function jgEnd(){const o=jgRole(JG.stops),fl=JG.fl;let win=0,t='ハズレ…';
+JG.ph='idle';JG.rl.forEach(r=>r.mode='idle');
+if(JG.bonus){win=8;JG.bonus.left--;JG.bonus.tot+=8;t=`ぶどう +8（${JG.bonus.t} 残り${JG.bonus.left}G）`;
+if(JG.bonus.left<=0){t=`${JG.bonus.t} 終了！ 合計 +${JG.bonus.tot}クレジット`;JG.bonus=null;JG.auto=0}}
+else if(o=='BB'||o=='RB'){JG.hold=null;JG.lamp=false;JG.bonus={t:o=='BB'?'BIG':'REG',left:o=='BB'?30:12,tot:0};t=o=='BB'?'🎉 BIG BONUS！！ 30ゲームで +240枚':'🎉 REG BONUS！！ 12ゲームで +96枚'}
+else if(o=='GRP'){win=8;t='ぶどう +8'}
+else if(o=='CHR'){win=2;t='チェリー +2'}
+else if(o=='REP'){JG.free=1;t='リプレイ！ 次のゲームは投入不要'}
+else if(JG.hold){if(fl.nw&&!JG.lamp){JG.lamp=true;t='✨ ペカッ！！ GOGO!! BIGかREG確定！ 7を狙え！'}else t='ハズレ… GOGOランプ点灯中！ 7を目押ししよう'}
+JG.cr+=win;JG.win=win;jgSave();jgUI();jgMsg(t);chk();
+if(JG.auto&&JG.bonus)JG.tm=setTimeout(jgLever,700)}
+function jgBuy(){if(!JG||JG.ph!='idle')return;if(chips<1000)return jgMsg('チップが足りません（1000チップ必要）');
+chips-=1000;JG.cr+=46;upd();jgSave();jgUI();jgMsg('46クレジットを投入しました')}
+function jgCash(){if(!JG||JG.ph!='idle')return;if(JG.cr<1)return jgMsg('精算できるクレジットがありません');
+const c=Math.floor(JG.cr*1000/46);chips+=c;jgMsg(`${JG.cr}クレジットを精算：+${c.toLocaleString()}チップ`);JG.cr=0;JG.win=0;upd();jgSave();jgUI()}
+function jgAuto(){if(!JG||!JG.bonus)return;JG.auto=JG.auto?0:1;if(JG.auto&&JG.ph=='idle')jgLever();jgUI()}
+function slHalt(){if(JG){clearTimeout(JG.tm);JG.auto=0;JG.run=0}}
+addEventListener('keydown',e=>{if(!JG||!$('#s2').classList.contains('on')||!$('#jbet')||e.target.tagName=='INPUT')return;
+if(e.key==' '||e.key=='Enter'){e.preventDefault();if(JG.ph=='idle'){if(!JG.betOn&&!JG.bonus&&!JG.free)jgBet();else jgLever()}return}
+const m={ArrowLeft:0,z:0,Z:0,ArrowDown:1,x:1,X:1,ArrowRight:2,c:2,C:2}[e.key];if(m!=null){e.preventDefault();jgStop(m)}});
+addEventListener('keyup',e=>{if(e.key==' '&&JG&&$('#s2').classList.contains('on')&&$('#jbet'))e.preventDefault()});
 </script></body></html>
