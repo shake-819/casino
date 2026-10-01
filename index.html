@@ -209,19 +209,20 @@ function pkSD(){const p=pk,s=[0,1,2,3].filter(i=>p.al[i]).map(i=>[i,best([...p.h
 if(w.includes(0)){const g=Math.floor(p.pot/w.length);chips+=g;p.t=`勝ち！ +${g}`}else p.t=NM[w[0]-1]+'の勝ち…';pkR();chk()}
 /* スロット（ジャグラー風）：中段ラインのみ／引き込み4コマ／目押しあり */
 const JN=20,JSPD=26.7,JK='cj_slot';
+const JG_F7=1;   // GOGOランプが消えていても7を目押しで揃えられる引き込み範囲（コマ数）。0にすると実機同様、ランプ点灯中のみ揃う
 // 0=7 1=BAR 2=ぶどう 3=チェリー 4=リプレイ 5=ベル
-const JS=[[3,4,5,5,2,3,4,5,2,2,3,4,0,1,2,3,4,4,5,2],[2,4,5,2,5,4,5,5,2,5,4,2,5,5,4,5,2,0,1,4],[2,4,5,5,2,4,5,5,2,5,4,4,2,5,0,1,4,2,5,5]];
+const JS=[[2,4,5,3,5,2,4,2,3,5,4,2,5,3,0,4,2,5,3,4],[2,4,3,5,2,3,4,2,5,4,3,2,4,5,5,2,0,4,5,1],[4,2,5,4,5,4,2,3,2,5,4,3,3,2,5,4,2,5,0,1]];
 const JSY=['<b class="s7">7</b>','<b class="sbar">BAR</b>','🍇','🍒','🔁','🔔'];
-const jgRole=s=>{const a=JS[0][s[0]],b=JS[1][s[1]],c=JS[2][s[2]];if(a==0&&b==0&&c==0)return'BB';if(a==0&&b==0&&c==1)return'RB';if(a==4&&b==4&&c==4)return'REP';if(a==2&&b==2&&c==2)return'GRP';if(a==3)return'CHR';return'NON'};
-const jgOk=(fl,o)=>fl.sm!='NON'?o==fl.sm:(o=='NON'||o==fl.hold);
+const jgRole=s=>{const a=JS[0][s[0]],b=JS[1][s[1]],c=JS[2][s[2]];if(a==0&&b==0&&c==0)return'BB';if(a==0&&b==0&&c==1)return'RB';if(a==4&&b==4&&c==4)return'REP';if(a==2&&b==2&&c==2)return'GRP';if(a==5&&b==5&&c==5)return'BEL';if(a==3)return'CHR';return'NON'};
+const jgOk=(fl,o)=>fl.sm!='NON'?o==fl.sm:(o=='NON'||o=='BB'||o=='RB');
 const jgMemo=new Map();
 function jgFeas(fl,s){const key=fl.sm+fl.hold+s.join(',');if(jgMemo.has(key))return jgMemo.get(key);let r=true;const un=[0,1,2].filter(i=>s[i]<0);
 if(!un.length)r=jgOk(fl,jgRole(s));else out:for(const k of un)for(let p=0;p<JN;p++){let f=false;for(let d=0;d<5&&!f;d++){const n=s.slice();n[k]=(p-d+JN)%JN;if(jgFeas(fl,n))f=true}if(!f){r=false;break out}}
 jgMemo.set(key,r);return r}
-function jgPick(fl,s,k,p){const tg=k<2?0:(fl.hold=='RB'?1:0),pref=fl.sm=='NON'&&fl.hold,c=[];
+function jgPick(fl,s,k,p){const tg=k<2?0:(fl.hold=='RB'?1:0),pref=fl.sm=='NON',lim=fl.hold?4:JG_F7,c=[];
 for(let d=0;d<5;d++){const i=(p-d+JN)%JN,n=s.slice();n[k]=i;if(jgFeas(fl,n))c.push({d,i})}
 if(!c.length)return{d:0,i:p};
-if(pref){const x=c.find(v=>JS[k][v.i]==tg);if(x)return x}
+if(pref){const x=c.find(v=>v.d<=lim&&JS[k][v.i]==tg);if(x)return x}
 return c[0]}
 let JG=null;
 function jgLoad(){let v=null;try{v=JSON.parse(localStorage.getItem(JK))}catch(e){}v=v||{};
@@ -236,7 +237,7 @@ st(`<div class="jg"><div class="jg-h"><div class="lamp" id="lamp"><div class="lp
 <div class="jg-s"><button class="btn" id="jt0" onclick="jgStop(0)">左</button><button class="btn" id="jt1" onclick="jgStop(1)">中</button><button class="btn" id="jt2" onclick="jgStop(2)">右</button></div>
 <div class="jg-c"><button class="btn betb" id="jbet" onclick="jgBet()">BET<small>3枚</small></button><div class="lever" id="jlv" aria-label="レバー（下に引く／タップ）"><div class="knob"></div></div></div>
 <div class="chips"><button class="btn s" id="jby" onclick="jgBuy()">1000チップ → 46クレジット</button><button class="btn s d" id="jca" onclick="jgCash()">精算</button><button class="btn s" id="ja" onclick="jgAuto()">ボーナスオート</button></div>
-<div class="jg-t">🍇🍇🍇 8枚 ／ 🍒（左リール） 2枚 ／ 🔁🔁🔁 リプレイ<br>7-7-7 ＝ BIG（240枚） ／ 7-7-BAR ＝ REG（96枚）<br>有効ラインは中段のみ。ボタンを押した位置から最大4コマ先まで引き込みます。<br>操作：BETボタン → レバーを下に引く（タップでもOK）→ 停止ボタン<br>キー操作：Space=BET／レバー ／ ←・↓・→（Z・X・C）=停止</div></div>`);
+<div class="jg-t">🔔🔔🔔 14枚 ／ 🍇🍇🍇 8枚 ／ 🍒（左リール） 2枚 ／ 🔁🔁🔁 リプレイ<br>7-7-7 ＝ BIG（240枚） ／ 7-7-BAR ＝ REG（96枚）<br>GOGOランプが消えていても、7を目押しで揃えればBIG！<br>有効ラインは中段のみ。ボタンを押した位置から最大4コマ先まで引き込みます。<br>操作：BETボタン → レバーを下に引く（タップでもOK）→ 停止ボタン<br>キー操作：Space=BET／レバー ／ ←・↓・→（Z・X・C）=停止</div></div>`);
 jgLvInit();jgUI();jgDraw();
 jgMsg(JG.betOn?'BET済み。レバーを下げよう':JG.bonus?`${JG.bonus.t} 消化中！ レバーを下げて続けよう`:JG.hold?'GOGOランプ点灯中！ 7を目押ししよう（7-7-7=BIG／7-7-BAR=REG）':JG.cr<3&&!JG.free?'まずは「1000チップ → 46クレジット」で投入しよう':'BETボタン → レバーでスタート。7が来たら目押し！')}
 function jgUI(){if(!JG||!$('#jc'))return;const idle=JG.ph=='idle';
@@ -266,7 +267,7 @@ let fl;
 if(JG.bonus)fl={sm:'GRP',nw:0};
 else{fl={sm:'NON',nw:0};const u=R(100000);
 if(!JG.hold&&u<594){JG.hold=u<366?'BB':'RB';fl.nw=1}
-else{const v=R(100000);fl.sm=v<13699?'REP':v<30092?'GRP':v<32949?'CHR':'NON'}}
+else{const v=R(100000);fl.sm=v<13699?'REP':v<30092?'GRP':v<32949?'CHR':v<36282?'BEL':'NON'}}
 fl.hold=JG.hold;JG.fl=fl;JG.win=0;JG.stops=[-1,-1,-1];JG.pre=false;
 if(fl.nw&&R(5)==0){JG.pre=true;JG.lamp=true}
 jgSave();JG.ph='spin';JG.rl.forEach(r=>r.mode='spin');
@@ -289,6 +290,7 @@ if(JG.bonus.left<=0){t=`${JG.bonus.t} 終了！ 合計 +${JG.bonus.tot}クレジ
 else if(o=='BB'||o=='RB'){JG.hold=null;JG.lamp=false;JG.bonus={t:o=='BB'?'BIG':'REG',left:o=='BB'?30:12,tot:0};t=o=='BB'?'🎉 BIG BONUS！！ 30ゲームで +240枚':'🎉 REG BONUS！！ 12ゲームで +96枚'}
 else if(o=='GRP'){win=8;t='ぶどう +8'}
 else if(o=='CHR'){win=2;t='チェリー +2'}
+else if(o=='BEL'){win=14;t='🔔 ベル +14'}
 else if(o=='REP'){JG.free=1;t='リプレイ！ 次のゲームは投入不要'}
 else if(JG.hold){if(fl.nw&&!JG.lamp){JG.lamp=true;t='✨ ペカッ！！ GOGO!! BIGかREG確定！ 7を狙え！'}else t='ハズレ… GOGOランプ点灯中！ 7を目押ししよう'}
 JG.cr+=win;JG.win=win;jgSave();jgUI();jgMsg(t);chk();
