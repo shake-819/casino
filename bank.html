@@ -255,10 +255,22 @@ function applyState(s){
   const sig=JSON.stringify([s.dep,s.credit,s.name,s.hold,s.fixed,s.apps,s.loans,s.led,s.tx,s.notices]);
   if(first||sig!=lastSig){lastSig=sig;render()}else updateLive();
 }
+let mkSince=null;   // 受け取り済みの最新の履歴ID（nullなら全履歴を取る）
 async function pollMk(){
   if(mkBusy||!S)return;mkBusy=true;
-  try{const m=await rpc('bank_market_get');for(const k in m)MK[k]={p:+m[k].p,h:m[k].h.map(Number)};if(S)updateLive()}
-  catch(e){}finally{mkBusy=false}
+  try{
+    // 初回は引数なし（全履歴）、以降は「この ID より新しい行だけ」を要求する
+    const m=await rpc('bank_market_get',mkSince==null?{}:{p_since:mkSince});
+    let mx=mkSince;
+    for(const k in m){
+      const d=m[k],nh=(d.h||[]).map(Number),cur=MK[k];
+      if(d.last!=null)mx=Math.max(mx==null?0:mx,+d.last);
+      if(d.full!==false||!cur)MK[k]={p:+d.p,h:nh};                       // 全履歴（初回・長時間離脱後・旧サーバー）
+      else{cur.p=+d.p;if(nh.length)cur.h=cur.h.concat(nh).slice(-300)}   // 差分を末尾に足す（最大300点）
+    }
+    mkSince=mx;
+    if(S)updateLive();
+  }catch(e){}finally{mkBusy=false}
 }
 /* 操作を実行 → 状態を取り直す */
 async function act(fn,args,okMsg){
