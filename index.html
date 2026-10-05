@@ -286,13 +286,17 @@ let vg=0,vc;
 const vAuth=()=>{try{const a=JSON.parse(localStorage.getItem('cj_bank_auth'));return a&&a.acct&&a.secret?a:null}catch(e){return null}};
 const vDep=()=>{try{return Math.max(0,Math.floor(JSON.parse(localStorage.getItem('cj_bank_v1')).dep||0))}catch(e){return 0}};
 const vBtn=(l,f)=>`<div class="chips"><button class="btn" onclick="${f}">${l}</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`;
-function vgPre(t){vg=0;lv=null;vRe=vgPre;$('#gt').textContent='担保ベット';const a=vAuth();st(`<div class="msg" id="m">${t||'銀行の預金を担保に入れて一発勝負。勝てば倍率ぶん、負ければ担保は没収'}</div><div class="lab">${a?`担保にできる預金：${vDep().toLocaleString()}`:'銀行口座が見つかりません。先に銀行で口座を開いてください'}</div><div class="lab">担保にする額（預金から実際に引き落とされます）</div>${vbR()}<div class="chips">${[2,3,5].map(m=>`<button class="btn s" onclick="vgGo(${m})">×${m}（勝率${(97/m).toFixed(1)}%）</button>`).join('')}</div><div class="chips"><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`)}
+function vgPre(t){vg=0;lv=null;vRe=vgPre;$('#gt').textContent='担保ベット';const a=vAuth();st(`<div class="msg" id="m">${t||'預金を担保に入れ、倍率の枚数だけ並んだカードから当たりを選ぶ。当たれば担保×倍率、負ければ担保は没収'}</div><div class="lab">${a?`担保にできる預金：${vDep().toLocaleString()}`:'銀行口座が見つかりません。先に銀行で口座を開いてください'}</div><div class="lab">担保にする額（預金から実際に引き落とされます）</div>${vbR()}<div class="chips">${[2,3,5].map(m=>`<button class="btn s" onclick="vgGo(${m})">×${m}（カード${m}枚・勝率${(97/m).toFixed(1)}%）</button>`).join('')}</div><div class="chips"><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`)}
 async function vgGo(m){if(vg)return;const a=vAuth();if(!a)return msg('銀行口座が見つかりません');const c=Math.min(vb,vDep());if(c<1)return msg('担保にできる預金がありません');vg=1;msg('担保を預けています…');
 try{const r=await fetch(SUPA.url+'/rest/v1/rpc/bank_withdraw',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPA.key,Authorization:'Bearer '+SUPA.key},body:JSON.stringify({p_acct:a.acct,p_secret:a.secret,p_amt:c})});if(!r.ok){let j=null;try{j=await r.json()}catch(e){}vg=0;return msg((j&&j.message)||'担保を預けられませんでした')}}catch(e){vg=0;return msg('通信エラー。銀行で残高を確認してください')}
 try{const k='cj_bank_v1',o=JSON.parse(localStorage.getItem(k));o.dep=Math.max(0,(o.dep||0)-c);localStorage.setItem(k,JSON.stringify(o))}catch(e){}
-const w=R(10000)<9700/m,p=w?c*m:0;chips+=p;upd();
-st(`<div class="msg" id="m">担保 ${c.toLocaleString()} を賭けて ×${m}…</div><div id="vn" style="font:800 72px Georgia,serif;text-align:center">🎲</div>`);
-setTimeout(()=>{if(w&&m>=3)vFx();st(`<div class="msg" id="m">${w?`🎉 的中！ 担保が戻って +${(p-c).toLocaleString()}`:`💀 外れ… 担保 ${c.toLocaleString()} 没収`}</div><div id="vn" style="font:800 72px Georgia,serif;text-align:center">${w?'💰':'💸'}</div>${vBtn('もう一度','vgPre()')}`);vg=0;chk()},1300)}
+vg={c,m,wi:R(10000)<9700?R(m):-1,done:0};lv=vgLeave;vgR(`担保 ${c.toLocaleString()} ・ ×${m}。${m}枚のうち当たりは1枚（ハズレだけの場合も…）。1枚選んでめくろう`)}
+function vgCards(g,rv,pk){return`<div class="row">${[...Array(g.m)].map((_,i)=>rv||i==pk?`<div style="${i==pk?'outline:3px solid #ffdf3a;border-radius:8px':''}"><div class="cd${i==g.wi?' r':''}"><b style="margin-top:14px">${i==g.wi?'💰':'💀'}</b></div></div>`:`<div style="cursor:pointer" onclick="vgPick(${i})">${cd({r:2,s:0,d:1},1)}</div>`).join('')}</div>`}
+function vgR(t){$('#gt').textContent='担保ベット';st(`<div class="msg" id="m">${t}</div>${vgCards(vg,0,-1)}`)}
+function vgPick(i){const g=vg;if(!g||g.done)return;g.done=1;lv=null;const w=i==g.wi,p=w?g.c*g.m:0;chips+=p;upd();if(w&&g.m>=3)vFx();
+st(`<div class="msg" id="m">${w?`🎉 当たり！ 担保が戻って +${(p-g.c).toLocaleString()}`:`💀 ハズレ… 担保 ${g.c.toLocaleString()} 没収`}</div>${vgCards(g,0,i)}`);
+setTimeout(()=>{if(vg!==g)return;st(`<div class="msg" id="m">${w?`🎉 当たり！ 担保が戻って +${(p-g.c).toLocaleString()}`:`💀 ハズレ… 担保 ${g.c.toLocaleString()} 没収`}</div>${vgCards(g,1,i)}${vBtn('もう一度','vgPre()')}`);vg=0;chk()},900)}
+function vgLeave(){if(vg&&!vg.done)chips+=vg.c;vg=0;upd()}
 /* VIP：ハイ&ロー クライム／フィーバースロット */
 let vh,fv;
 const vJk='<div class="cd" style="color:#b050ff"><b>🃏</b></div>';
@@ -309,24 +313,27 @@ function vhLeave(){if(vh)chips+=vh.n?Math.floor(vh.b*vh.M):vh.b;vh=null;chk()}
 const FS=['7','BAR','🔔','🍒','🍇'],FH=['<b class="s7">7</b>','<b class="sbar">BAR</b>','🔔','🍒','🍇'],FP=[3,20,100,250,600],FM=[1000,50,15,6,3],FK='cj_fever';
 const fvPool=()=>{try{return Math.max(0,Math.floor(+localStorage.getItem(FK))||0)}catch(e){return 0}};
 let vfv=null;
-const fvC=i=>`<div class="cell">${FH[i]}</div>`,fvCells=p=>fvC((p+4)%5)+fvC(p)+fvC((p+1)%5);
-const fvRls=(ps,s)=>`<div class="jg"><div class="rls">${[0,1,2].map(i=>`<div class="rl" id="r${i}">${fvCells(ps[i])}</div>`).join('')}<div class="pl"></div></div>${s?`<div class="jg-s">${[0,1,2].map(i=>`<button class="btn" id="sb${i}" style="touch-action:none;user-select:none" oncontextmenu="return false" onpointerdown="fvDown(${i})" onpointerup="fvUp(${i})" onpointerleave="fvUp(${i})" onpointercancel="fvUp(${i})">停止${i+1}</button>`).join('')}</div>`:''}</div>`;
+const FN=20,PR0=[4,3,2,4,0,3,4,1,3,4,2,3,4,1,2,3,4,0,2,1],PR=[0,7,13].map(o=>[...PR0.slice(o),...PR0.slice(0,o)]),FL=[5,5,9,9,9];
+const fvRls=s=>`<div class="jg"><div class="rls">${[0,1,2].map(r=>`<div class="rl"><div class="strip">${[...Array(60)].map((_,i)=>`<div class="cell">${FH[PR[r][i%FN]]}</div>`).join('')}</div></div>`).join('')}<div class="pl"></div></div>${s?`<div class="jg-s">${[0,1,2].map(i=>`<button class="btn" id="sb${i}" style="touch-action:none;user-select:none" oncontextmenu="return false" onpointerdown="fvDown(${i})" onpointerup="fvUp(${i})" onpointerleave="fvUp(${i})" onpointercancel="fvUp(${i})">停止${i+1}</button>`).join('')}</div>`:''}</div>`;
+const fvDraw=fl=>{const r=document.querySelectorAll('.rl');if(r.length<3)return;const H=r[0].offsetHeight/3;if(!H)return;fl.forEach((f,i)=>{const fp=FN+(((f%FN)+FN)%FN);r[i].firstChild.style.transform=`translateY(${(1-fp)*H}px)`})};
 const fvInfo=()=>`<div class="jg"><div class="jg-i"><div><small>CARRYOVER</small><b>${fvPool().toLocaleString()}</b></div><div><small>FEVER</small><b>${vfv?'×'+vfv.M+'／残'+vfv.left:'—'}</b></div></div></div>`;
-function fvPre(){fv=null;lv=null;vRe=fvPre;$('#gt').textContent='フィーバースロット';st(`<div class="msg" id="m">7揃いは目押し必須（±1コマ以内）。最後のリールは長押しでスロー、離すと停止</div>${fvInfo()}${fvRls([0,1,2],0)}<div class="jg"><div class="jg-t">7×1000＋キャリーオーバー ／ BAR×50 ／ 🔔×15 ／ 🍒×6 ／ 🍇×3<br>BARか7が揃うとフィーバー（配当×2から、当たるたび+1で継続）</div></div>${vbR()}${vBtn('スピン','fvGo()')}`)}
+function fvPre(){fv=null;lv=null;vRe=fvPre;$('#gt').textContent='フィーバースロット';st(`<div class="msg" id="m">7揃いは目押し必須（引き込みは5コマ）。最後のリールは長押しでスロー、離すと停止</div>${fvInfo()}${fvRls(0)}<div class="jg"><div class="jg-t">7×1000＋キャリーオーバー ／ BAR×50 ／ 🔔×15 ／ 🍒×6 ／ 🍇×3<br>BARか7が揃うとフィーバー（配当×2から、当たるたび+1で継続）</div></div>${vbR()}${vBtn('スピン','fvGo()')}`);fvDraw([0,7,13])}
 function fvGo(){if(fv)return;const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;dispW();let r=R(10000),k=-1,a=0;for(let i=0;i<5;i++){a+=FP[i];if(r<a){k=i;break}}
-fv={b,k,st:[-1,-1,-1],pos:[R(5),R(5),R(5)],hold:0,rc:0};lv=fvLeave;st(`<div class="msg" id="m">停止ボタンで止めてください（最後の1つは長押し→離して停止）</div>${fvInfo()}${fvRls(fv.pos.map(Math.floor),1)}`);fv.iv=setInterval(fvTick,40)}
-function fvTick(){const f=fv;if(!f)return;if(!$('#r0')){clearInterval(f.iv);return}for(let i=0;i<3;i++)if(f.st[i]<0){f.pos[i]=(f.pos[i]+(f.hold==i+1?2.5:9)*.04)%5;$('#r'+i).innerHTML=fvCells(Math.floor(f.pos[i]))}}
+fv={b,k,st:[-1,-1,-1],rl:[0,1,2].map(()=>({f:R(FN),mode:'spin',tg:0})),hold:0,rc:0,run:1,t:performance.now()};lv=fvLeave;st(`<div class="msg" id="m">停止ボタンで止めてください（最後の1つは長押し→離して停止）</div>${fvInfo()}${fvRls(1)}`);fvDraw(fv.rl.map(x=>x.f));requestAnimationFrame(fvLoop)}
+function fvLoop(t){const f=fv;if(!f||!f.run)return;if(!$('.rl')){f.run=0;return}const dt=Math.min(.05,Math.max(0,(t-f.t)/1000));f.t=t;
+f.rl.forEach((r,i)=>{if(r.mode=='spin')r.f-=JSPD*(f.hold==i+1?.1:1)*dt;else if(r.mode=='stop'){r.f-=JSPD*dt;if(r.f<=r.tg){r.f=r.tg;r.mode='done'}}});
+fvDraw(f.rl.map(r=>r.f));if(f.rl.every(r=>r.mode=='done')){f.run=0;return fvEnd()}requestAnimationFrame(fvLoop)}
 function fvDown(i){const f=fv;if(!f||f.st[i]>=0)return;if(f.st.filter(x=>x<0).length==1){f.hold=i+1;msg('🐌 スロー中… 狙いの絵柄で指を離す！')}else fvStop(i)}
 function fvUp(i){if(fv&&fv.hold==i+1){fv.hold=0;fvStop(i)}}
-function fvStop(i){const f=fv;if(!f||f.st[i]>=0)return;let p=Math.floor(f.pos[i]);if(f.k>=0){const d=(f.k-p+5)%5;if(f.k>0||d<=1||d==4)p=f.k}
-f.st[i]=p;$('#r'+i).innerHTML=fvCells(p);$('#sb'+i).disabled=true;const s=f.st.filter(x=>x>=0);if(s.length==3)return fvEnd();if(s.length==2&&s[0]==s[1]&&!f.rc){f.rc=1;msg('🔥 REACH！！');vFx()}}
-function fvEnd(){const f=fv,s=f.st,b=f.b;clearInterval(f.iv);lv=null;if(s[0]==s[1]&&s[1]==s[2]&&f.k<0)s[2]=(s[2]+1)%5;
-const win=s[0]==s[1]&&s[1]==s[2],k=s[0];let pool=fvPool(),pay=0,note='';
+function fvStop(i){const f=fv,r=f&&f.rl[i];if(!r||r.mode!='spin')return;const p=Math.floor(r.f),m=x=>((x%FN)+FN)%FN;let d=0;
+if(f.k>=0){for(let x=0;x<=FL[f.k];x++)if(PR[i][m(p-x)]==f.k){d=x;break}}else{const o=f.st.filter(x=>x>=0);if(o.length==2&&o[0]==o[1]&&PR[i][m(p)]==o[0])d=1}
+r.tg=p-d;r.mode='stop';f.st[i]=PR[i][m(p-d)];const b=$('#sb'+i);if(b)b.disabled=true;const s=f.st.filter(x=>x>=0);if(s.length==2&&s[0]==s[1]&&!f.rc){f.rc=1;msg('🔥 REACH！！');vFx()}}
+function fvEnd(){const f=fv,s=f.st,b=f.b;lv=null;const win=s[0]==s[1]&&s[1]==s[2],k=s[0];let pool=fvPool(),pay=0,note='';
 if(win){pay=b*FM[k]*(vfv?vfv.M:1)+(k==0?pool:0);if(k==0)pool=0}else pool+=Math.floor(b*.1);try{localStorage.setItem(FK,pool)}catch(e){}
 if(vfv){if(win){vfv.M=Math.min(10,vfv.M+1);vfv.left=5;note=` ／フィーバー継続 ×${vfv.M}！`}else if(--vfv.left<=0){vfv=null;note=' ／フィーバー終了'}}else if(win&&k<2){vfv={M:2,left:5};note=' ／🔥フィーバー突入 ×2！'}
 chips+=pay;upd();fv=null;if(pay>=b*15)vFx();
-st(`<div class="msg" id="m">${win?`🎉 ${FS[k]} 揃い！ +${(pay-b).toLocaleString()}`:`ハズレ… -${b.toLocaleString()}`}${note}</div>${fvInfo()}${fvRls(s,0)}${vBtn('もう一度','fvPre()')}`)}
-function fvLeave(){if(fv){clearInterval(fv.iv);chips+=fv.b}fv=null;upd()}
+st(`<div class="msg" id="m">${win?`🎉 ${FS[k]} 揃い！ +${(pay-b).toLocaleString()}`:`ハズレ… -${b.toLocaleString()}`}${note}</div>${fvInfo()}${fvRls(0)}${vBtn('もう一度','fvPre()')}`);fvDraw(f.rl.map(r=>r.f))}
+function fvLeave(){if(fv){fv.run=0;chips+=fv.b}fv=null;upd()}
 /* VIP：三連単つき競馬／ダブルアップ・ポーカー */
 let vk,vp,vkRace=0;
 const vkN=['ライジング','ミラクル','サンダー','ブロンズ','ドリーム','ハヤテ','グラン','オーロラ'],vkTn={ex:'馬単',tri:'三連複',tt:'三連単'};
@@ -355,12 +362,14 @@ hmRaceUI()}
 const VM=[0,1,2,3,4,6,9,25,50],vpV=h=>{const v=sc(h);return v[0]==1&&v[1]<11?0:VM[v[0]]};
 function vpPre(){vp=null;lv=null;vRe=vpPre;$('#gt').textContent='ダブルアップ・ポーカー';st(`<div class="msg" id="m">残すカードをタップしてドロー。役ができたらダブルアップに挑戦（最大5連続で×32）</div><div class="lab">J以上のワンペア×1 ツーペア×2 スリーカード×3 ストレート×4 フラッシュ×6 フルハウス×9 フォーカード×25 SF×50</div>${vbR()}${vBtn('ディール','vpGo()')}`)}
 function vpGo(){const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;upd();const d=deck(),h=[0,1,2,3,4].map(()=>dr(d));vp={d,h,hold:[0,0,0,0,0],b,ph:'h',pot:0,n:0};lv=vpLeave;vpR('残すカードをタップして「ドロー」')}
-function vpR(t){const p=vp;st(`<div class="msg" id="m">${t}</div><div class="hand"><div class="row">${p.h.map((c,i)=>`<div class="yd${p.hold[i]?' hd':''}" style="text-align:center;border-radius:8px" onclick="vpH(${i})">${cd(c)}<div class="lab">${p.hold[i]?'HOLD':'　'}</div></div>`).join('')}</div></div>${p.ph=='h'?'<div class="chips"><button class="btn" onclick="vpDraw()">ドロー</button></div>':vpBtn()}`)}
+function vpR(t){const p=vp;st(`<div class="msg" id="m">${t}</div><div class="hand"><div class="row">${p.h.map((c,i)=>`<div class="yd${p.hold[i]?' hd':''}" style="text-align:center;border-radius:8px" onclick="vpH(${i})">${cd(c,p.sh&&!p.sh[i])}<div class="lab">${p.hold[i]?'HOLD':'　'}</div></div>`).join('')}</div></div>${p.ph=='h'?'<div class="chips"><button class="btn" onclick="vpDraw()">ドロー</button></div>':p.ph=='r'?'':vpBtn()}`)}
 const vpBtn=()=>`<div class="lab">配当 ${vp.pot.toLocaleString()}${vp.n?`（ダブルアップ ${vp.n}連勝）`:''}</div><div class="chips"><button class="btn" onclick="vpCash()">受け取る</button>${vp.n<5?'<button class="btn s" onclick="vpDbl()">ダブルアップ ×2</button>':''}</div>`;
 function vpH(i){if(vp&&vp.ph=='h'){vp.hold[i]^=1;vpR('残すカードをタップして「ドロー」')}}
-function vpDraw(){const p=vp;if(!p||p.ph!='h')return;p.h.forEach((_,i)=>{if(!p.hold[i])p.h[i]=dr(p.d)});const m=vpV(p.h);
-if(!m){p.ph='e';vp=null;lv=null;st(`<div class="msg" id="m">役なし… -${p.b.toLocaleString()}</div><div class="row">${p.h.map(c=>cd(c)).join('')}</div>${vBtn('もう一度','vpPre()')}`);return chk()}
-p.ph='d';p.pot=p.b*m;vpR(`${HN[sc(p.h)[0]]}！ ×${m}`)}
+function vpDraw(){const p=vp;if(!p||p.ph!='h')return;const nw=[];p.h.forEach((_,i)=>{if(!p.hold[i]){p.h[i]=dr(p.d);nw.push(i)}});p.sh=p.h.map((_,i)=>!nw.includes(i));p.ph='r';vpR('ドロー！');let k=0;
+const step=()=>{if(vp!==p)return;if(k<nw.length){p.sh[nw[k++]]=true;vpR(k<nw.length?'ドロー…':'…判定');return void setTimeout(step,600)}
+p.sh=null;const m=vpV(p.h);
+if(!m){p.ph='e';vp=null;lv=null;st(`<div class="msg" id="m">ハズレ… 役なし -${p.b.toLocaleString()}</div><div class="row">${p.h.map(c=>cd(c)).join('')}</div>${vBtn('もう一度','vpPre()')}`);return chk()}
+p.ph='d';p.pot=p.b*m;vpR(`${HN[sc(p.h)[0]]}！ ×${m}`)};setTimeout(step,500)}
 function vpDbl(){const p=vp;if(!p||p.ph!='d')return;p.cpu=dr(p.d);p.o=[0,1,2,3].map(()=>dr(p.d));p.ph='x';st(`<div class="msg" id="m">CPUの札より高い札を引けば勝ち（同じ数字は負け）</div><div class="lab">CPUの札</div><div class="row">${cd(p.cpu)}</div><div class="lab">自分の札を1枚選ぶ（${p.n+1}/5）</div><div class="row">${p.o.map((_,i)=>`<div style="cursor:pointer" onclick="vpPick(${i})">${cd({r:2,s:0,d:1},1)}</div>`).join('')}</div>`)}
 function vpPick(i){const p=vp;if(!p||p.ph!='x')return;const w=p.o[i].r>p.cpu.r,f=`<div class="lab">CPUの札</div><div class="row">${cd({...p.cpu,d:1})}</div><div class="row">${p.o.map((c,j)=>`<div style="${j==i?'outline:3px solid #ffdf3a;border-radius:8px':''}">${cd({...c,d:1})}</div>`).join('')}</div>`;
 if(w){p.n++;p.pot*=2;if(p.n>=5){p.ph='d';return vpCash(f)}p.ph='d';st(`<div class="msg" id="m">🔥 的中！ ${p.n}連勝</div>${f}${vpBtn()}`)}
