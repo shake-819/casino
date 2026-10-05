@@ -174,6 +174,17 @@ body.vip .rls{box-shadow:inset 0 0 20px #000,0 0 26px #d4af37aa}
 body.vip .mat{border-color:#f6e27a;box-shadow:0 0 18px #d4af3788}
 .cn{position:fixed;top:-50px;pointer-events:none;z-index:99;animation:cf 2.4s cubic-bezier(.3,.2,.6,1) both}
 @keyframes cf{to{transform:translateY(115vh) rotate(720deg)}}
+.vrgun{display:flex;justify-content:center;align-items:center;min-height:220px;margin:4px 0}.vrgun svg{overflow:visible}
+.hand.hit{animation:vrh .6s both}@keyframes vrh{0%,100%{transform:none}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}50%{box-shadow:0 0 30px 8px #f22}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.vrgun{position:relative}.hand{position:relative}
+.vfl{position:absolute;left:calc(50% - 50px);width:100px;height:100px;border-radius:50%;pointer-events:none;z-index:4;background:radial-gradient(circle,#fff 0 16%,#fff1a0 28%,#ff9a1f 52%,transparent 72%);animation:vflA .3s ease-out both}
+.vfl.sm{left:calc(50% - 18px);width:36px;height:36px;background:radial-gradient(circle,#fff,#aaa 45%,transparent 72%);animation-duration:.18s}
+@keyframes vflA{from{transform:scale(.2);opacity:1}to{transform:scale(1.9);opacity:0}}
+.bd{position:absolute;left:50%;top:50%;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e0242e,#7a0610);pointer-events:none;z-index:3;animation:bdA .8s cubic-bezier(.1,.7,.3,1) both}
+@keyframes bdA{from{transform:translate(0,0) scale(.3);opacity:1}70%{opacity:1}to{transform:translate(var(--x),var(--y)) scale(1);opacity:0}}
+.bst{position:absolute;inset:0;border-radius:14px;pointer-events:none;z-index:2;background:radial-gradient(circle at 40% 45%,#b3121bcc 0,#7a0610aa 25%,transparent 60%),radial-gradient(circle at 72% 60%,#9a0f18aa 0,transparent 35%);animation:bsA 2.5s ease-out both}
+@keyframes bsA{from{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1)}to{opacity:0}}
+.vrv{position:fixed;inset:0;pointer-events:none;z-index:98;background:radial-gradient(ellipse at center,transparent 35%,#b00a14aa 100%);animation:vrvA .85s ease-out both}@keyframes vrvA{from{opacity:1}to{opacity:0}}
 </style></head><body>
 <div class="scr on" id="s0"><span class="suit" style="left:8%;top:12%">♠</span><span class="suit" style="right:10%;top:20%;color:#c0242b">♥</span><span class="suit" style="left:14%;bottom:12%;color:#c0242b">♦</span><span class="suit" style="right:8%;bottom:10%">♣</span>
 <div class="box"><div class="sign">2−1 情報処理科ジノ</div><small>CASINO</small></div>
@@ -249,7 +260,10 @@ chips-=VFEE;try{localStorage.setItem(VKEY,JSON.stringify({m:1,t:Date.now()}))}ca
 /* VIPルーム：高額ゲーム（サドンデス・ルーレット／地獄チンチロ） */
 let vb=1000000,vs,vRe,hell=0,hs=0;
 const vFx=()=>{document.body.animate([{filter:'brightness(2.2) saturate(2)'},{filter:'none'}],{duration:500,iterations:3});for(let i=0;i<36;i++){const e=document.createElement('span');e.className='cn';e.textContent=['🪙','💰','✨','💎'][R(4)];e.style.cssText=`left:${R(100)}vw;animation-delay:${R(900)}ms;font-size:${20+R(20)}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3400)}};
-const vbR=()=>{const all=vRe==vgPre?vDep():chips;return`<div class="chips">${(vRe==vrPre?[[1e7,'1000万','#c0242b'],[5e7,'5000万','#6a2fb0'],[1e8,'1億','#2b6cb0']]:[[1e6,'100万','#2b6cb0'],[5e6,'500万','#6a2fb0'],[1e7,'1000万','#c0242b']]).map(([v,l,c])=>`<button class="ch${vb==v?' on':''}" style="--c:${c}" onclick="vSet(${v})">${l}</button>`).join('')}<button class="ch more${vb==all?' on':''}" style="--c:#111" onclick="vSet(0)">ALL IN</button></div><div class="lab">ベット ${vb.toLocaleString()}</div>`};
+const vMin=()=>vRe==vrPre?1e7:1;
+const vbR=()=>{const all=vRe==vgPre?vDep():chips,P=vRe==vrPre?[[1e7,'1000万','#c0242b'],[5e7,'5000万','#6a2fb0'],[1e8,'1億','#2b6cb0']]:[[1e6,'100万','#2b6cb0'],[5e6,'500万','#6a2fb0'],[1e7,'1000万','#c0242b']],cu=!P.some(x=>x[0]==vb)&&vb!=all;return`<div class="chips">${P.map(([v,l,c])=>`<button class="ch${vb==v?' on':''}" style="--c:${c}" onclick="vSet(${v})">${l}</button>`).join('')}<button class="ch more${vb==all?' on':''}" style="--c:#111" onclick="vSet(0)">ALL IN</button><button class="ch more${cu?' on':''}" style="--c:#0f766e" onclick="vMoreOpen()" aria-label="好きな金額を賭ける">${cu?`<small>more</small>${vb.toLocaleString()}`:'more'}</button></div><div class="chips" id="vmrow" style="display:none"><input type="number" id="vmb" inputmode="numeric" min="${vMin()}" step="1" placeholder="賭け金（${vMin().toLocaleString()}〜）" aria-label="賭け金" onkeydown="if(event.key=='Enter')vMoreSet()"><button class="btn s" onclick="vMoreSet()">決定</button></div><div class="lab">ベット ${vb.toLocaleString()}</div>`};
+function vMoreOpen(){const r=$('#vmrow');if(!r)return;r.style.display=r.style.display=='none'?'flex':'none';const e=$('#vmb');if(e&&r.style.display!='none')e.focus()}
+function vMoreSet(){const e=$('#vmb'),n=Math.floor(+(e&&e.value));if(!(n>=vMin()))return msg(`${vMin().toLocaleString()}以上の金額を入れてください`);vb=n;if(vRe)vRe()}
 function vSet(v){vb=v||Math.max(vRe==vgPre?vDep():chips,1);if(vRe)vRe()}
 function vipRoom(t){hell=0;vs=null;vfv=null;lv=null;vRe=null;$('#gt').textContent='VIPルーム';st(`<div class="msg" id="m">${t||'👑 VIPルーム'}</div><div class="grid"><button class="gc" onclick="vsPre()"><i>🎡</i><b>サドンデス・ルーレット</b><span>勝つたび倍々・外れたら全損</span></button><button class="gc" onclick="hcPre()"><i>🎲</i><b>地獄チンチロ</b><span>ピンゾロ×10・3連勝で倍々</span></button><button class="gc" onclick="vgPre()"><i>🏦</i><b>担保ベット</b><span>銀行の預金を担保に一発勝負</span></button><button class="gc" onclick="vcPre()"><i>🐔</i><b>チキンレース</b><span>墜落前に止めて回収</span></button><button class="gc" onclick="vhPre()"><i>⬆️</i><b>ハイ&ロー クライム</b><span>連勝で積み上げ・ジョーカー注意</span></button><button class="gc" onclick="fvPre()"><i>🎰</i><b>フィーバースロット</b><span>7揃い×1000＋キャリーオーバー</span></button><button class="gc" onclick="vkPre()"><i>🏇</i><b>VIP競馬</b><span>馬単・三連複・三連単＋ボックス</span></button><button class="gc" onclick="vpPre()"><i>🃏</i><b>ダブルアップ・ポーカー</b><span>役ができたら最大5連続で×32</span></button><button class="gc" onclick="vrPre()"><i>🔫</i><b>ロシアンルーレット</b><span>HP3の撃ち合い・1000万から</span></button></div>`)}
 const vOK=(s,n)=>n>0&&(s=='rd'?RED.includes(n):s=='bk'?!RED.includes(n):s=='od'?n%2==1:n%2==0);
@@ -311,10 +325,10 @@ const win=s[0]==s[1]&&s[1]==s[2],k=s[0];let pool=fvPool(),pay=0,note='';
 if(win){pay=b*FM[k]*(vfv?vfv.M:1)+(k==0?pool:0);if(k==0)pool=0}else pool+=Math.floor(b*.1);try{localStorage.setItem(FK,pool)}catch(e){}
 if(vfv){if(win){vfv.M=Math.min(10,vfv.M+1);vfv.left=5;note=` ／フィーバー継続 ×${vfv.M}！`}else if(--vfv.left<=0){vfv=null;note=' ／フィーバー終了'}}else if(win&&k<2){vfv={M:2,left:5};note=' ／🔥フィーバー突入 ×2！'}
 chips+=pay;upd();fv=null;if(pay>=b*15)vFx();
-st(`<div class="msg" id="m">${win?`🎉 ${FS[k]} 揃い！ +${(pay-b).toLocaleString()}`:`ハズレ… -${b.toLocaleString()}`}${note}</div>${fvInfo()}${fvRls(s,0)}${vBtn('もう一度','fvPre()')}`);chk()}
-function fvLeave(){if(fv){clearInterval(fv.iv);chips+=fv.b}fv=null;chk()}
+st(`<div class="msg" id="m">${win?`🎉 ${FS[k]} 揃い！ +${(pay-b).toLocaleString()}`:`ハズレ… -${b.toLocaleString()}`}${note}</div>${fvInfo()}${fvRls(s,0)}${vBtn('もう一度','fvPre()')}`)}
+function fvLeave(){if(fv){clearInterval(fv.iv);chips+=fv.b}fv=null;upd()}
 /* VIP：三連単つき競馬／ダブルアップ・ポーカー */
-let vk,vp;
+let vk,vp,vkRace=0;
 const vkN=['ライジング','ミラクル','サンダー','ブロンズ','ドリーム','ハヤテ','グラン','オーロラ'],vkTn={ex:'馬単',tri:'三連複',tt:'三連単'};
 const vkP=o=>{let W=vk.W,p=1;for(const i of o){p*=vk.w[i]/W;W-=vk.w[i]}return p};
 const vkPerm=a=>a.length<2?[a]:a.flatMap((x,i)=>vkPerm(a.filter((_,j)=>j!=i)).map(r=>[x,...r]));
@@ -330,9 +344,14 @@ function vkS(i){const v=vk,q=v.t=='ex'?2:3,mx=v.box||v.t=='tri'?6:q,k=v.sel.inde
 function vkGo(){const v=vk,cs=vkCombos();if(!cs.length)return msg('馬を選んでください（条件を満たしていません）');const b=Math.min(vb,chips),cost=cs.length*b;if(b<1||cost>chips)return msg(`チップが足りません（${cost.toLocaleString()}必要）`);chips-=cost;dispW();
 const pl=[...Array(8).keys()],res=[];let W=v.W;while(res.length<3){let r=R(W),i=0;for(;i<pl.length;i++){r-=v.w[pl[i]];if(r<0)break}const h=pl.splice(i,1)[0];res.push(h);W-=v.w[h]}
 let pay=0,hit=0;cs.forEach(c=>{const ok=v.t=='ex'?c[0]==res[0]&&c[1]==res[1]:v.t=='tt'?c.every((x,i)=>x==res[i]):[...c].sort()+''==[...res].sort()+'';if(ok){hit++;pay+=Math.floor(b*vkO(c,v.t))}});
-payFx(pay);const T=++pkT;lv=()=>chk();let k=0;st(`<div class="msg" id="m">レース中…</div><div class="hres" id="vkr"></div>`);
-const iv=setInterval(()=>{if(T!=pkT||!$('#vkr')){clearInterval(iv);return}if(k<3){const r=2-k;$('#vkr').innerHTML+=`<div>${hmGn(res[r])}<span>${r+1}着 ${v.n[res[r]]}</span></div>`;k++;return}
-clearInterval(iv);dispW();if(pay>=cost*20)vFx();$('#m').textContent=hit?`🎯 的中！ ${hit}点 +${(pay-cost).toLocaleString()}`:`ハズレ… -${cost.toLocaleString()}`;$('#vkr').insertAdjacentHTML('afterend',vBtn('もう一度','vkPre()'));chk()},1000)}
+payFx(pay);lv=()=>chk();
+const f=v.n.map((n,i)=>({n,spd:v.w[i],sta:v.w[i],gut:v.w[i],cond:1+(R(61)-30)/1000,own:v.own&&i==0?1:0,stl:R(3)-1})),sm=hmSim(f),od=res.concat([...f.keys()].filter(i=>!res.includes(i)).sort((a,b)=>sm.order.indexOf(a)-sm.order.indexOf(b))),pos=[],fin=[];
+od.forEach((h,r)=>{pos[h]=sm.pos[sm.order[r]];fin[h]=sm.fin[sm.order[r]]});const sim={pos,fin,order:od};
+hm={no:++vkRace,own:0,f,ph:'run',iv:0,end:0,res:{sim,od,oi:-1}};
+hm.vk=()=>{hm=null;dispW();if(pay>=cost*20)vFx();const e=$('#hres'),k=$('#hmrk'),med=['🥇','🥈','🥉','4着','5着','6着','7着','8着'];if(!e)return;if(k)k.innerHTML='';
+msg(hit?`🎯 的中！ ${hit}点 ${rs(pay,cost)}`:`ハズレ… ${rs(0,cost)}`);
+e.innerHTML=`<div class="hres">${od.map((i,n)=>`<div><span style="width:34px">${med[n]}</span>${hmGn(i)}<span>${f[i].own?'★':''}${f[i].n}</span><small style="margin-left:auto;opacity:.8">${fin[i].toFixed(1)}秒</small></div>`).join('')}</div><div class="hres"><div><span>${vkTn[v.t]} ${cs.length}点 ${cost.toLocaleString()} → 払戻 ${pay.toLocaleString()}</span><span style="margin-left:auto">${rs(pay,cost)}</span></div></div>${vBtn('もう一度','vkPre()')}`;chk()};
+hmRaceUI()}
 const VM=[0,1,2,3,4,6,9,25,50],vpV=h=>{const v=sc(h);return v[0]==1&&v[1]<11?0:VM[v[0]]};
 function vpPre(){vp=null;lv=null;vRe=vpPre;$('#gt').textContent='ダブルアップ・ポーカー';st(`<div class="msg" id="m">残すカードをタップしてドロー。役ができたらダブルアップに挑戦（最大5連続で×32）</div><div class="lab">J以上のワンペア×1 ツーペア×2 スリーカード×3 ストレート×4 フラッシュ×6 フルハウス×9 フォーカード×25 SF×50</div>${vbR()}${vBtn('ディール','vpGo()')}`)}
 function vpGo(){const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;upd();const d=deck(),h=[0,1,2,3,4].map(()=>dr(d));vp={d,h,hold:[0,0,0,0,0],b,ph:'h',pot:0,n:0};lv=vpLeave;vpR('残すカードをタップして「ドロー」')}
@@ -352,15 +371,25 @@ function vpLeave(){if(vp&&vp.ph!='h')chips+=vp.pot;vp=null;chk()}
 let vr,vrId=0;
 const vrHP=n=>'❤️'.repeat(Math.max(n,0))+'🖤'.repeat(3-Math.max(n,0));
 function vrPre(){vr=null;lv=null;vRe=vrPre;if(vb<1e7)vb=1e7;$('#gt').textContent='ロシアンルーレット';st(`<div class="msg" id="m">1000万から。HP3ずつの撃ち合い</div><div class="lab">弾倉には1〜8発（実弾と空砲）が入っています<br>自分に撃つ：空砲ならもう一度撃てる／実弾なら自分のHP-1<br>相手に撃つ：実弾なら相手のHP-1／空砲だと手番交代<br>先にHPが0になったら負け。勝てば掛け金の1.9倍</div>${vbR()}${vBtn('開始','vrGo()')}`)}
-function vrGo(){const b=Math.min(vb,chips);if(b<1e7)return msg('掛け金は1000万からです（チップが足りません）');chips-=b;upd();vr={id:++vrId,b,h:[3,3],t:0,bz:0};lv=vrLeave;vrLoad();vrR(`開始！ 弾倉に実弾${vr.L}・空砲${vr.B}。あなたの番です`)}
+function vrGo(){const b=Math.min(vb,chips);if(b<1e7)return msg('掛け金は1000万からです（チップが足りません）');chips-=b;upd();vr={id:++vrId,b,h:[3,3],t:0,bz:0,ang:90,a0:90,hit:null};lv=vrLeave;vrLoad();vrR(`開始！ 弾倉に実弾${vr.L}・空砲${vr.B}。あなたの番です`)}
 function vrLoad(){const n=R(8)+1,l=1+R(n),m=[...Array(n)].map((_,i)=>i<l?1:0);shuf(m);vr.m=m;vr.L=l;vr.B=n-l}
-function vrR(t){const v=vr,my=!v.t&&!v.bz;st(`<div class="bch"><div class="hand${v.t?' w':''}"><div class="lab">CPU</div><div class="row" style="min-height:0;font-size:28px">${vrHP(v.h[1])}</div></div><div class="hand${v.t?'':' w'}"><div class="lab">あなた</div><div class="row" style="min-height:0;font-size:28px">${vrHP(v.h[0])}</div></div></div><div class="msg" id="m">${t}</div><div class="lab">弾倉：実弾 ${v.L} ・ 空砲 ${v.B}（残り ${v.m.length} 発）</div><div class="chips"><button class="btn" onclick="vrFire('s')"${my?'':' disabled'}>自分に撃つ</button><button class="btn d" onclick="vrFire('o')"${my?'':' disabled'}>相手に撃つ</button></div>`)}
+const vrGun=a=>`<div class="vrgun"><svg id="gun" viewBox="0 0 120 200" width="120" height="200" style="transform:rotate(${a}deg);filter:drop-shadow(0 8px 12px #000c)"><defs><linearGradient id="vgm" x1="0" x2="1"><stop offset="0" stop-color="#5b5b66"/><stop offset=".45" stop-color="#f3f3f8"/><stop offset="1" stop-color="#4c4c57"/></linearGradient><linearGradient id="vgg" x1="0" x2="1"><stop offset="0" stop-color="#8a6a12"/><stop offset=".5" stop-color="#fff3a8"/><stop offset="1" stop-color="#8a6a12"/></linearGradient></defs><rect x="53" y="6" width="14" height="98" rx="5" fill="url(#vgm)" stroke="#222" stroke-width="1.5"/><rect x="57" y="1" width="6" height="9" rx="2" fill="#111"/><circle cx="60" cy="118" r="28" fill="url(#vgg)" stroke="#3a2a05" stroke-width="3"/>${[[60,101],[75,109],[75,127],[60,135],[45,127],[45,109]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5.5" fill="#1a1208" stroke="#5c430a"/>`).join('')}<circle cx="60" cy="118" r="5" fill="#222"/><rect x="45" y="142" width="30" height="20" rx="6" fill="url(#vgm)" stroke="#222" stroke-width="1.5"/><path d="M46 158 L74 158 L81 196 L52 196 Z" fill="#4a2a12" stroke="#2a1608" stroke-width="3"/><circle cx="62" cy="176" r="5" fill="url(#vgg)"/></svg></div>`;
+function vrR(t,spin){const v=vr,my=!v.t&&!v.bz,hit=v.hit;v.hit=null;const hd=(i,n)=>`<div class="hand${v.t==i?' w':''}${hit===i?' hit':''}" data-h="${i}"><div class="lab">${n}</div><div class="row" style="min-height:0;font-size:28px">${vrHP(v.h[i])}</div></div>`;
+st(`${hd(1,'CPU（相手）')}${vrGun(spin?v.a0:v.ang)}<div class="msg" id="m">${t}</div><div class="lab">弾倉：実弾 ${v.L} ・ 空砲 ${v.B}（残り ${v.m.length} 発）</div>${hd(0,'あなた')}<div class="chips"><button class="btn" onclick="vrFire('s')"${my?'':' disabled'}>自分に撃つ</button><button class="btn d" onclick="vrFire('o')"${my?'':' disabled'}>相手に撃つ</button></div>`);
+if(spin)setTimeout(()=>{const g=$('#gun');if(g&&vr==v){g.style.transition='transform 1.1s cubic-bezier(.2,.8,.2,1)';g.style.transform=`rotate(${v.ang}deg)`}},40)}
 function vrFire(k){if(!vr||vr.t||vr.bz)return;vrShot(0,k)}
-function vrShot(w,k){const v=vr,id=v.id,live=v.m.shift(),tg=k=='s'?w:1-w,nm=w?'CPU':'あなた',tn=tg?'CPU':'あなた';live?v.L--:v.B--;v.bz=1;
-let t=`${nm}が${k=='s'?'自分':tn}を撃った → ${live?'💥 実弾！ HP-1':'💨 空砲'}`,nx=live?1-w:k=='s'?w:1-w;if(!live&&k=='s')t+='（もう一度撃てる）';
-if(live){v.h[tg]--;if(v.h[tg]<=0)return vrEnd(tg==1,t)}
+const vrSnd=live=>{try{const C=window.AudioContext||window.webkitAudioContext,a=vrSnd.a||(vrSnd.a=new C()),n=Math.floor(a.sampleRate*(live?.4:.05)),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,live?3:7);const s=a.createBufferSource(),g=a.createGain();s.buffer=b;g.gain.value=live?.5:.22;s.connect(g);g.connect(a.destination);s.start()}catch(e){}};
+function vrFx(live,tg){vrSnd(live);const g=$('.vrgun');if(!g)return;const f=document.createElement('div');f.className='vfl'+(live?'':' sm');f.style[tg?'top':'bottom']=live?'-34px':'-4px';g.appendChild(f);setTimeout(()=>f.remove(),400);
+if(live){g.animate([{transform:'none'},{transform:`translateY(${tg?16:-16}px)`},{transform:'none'}],{duration:260});const s=$('#s2');s&&s.animate([{transform:'none'},{transform:'translate(-9px,5px)'},{transform:'translate(8px,-5px)'},{transform:'translate(-4px,3px)'},{transform:'none'}],{duration:380});const v=document.createElement('div');v.className='vrv';document.body.appendChild(v);setTimeout(()=>v.remove(),850)}else{const m=$('#m');if(m)m.textContent='…カチッ'}}
+function vrBlood(tg){const h=document.querySelector(`.hand[data-h="${tg}"]`);if(!h)return;const s=document.createElement('div');s.className='bst';h.appendChild(s);for(let i=0;i<20;i++){const d=document.createElement('i'),a=Math.random()*6.283,r=30+R(120),z=4+R(12);d.className='bd';d.style.cssText=`--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r}px;width:${z}px;height:${z}px`;h.appendChild(d)}setTimeout(()=>h.querySelectorAll('.bd,.bst').forEach(e=>e.remove()),2600)}
+function vrShot(w,k){const v=vr,id=v.id,tg=k=='s'?w:1-w,nm=w?'CPU':'あなた',tn=tg?'CPU':'あなた',T=(f,ms)=>setTimeout(()=>{if(vr&&vr.id==id)f()},ms);v.bz=1;v.a0=v.ang;v.ang=(Math.floor(v.ang/360)+2)*360+(tg?0:180);
+vrR(`${nm}が${k=='s'?'自分':tn}に銃口を向けた…`,1);
+T(()=>{const m=$('#m'),g=$('.vrgun');if(m)m.textContent='…………';g&&g.animate([{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}],{duration:330,iterations:2});
+T(()=>{const live=v.m[0];vrFx(live,tg);
+T(()=>{v.m.shift();live?v.L--:v.B--;let t=`${nm}が${k=='s'?'自分':tn}を撃った → ${live?'💥 実弾！ HP-1':'💨 空砲'}`,nx=live?1-w:k=='s'?w:1-w;if(!live&&k=='s')t+='（もう一度撃てる）';
+if(live){v.h[tg]--;v.hit=tg;if(v.h[tg]<=0){vrR(t);vrBlood(tg);return T(()=>vrEnd(tg==1,t),1800)}}
 if(!v.m.length){vrLoad();t+=` ／ 再装填：実弾${v.L}・空砲${v.B}`}
-v.t=nx;vrR(t);setTimeout(()=>{if(!vr||vr.id!=id)return;v.bz=0;if(v.t){vrR(t+' ／ CPUの番…');setTimeout(()=>{if(vr&&vr.id==id)vrCpu()},1000)}else vrR(t+' ／ あなたの番')},1300)}
+v.t=nx;vrR(t);if(live)vrBlood(tg);T(()=>{v.bz=0;if(v.t){vrR(t+' ／ CPUの番…');T(vrCpu,1000)}else vrR(t+' ／ あなたの番')},1300)},live?650:550)},700)},1300)}
 function vrCpu(){const v=vr;let k=v.L/v.m.length>=.5?'o':'s';if(!v.L)k='s';else if(!v.B)k='o';else if(R(10)==0)k=k=='s'?'o':'s';vrShot(1,k)}
 function vrEnd(win,t){const b=vr.b,p=win?Math.floor(b*1.9):0;chips+=p;vr=null;lv=null;upd();if(win)vFx();st(`<div class="msg" id="m">${win?`🏆 勝利！ +${(p-b).toLocaleString()}`:`💀 敗北… -${b.toLocaleString()}`}</div><div class="lab">${t}</div>${vBtn('もう一度','vrPre()')}`);chk()}
 function vrLeave(){vr=null;chk()}
@@ -521,7 +550,7 @@ if(t-lr>.3){lr=t;hmRk(pr,sim.fin);const e=$('#hmlt');if(e)e.textContent=`${L}/${
 if(t-lm>1.1&&t<end-.6){lm=t;msg(`${t<1.2?'スタート！ ':lp>.9?'ゴール前の直線！ ':L==HLAPS&&lap<HLAPS?'最終周回！ ':''}先頭は${o[0]+1}番 ${f[o[0]].n}`);lap=L}}
 if(t<end)requestAnimationFrame(step);else hmDone(T)};
 requestAnimationFrame(step)}
-function hmDone(T){if(T!=hmT||!hm||hm.ph!='run')return;const h=hm,f=h.f,r=h.res,med=['🥇','🥈','🥉','4着','5着','6着','7着','8着'],rk=r.oi>=0?r.od.indexOf(r.oi)+1:0;h.ph='done';
+function hmDone(T){if(T==hmT&&hm&&hm.vk){const g=hm.vk;hm.vk=null;return g()}if(T!=hmT||!hm||hm.ph!='run')return;const h=hm,f=h.f,r=h.res,med=['🥇','🥈','🥉','4着','5着','6着','7着','8着'],rk=r.oi>=0?r.od.indexOf(r.oi)+1:0;h.ph='done';
 const e=$('#hres'),k=$('#hmrk');if(!e)return;if(k)k.innerHTML='';
 msg(r.oi>=0?(r.win?`🏆 優勝！ ${f[r.oi].n} 賞金 +${r.prize.toLocaleString()}`:`${rk}着… ${f[r.oi].n}`):`${f[r.od[0]].n} が優勝！`);
 const bl=r.L.length?r.L.map(x=>`<div><span>${hmLab(x.t,x.k)} ${x.b.toLocaleString()}</span><span style="margin-left:auto">${x.ok?`的中 ×${hmF(x.o)} ${rs(x.pay,x.b)}`:'ハズレ'}</span></div>`).join('')+`<div><span>馬券 ${r.tb.toLocaleString()} → 払戻 ${r.tp.toLocaleString()}</span><span style="margin-left:auto">${rs(r.tp,r.tb)}</span></div>`:'';
