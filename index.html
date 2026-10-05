@@ -19,6 +19,9 @@ body{min-height:100dvh;background:radial-gradient(ellipse at top,#3a0d12,#120a0a
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;width:min(720px,100%);margin-top:18px}
 .gc{font:inherit;color:inherit;padding:22px 10px;border-radius:16px;border:2px solid var(--g);background:linear-gradient(160deg,#1c5a3f,#0a3323);cursor:pointer;box-shadow:inset 0 0 30px #0008;transition:.2s}
 .gc i{font-size:46px;font-style:normal;display:block}.gc b{font-size:19px;display:block;margin-top:4px}.gc span{font-size:12px;opacity:.75}.gc:hover{transform:translateY(-4px);box-shadow:0 0 22px #d4af3788}
+.vip{grid-column:1/-1;border-color:#f6e27a;background:linear-gradient(160deg,#3b2b06,#130c00);box-shadow:inset 0 0 30px #000a,0 0 18px #d4af3755}
+.vip i{font-size:38px}.vip b{color:#f6e27a}
+.vcd{display:flex;gap:8px;align-items:center;padding:9px 12px;margin:6px 0;border-radius:10px;background:#0006;font-weight:700;text-align:left}.vcd em{font-style:normal;width:22px}.vcd small{margin-left:auto;opacity:.8;font-weight:700}
 .hud{display:flex;justify-content:space-between;align-items:center;width:min(900px,100%);gap:8px;margin-bottom:10px}
 .bank{padding:6px 14px;border-radius:999px;background:#000a;border:1px solid var(--g);color:var(--g2);font-weight:800;white-space:nowrap}
 .table{width:min(900px,100%);flex:1;border-radius:28px;padding:16px;background:radial-gradient(ellipse at center,var(--f),var(--f2));border:10px solid #4a2a12;box-shadow:0 0 0 3px var(--g),inset 0 0 60px #000a,0 20px 40px #000a;text-align:center}
@@ -142,7 +145,7 @@ input.tx{width:min(240px,70vw);padding:10px 12px;font:inherit;font-size:16px;tex
 <div class="box"><div class="sign">2−1 情報処理科ジノ</div><small>CASINO</small></div>
 <button class="btn" onclick="show('s1')">入店</button></div>
 <div class="scr" id="s1"><div class="hud"><span class="sign" style="font-size:22px">2−1 情報処理科ジノ</span><span class="bank"></span></div><p>ゲームを選んでください</p>
-<div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>サイコロゲーム</b><span>チンチロ・ヨット</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="play('sl')"><i>🎰</i><b>スロット</b><span>ジャグラー風・目押し</span></button><button class="gc" onclick="play('hr')"><i>🏇</i><b>競馬</b><span>育成・みんなでダービー</span></button><button class="gc" onclick="play('bc')"><i>🎴</i><b>バカラ</b><span>プレイヤー/バンカー/タイ</span></button><button class="gc" onclick="play('hl')"><i>↕️</i><b>ハイ&amp;ロー</b><span>次のカードは高い？低い？</span></button><button class="gc" onclick="play('cr')"><i>⚄⚁</i><b>クラップス</b><span>パスライン・フィールド</span></button><button class="gc" onclick="play('sb')"><i style="font-size:34px;line-height:1.7">⚀⚁⚂</i><b>シックボー</b><span>ダイス3個・大小/出目/合計</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button></div></div>
+<div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>サイコロゲーム</b><span>チンチロ・ヨット</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="play('sl')"><i>🎰</i><b>スロット</b><span>ジャグラー風・目押し</span></button><button class="gc" onclick="play('hr')"><i>🏇</i><b>競馬</b><span>育成・みんなでダービー</span></button><button class="gc" onclick="play('bc')"><i>🎴</i><b>バカラ</b><span>プレイヤー/バンカー/タイ</span></button><button class="gc" onclick="play('hl')"><i>↕️</i><b>ハイ&amp;ロー</b><span>次のカードは高い？低い？</span></button><button class="gc" onclick="play('cr')"><i>⚄⚁</i><b>クラップス</b><span>パスライン・フィールド</span></button><button class="gc" onclick="play('sb')"><i style="font-size:34px;line-height:1.7">⚀⚁⚂</i><b>シックボー</b><span>ダイス3個・大小/出目/合計</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button><button class="gc vip" onclick="play('vp')"><i>👑</i><b>VIPルーム</b><span>ハイリスク・ハイリターン ・ 会員制</span></button></div></div>
 <div class="scr" id="s2"><div class="hud"><button class="btn s d" onclick="back()">← ロビー</button><b id="gt"></b><span class="bank"></span></div><div class="table" id="stage"></div></div>
 <div id="over"><div><h2>破産…</h2><p id="ovp">チップがなくなりました</p><button class="btn" id="ovb">🏦 銀行へ行く</button></div></div>
 <script>
@@ -168,7 +171,7 @@ const betRow=()=>`<div class="chips">${STD.map(v=>`<button class="ch${v==bet?' o
 function setBet(v){bet=v;const c=!STD.includes(bet);document.querySelectorAll('.ch').forEach(b=>{if(b.classList.contains('more')){b.classList.toggle('on',c);b.innerHTML=c?`<small>more</small>${bet.toLocaleString()}`:'more'}else b.classList.toggle('on',+b.textContent==bet)});if(betHook)betHook()}
 function moreOpen(){const r=$('#mrow'),i=$('#mb');if(!r)return;const o=r.style.display=='none';r.style.display=o?'flex':'none';if(o){i.value=STD.includes(bet)?'':bet;i.focus()}}
 function moreSet(){const i=$('#mb');if(!i)return;let n=Math.floor(+i.value);if(!(n>=1))return msg('1以上の数字を入力してください');if(chips<1)return msg('チップがありません');let t='';if(n>chips){n=chips;t=`所持チップ(${chips.toLocaleString()})が上限です。`}setBet(n);$('#mrow').style.display='none';msg(t+`ベット額 ${n.toLocaleString()}`)}
-const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['サイコロゲーム',()=>dcMenu()],ru:['ルーレット',()=>ruPre()],sl:['スロット',()=>slPre()],hr:['競馬',()=>hmMenu()],bc:['バカラ',()=>bcPre()],hl:['ハイ&ロー',()=>hlPre()],cr:['クラップス',()=>crPre()],sb:['シックボー',()=>sbPre()]};
+const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['サイコロゲーム',()=>dcMenu()],ru:['ルーレット',()=>ruPre()],sl:['スロット',()=>slPre()],hr:['競馬',()=>hmMenu()],bc:['バカラ',()=>bcPre()],hl:['ハイ&ロー',()=>hlPre()],cr:['クラップス',()=>crPre()],sb:['シックボー',()=>sbPre()],vp:['VIPルーム',()=>vipMenu()]};
 function play(k){pkT++;betHook=null;show('s2');$('#gt').textContent=G[k][0];G[k][1]()}
 function back(){if(JG&&(JG.ph=='spin'||JG.ph=='pull'))return;slHalt();pkT++;hrAbort();if(lv){const f=lv;lv=null;f()}ruClr();show('s1')}
 function bankAssets(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1'));if(!b)return 0;let a=Math.max(0,b.dep||0);(b.fixed||[]).forEach(f=>a+=f.amt||0);for(const k in(b.hold||{})){const q=b.hold[k].q||0,p=b.mk&&b.mk.s&&b.mk.s[k]?b.mk.s[k].p:0;a+=q*p}return Math.floor(a)}catch(e){return 0}}
@@ -197,6 +200,19 @@ function chRoll(){const d=r3();ch.t++;let y=yk(d);if(!y&&ch.t<3)return chR('役�
 if(y.v>c.v){const m=Math.max(y.m,1)*(c.m<0?2:1);chips+=b+b*m;t=`${y.n}！ 勝ち +${b*m}`}
 else if(y.v<c.v){const m=Math.max(c.m,1)*(y.m<0?2:1),x=Math.min(chips,b*(m-1));chips-=x;t=`${y.n}… 負け -${b+x}`}
 else{chips+=b;t=`${y.n}。引き分け`}saveW();chR(t,d,1)}
+/* VIPルーム：入会条件（入会金・3銘柄すべて1万株・総資産1億）。中身は今後追加 */
+const VKEY='cj_vip',VFEE=10000000,VSYM=10000,VNET=100000000;
+const vipOk=()=>{try{const v=JSON.parse(localStorage.getItem(VKEY));return!!(v&&v.m===1)}catch(e){return false}};
+const vEsc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function vipHold(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1')),h=(b&&b.hold)||{},k=Object.keys(h);return{ok:k.length>=3&&k.every(x=>(h[x].q||0)>=VSYM),list:k.map(x=>({id:x,q:Math.max(0,Math.floor(h[x].q||0))}))}}catch(e){return{ok:false,list:[]}}}
+function vipChk(){const hd=vipHold(),as=chips+bankAssets();return{hd,as,fee:chips>=VFEE,sym:hd.ok,net:as>=VNET,all:chips>=VFEE&&hd.ok&&as>=VNET}}
+function vipMenu(){if(vipOk())return vipRoom();vipGate()}
+function vipGate(t){const c=vipChk(),r=(ok,l,d)=>`<div class="vcd"><em>${ok?'✅':'❌'}</em><span>${l}</span><small>${d}</small></div>`;
+st(`<div class="msg" id="m">${t||'👑 VIPルーム（会員制）'}</div><div class="lab" style="text-align:left">入会には、次の条件をすべて満たす必要があります。</div>${r(c.fee,'入会金 '+VFEE.toLocaleString()+'チップ','手持ち '+chips.toLocaleString())}${r(c.sym,'3銘柄すべて '+VSYM.toLocaleString()+'株以上を保有',c.hd.list.length?c.hd.list.map(x=>vEsc(x.id)+' '+x.q.toLocaleString()+'株').join(' / '):'銀行の情報なし')}${r(c.net,'総資産 '+VNET.toLocaleString()+'チップ以上','現在 '+c.as.toLocaleString())}<div class="lab">総資産＝手持ち＋預金＋定期＋株の評価額。株の情報は、銀行ページを開いたときに更新されます。入会金は手持ちチップから支払います。</div><div class="chips"><button class="btn" onclick="vipJoin()"${c.all?'':' disabled'}>入会する（${VFEE.toLocaleString()}）</button></div>`)}
+function vipJoin(){if(vipOk())return vipRoom();const c=vipChk();if(!c.all)return vipGate('条件を満たしていません');
+if(!confirm(`入会金 ${VFEE.toLocaleString()} チップを支払って、VIPルームに入会します。\nよろしいですか？`))return;
+chips-=VFEE;try{localStorage.setItem(VKEY,JSON.stringify({m:1,t:Date.now()}))}catch(e){}upd();vipRoom('入会しました。ようこそVIPルームへ');chk()}
+function vipRoom(t){st(`<div class="msg" id="m">${t||'👑 VIPルーム'}</div><div class="lab">会員証を確認しました。VIPルームの中身は準備中です。</div>`)}
 /* サイコロゲーム メニュー */
 function dcMenu(){$('#gt').textContent='サイコロゲーム';st(`<div class="msg" id="m">遊ぶゲームを選んでください</div><div class="grid"><button class="gc" onclick="chPre()"><i>🎲</i><b>チンチロ</b><span>親はCPU</span></button><button class="gc" onclick="ytPre()"><i>🎯</i><b>ヨット</b><span>5個のダイスで役を作る</span></button></div>`)}
 /* ヨット：ダイス5個・最大3回振り・キープ可。役で配当(返却額=ベット×倍率) */
@@ -293,12 +309,14 @@ const ex=hmLoad();if(ex){HM=ex;return hmStable()}
 if(!confirm(`「${n}」を${HPRICE.toLocaleString()}チップで購入します。\n名前は後から変更できません。よろしいですか？`))return;
 chips-=HPRICE;const g=()=>25+R(16);HM={name:n,spd:g(),sta:g(),gut:g(),fat:0,races:0,wins:0,earn:0};hmSave();upd();hmStable(`「${n}」を購入しました！`);chk()}
 
-function hmStable(t){if(!HM)return hmBuy();hrAbort();betHook=null;const h=HM,tired=h.fat>=80;
-st(`<div class="msg" id="m">${t||'厩舎'}</div><div class="hms"><b class="hmn">★ ${h.name}</b>${hmBar('スピード',h.spd,'#e8782a')}${hmBar('スタミナ',h.sta,'#2e9e4f')}${hmBar('根性',h.gut,'#c0242b')}${hmBar('疲労',h.fat,'#7a3aa8')}<div class="lab" style="text-align:left">戦績 ${h.races}戦${h.wins}勝 ・ 獲得賞金 ${h.earn.toLocaleString()}</div></div><div class="lab">トレーニング1回 ${HTRAIN}チップ ・ 疲労+22（疲労50以上は伸びが悪く、80以上は不可）<br>スピード＝速さ ／ スタミナ＝終盤の粘り ／ 根性＝ラストスパート<br>疲労が高いままレースに出ると調子を落とします</div><div class="sel"><button class="opt" onclick="hmTrain('spd')"${tired?' disabled':''}><b>スピード</b><small>${HTRAIN}チップ</small></button><button class="opt" onclick="hmTrain('sta')"${tired?' disabled':''}><b>スタミナ</b><small>${HTRAIN}チップ</small></button><button class="opt" onclick="hmTrain('gut')"${tired?' disabled':''}><b>根性</b><small>${HTRAIN}チップ</small></button></div><div class="chips"><button class="btn s" onclick="hmRest()">休養（無料・疲労-60）</button><button class="btn" onclick="hmEntry(1)">レースに出走</button><button class="btn s d" onclick="hmMenu()">← 競馬メニュー</button></div>`)}
-function hmTrain(k){const h=HM;if(!h)return;if(h.fat>=80)return msg('疲れすぎです。休養しましょう');if(chips<HTRAIN)return msg('チップが足りません');
-chips-=HTRAIN;const g=Math.max(1,Math.round((3+R(4))*(1-h[k]/130)*(h.fat>=50?.6:1)));h[k]=Math.min(100,h[k]+g);h.fat=Math.min(100,h.fat+22);hmSave();upd();
+const hmCost=()=>HTRAIN+Math.max(0,HM.spd+HM.sta+HM.gut-100);
+function hmStable(t){if(!HM)return hmBuy();hrAbort();betHook=null;const h=HM,tired=h.fat>=80,C=hmCost();
+st(`<div class="msg" id="m">${t||'厩舎'}</div><div class="hms"><b class="hmn">★ ${h.name}</b>${hmBar('スピード',h.spd,'#e8782a')}${hmBar('スタミナ',h.sta,'#2e9e4f')}${hmBar('根性',h.gut,'#c0242b')}${hmBar('疲労',h.fat,'#7a3aa8')}<div class="lab" style="text-align:left">戦績 ${h.races}戦${h.wins}勝 ・ 獲得賞金 ${h.earn.toLocaleString()}</div></div><div class="lab">トレーニング・休養 各1回 ${C}チップ（能力が上がるほど高くなります） ・ 疲労+22（疲労50以上は伸びが悪く、80以上は不可）<br>スピード＝速さ ／ スタミナ＝終盤の粘り ／ 根性＝ラストスパート<br>疲労が高いままレースに出ると調子を落とします</div><div class="sel"><button class="opt" onclick="hmTrain('spd')"${tired?' disabled':''}><b>スピード</b><small>${C}チップ</small></button><button class="opt" onclick="hmTrain('sta')"${tired?' disabled':''}><b>スタミナ</b><small>${C}チップ</small></button><button class="opt" onclick="hmTrain('gut')"${tired?' disabled':''}><b>根性</b><small>${C}チップ</small></button></div><div class="chips"><button class="btn s" onclick="hmRest()">休養（${C}チップ・疲労-60）</button><button class="btn" onclick="hmEntry(1)">レースに出走</button><button class="btn s d" onclick="hmMenu()">← 競馬メニュー</button></div>`)}
+function hmTrain(k){const h=HM;if(!h)return;if(h.fat>=80)return msg('疲れすぎです。休養しましょう');const C=hmCost();if(chips<C)return msg(`チップが足りません（${C}必要）`);
+chips-=C;const g=Math.max(1,Math.round((3+R(4))*(1-h[k]/130)*(h.fat>=50?.6:1)));h[k]=Math.min(100,h[k]+g);h.fat=Math.min(100,h.fat+22);hmSave();upd();
 hmStable(`${{spd:'スピード',sta:'スタミナ',gut:'根性'}[k]} +${g}！`);chk()}
-function hmRest(){const h=HM;if(!h)return;h.fat=Math.max(0,h.fat-60);hmSave();hmStable('ぐっすり休んで疲労が抜けました')}
+function hmRest(){const h=HM;if(!h)return;if(h.fat<=0)return msg('疲労はありません');const C=hmCost();if(chips<C)return msg(`チップが足りません（${C}必要）`);
+chips-=C;h.fat=Math.max(0,h.fat-60);hmSave();upd();hmStable('ぐっすり休んで疲労が抜けました');chk()}
 
 function hmEntry(own){hrAbort();own=HM?1:0;betHook=null;const T0=hmT;st(`<div class="msg" id="m">出走表を作成中…</div>`);
 hmPubGet().then(net=>{if(T0!=hmT||hm)return;const h=hmNew(own,++hmNo,net);hmBetUI();h.end=performance.now()+HSEC*1000;h.iv=setInterval(hmTick,400)})}
