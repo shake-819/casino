@@ -310,10 +310,13 @@ function logout(){
 
 /* ============ 口座 ============ */
 function setV(sel,v){$(sel).value=v;if(sel=='#qty')qtyPrev()}
+const FEE=0.1;   // 預金⇔手持ちの手数料（10%）
 async function doIn(){const a=num('#ma');if(a<1)return toast('金額を入力してください','err');if(a>wallet())return toast('手持ちチップが足りません','err');
-  setWallet(wallet()-a);const r=await act('bank_deposit',{p_amt:a},`${fmt(a)}チップを入金しました`);if(!r.ok)setWallet(wallet()+a);updateLive()}
+  const n=Math.floor(a*(1-FEE));if(n<1)return toast('手数料を引くと0になります','err');
+  setWallet(wallet()-a);const r=await act('bank_deposit',{p_amt:n},`${fmt(a)}チップを入金しました（手数料${fmt(a-n)}・預金に${fmt(n)}）`);if(!r.ok)setWallet(wallet()+a);updateLive()}
 async function doOut(){const a=num('#ma');if(a<1)return toast('金額を入力してください','err');if(a>S.dep)return toast('預金残高が足りません','err');
-  const r=await act('bank_withdraw',{p_amt:a},`${fmt(a)}チップを手持ちに出金しました`);if(r.ok)setWallet(wallet()+a);updateLive()}
+  const n=Math.floor(a*(1-FEE));if(n<1)return toast('手数料を引くと0になります','err');
+  const r=await act('bank_withdraw',{p_amt:a},`${fmt(a)}を出金（手数料${fmt(a-n)}・手持ちに${fmt(n)}）`);if(r.ok)setWallet(wallet()+n);updateLive()}
 
 /* ============ 投資 ============ */
 function selSym(id){ui.sel=id;saveUi();render();pollMk()}
@@ -385,7 +388,7 @@ function loginView(){
   <label class="lab" for="cc">引き継ぎコード</label><input id="cc" placeholder="123456-xxxxxxxx…" autocomplete="off">
   <button class="btn alt" style="width:100%;margin-top:12px" onclick="doImport()">この口座に入る</button></div>`}
 const views={
-acct(){return `<div class="card"><h2>入出金</h2><p class="mut">手持ちチップはカジノと共通です。預金に移すと、投資・定期預金・振込に使えます。</p>
+acct(){return `<div class="card"><h2>入出金</h2><p class="mut">手持ちチップはカジノと共通です。預金に移すと、投資・定期預金・振込に使えます。預金⇔手持ちの移動には手数料が10％かかります。</p>
   <div class="two"><div><span class="lab">手持ち（カジノ）</span><b class="amt" data-w></b></div><div><span class="lab">預金</span><b class="amt">${fmt(S.dep)}</b></div></div>
   <label class="lab" for="ma">金額</label><input id="ma" type="number" inputmode="numeric" min="1" step="1" placeholder="例：500">
   <div class="qs"><button class="q" onclick="setV('#ma',100)">100</button><button class="q" onclick="setV('#ma',500)">500</button><button class="q" onclick="setV('#ma',1000)">1000</button><button class="q" onclick="setV('#ma',wallet())">手持ち全部</button><button class="q" onclick="setV('#ma',S.dep)">預金全部</button></div>
