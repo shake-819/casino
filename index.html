@@ -191,15 +191,15 @@ if(pv>21)t='バスト…';else if(pb&&!hb){r=b*2.5;t='ブラックジャック�
 chips+=r;bj.t=`${t} ${r>b?'+'+(r-b):r==b?'±0':'-'+(b-r)}`;bjR();chk()}
 /* チンチロ */
 const dg=n=>'⚀⚁⚂⚃⚄⚅'[n-1],r3=()=>[R(6)+1,R(6)+1,R(6)+1].sort(),dv=(d,a)=>d.map(x=>`<span class="dice${a?' nd':''}" data-f="${x}">${dg(a?R(6)+1:x)}</span>`).join('');
-function yk(d){const[a,b,c]=d;if(a==c)return a==1?{v:100,n:'ピンゾロ',m:5}:{v:90+a,n:'アラシ',m:3};if(d+''=='4,5,6')return{v:80,n:'シゴロ',m:2};if(d+''=='1,2,3')return{v:-1,n:'ヒフミ',m:-2};if(a==b)return{v:10+c,n:c+'の目',m:1};if(b==c)return{v:10+a,n:a+'の目',m:1};return null}
-function chPre(){$('#gt').textContent='サイコロゲーム：チンチロ';st(`<div class="msg" id="m">ベット額を選んで勝負</div>${betRow()}<button class="btn" onclick="chGo()">勝負！</button><div class="chips"><button class="btn s d" onclick="dcMenu()">← ゲーム選択</button></div>`)}
-function chGo(){if(bet>chips)return msg('チップが足りません');chips-=bet;upd();let pd,py,n=0;do{pd=r3();py=yk(pd);n++}while(!py&&n<3);ch={b:bet,pd,py:py||{v:0,n:'目なし',m:1},t:0};chR('あなたの番。最大3回振れます',[])}
+function yk(d){const[a,b,c]=d;if(a==c)return a==1?{v:100,n:'ピンゾロ',m:hell?10:5}:{v:90+a,n:'アラシ',m:3};if(d+''=='4,5,6')return{v:80,n:'シゴロ',m:hell?5:2};if(d+''=='1,2,3')return{v:-1,n:'ヒフミ',m:-2};if(a==b)return{v:10+c,n:c+'の目',m:1};if(b==c)return{v:10+a,n:a+'の目',m:1};return null}
+function chPre(){if(hell)return hcPre();$('#gt').textContent='サイコロゲーム：チンチロ';st(`<div class="msg" id="m">ベット額を選んで勝負</div>${betRow()}<button class="btn" onclick="chGo()">勝負！</button><div class="chips"><button class="btn s d" onclick="dcMenu()">← ゲーム選択</button></div>`)}
+function chGo(){if(bet>chips)return msg('チップが足りません');chips-=bet;upd();let pd,py,n=0;do{pd=r3();py=yk(pd);n++}while(!py&&n<3);ch={b:bet,pd,py:py||{v:0,n:hell?'ションベン':'目なし',m:hell?-2:1},t:0};chR('あなたの番。最大3回振れます',[])}
 function chR(t,d,end){st(`<div class="lab">親（CPU）<span id="pn"></span></div><div class="bowl"><div class="row">${dv(ch.pd,!ch.ps&&(ch.ps=1))}</div></div><div class="msg" id="m">…</div><div class="bowl"><div class="row">${d.length?dv(d,1):'<span class="lab">—</span>'}</div></div><div class="lab">あなた（子） ベット ${ch.b}</div><div class="chips" id="ab" style="opacity:.3;pointer-events:none">${end?'<button class="btn" onclick="chPre()">もう一度</button>':`<button class="btn" onclick="chRoll()">サイコロを振る (${ch.t}/3)</button>`}</div>`);rollFx(()=>{if(end)chk();if(!$('#ab'))return;msg(t);$('#pn').textContent='：'+ch.py.n;$('#ab').removeAttribute('style')})}
 function rollFx(cb){const ds=[...document.querySelectorAll('.dice.nd')];if(!ds.length)return cb();ds.forEach((e,i)=>{e.classList.add('tm');const t=setInterval(()=>e.textContent=dg(R(6)+1),80);setTimeout(()=>{clearInterval(t);e.textContent=dg(+e.dataset.f);e.classList.replace('tm','ld')},800+i*300)});setTimeout(cb,800+ds.length*300+200)}
-function chRoll(){const d=r3();ch.t++;let y=yk(d);if(!y&&ch.t<3)return chR('役なし… 振り直し',d);y=y||{v:0,n:'目なし',m:1};const c=ch.py,b=ch.b;let t;
+function chRoll(){const d=r3();ch.t++;let y=yk(d);if(!y&&ch.t<3)return chR('役なし… 振り直し',d);y=y||{v:0,n:hell?'ションベン':'目なし',m:hell?-2:1};const c=ch.py,b=ch.b;let t;
 if(y.v>c.v){const m=Math.max(y.m,1)*(c.m<0?2:1);chips+=b+b*m;t=`${y.n}！ 勝ち +${b*m}`}
 else if(y.v<c.v){const m=Math.max(c.m,1)*(y.m<0?2:1),x=Math.min(chips,b*(m-1));chips-=x;t=`${y.n}… 負け -${b+x}`}
-else{chips+=b;t=`${y.n}。引き分け`}saveW();chR(t,d,1)}
+else{chips+=b;t=`${y.n}。引き分け`}if(hell){hs=y.v>c.v?hs+1:y.v<c.v?0:hs;t+=` ／連勝 ${hs}`;if(y.v>c.v&&y.m>=5)vFx()}saveW();chR(t,d,1)}
 /* VIPルーム：入会条件（入会金・3銘柄すべて1万株・総資産1億）。中身は今後追加 */
 const VKEY='cj_vip',VFEE=10000000,VSYM=10000,VNET=100000000;
 const vipOk=()=>{try{const v=JSON.parse(localStorage.getItem(VKEY));return!!(v&&v.m===1)}catch(e){return false}};
@@ -212,9 +212,114 @@ st(`<div class="msg" id="m">${t||'👑 VIPルーム（会員制）'}</div><div c
 function vipJoin(){if(vipOk())return vipRoom();const c=vipChk();if(!c.all)return vipGate('条件を満たしていません');
 if(!confirm(`入会金 ${VFEE.toLocaleString()} チップを支払って、VIPルームに入会します。\nよろしいですか？`))return;
 chips-=VFEE;try{localStorage.setItem(VKEY,JSON.stringify({m:1,t:Date.now()}))}catch(e){}upd();vipRoom('入会しました。ようこそVIPルームへ');chk()}
-function vipRoom(t){st(`<div class="msg" id="m">${t||'👑 VIPルーム'}</div><div class="lab">会員証を確認しました。VIPルームの中身は準備中です。</div>`)}
+/* VIPルーム：高額ゲーム（サドンデス・ルーレット／地獄チンチロ） */
+let vb=1000000,vs,vRe,hell=0,hs=0;
+const vFx=()=>document.body.animate([{filter:'brightness(2.2) saturate(2)'},{filter:'none'}],{duration:500,iterations:3});
+const vbR=()=>`<div class="chips">${[[1e6,'100万'],[5e6,'500万'],[1e7,'1000万'],[0,'ALL IN']].map(([v,l])=>`<button class="btn s${(v?vb==v:vb==(vRe==vgPre?vDep():chips))?'':' d'}" onclick="vSet(${v})">${l}</button>`).join('')}</div><div class="lab">ベット ${vb.toLocaleString()}</div>`;
+function vSet(v){vb=v||Math.max(vRe==vgPre?vDep():chips,1);if(vRe)vRe()}
+function vipRoom(t){hell=0;vs=null;vfv=null;lv=null;vRe=null;$('#gt').textContent='VIPルーム';st(`<div class="msg" id="m">${t||'👑 VIPルーム'}</div><div class="grid"><button class="gc" onclick="vsPre()"><i>🎡</i><b>サドンデス・ルーレット</b><span>勝つたび倍々・外れたら全損</span></button><button class="gc" onclick="hcPre()"><i>🎲</i><b>地獄チンチロ</b><span>ピンゾロ×10・3連勝で倍々</span></button><button class="gc" onclick="vgPre()"><i>🏦</i><b>担保ベット</b><span>銀行の預金を担保に一発勝負</span></button><button class="gc" onclick="vcPre()"><i>🐔</i><b>チキンレース</b><span>墜落前に止めて回収</span></button><button class="gc" onclick="vhPre()"><i>⬆️</i><b>ハイ&ロー クライム</b><span>連勝で積み上げ・ジョーカー注意</span></button><button class="gc" onclick="fvPre()"><i>🎰</i><b>フィーバースロット</b><span>7揃い×1000＋キャリーオーバー</span></button><button class="gc" onclick="vkPre()"><i>🏇</i><b>VIP競馬</b><span>馬単・三連複・三連単＋ボックス</span></button><button class="gc" onclick="vpPre()"><i>🃏</i><b>ダブルアップ・ポーカー</b><span>役ができたら最大5連続で×32</span></button></div>`)}
+const vOK=(s,n)=>n>0&&(s=='rd'?RED.includes(n):s=='bk'?!RED.includes(n):s=='od'?n%2==1:n%2==0);
+const vSides=()=>`<div class="chips">${[['rd','赤'],['bk','黒'],['od','奇数'],['ev','偶数']].map(([k,t])=>`<button class="btn s" onclick="vsGo('${k}')">${t}</button>`).join('')}</div>`;
+function vsPre(){vs=null;lv=null;vRe=vsPre;$('#gt').textContent='サドンデス・ルーレット';st(`<div class="msg" id="m">勝つたびに「受け取る」か「全額を次へ載せる」を選べます。載せるたび ×2・×4・×8…、外れたら全損（0は全員負け）</div>${vbR()}${vSides()}<div class="chips"><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`)}
+function vsGo(s){if(vs&&vs.bz)return;if(!vs){const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;upd();vs={b,k:0};lv=vsLeave}
+vs.bz=1;const k=vs.k;st(`<div class="msg" id="m">回転中…</div><div id="vn" style="font-size:72px;text-align:center">?</div><div class="lab">賭け金 ${(vs.b*2**k).toLocaleString()} ・ ×${2**k}</div>`);
+const n=R(37),T=setInterval(()=>{const e=$('#vn');if(e)e.textContent=R(37)},70);
+setTimeout(()=>{clearInterval(T);if(!vs)return;vs.bz=0;const p=vs.b*2**(k+1),h=`<div id="vn" style="font-size:72px;text-align:center">${n}</div>`;
+if(vOK(s,n)){vs.k++;if(vs.k>=3)vFx();st(`<div class="msg" id="m">${n}！的中 🔥 ${vs.k}連勝（×${2**vs.k}）</div>${h}<div class="chips"><button class="btn" onclick="vsCash()">受け取る +${p.toLocaleString()}</button></div><div class="lab">全額（${p.toLocaleString()}）を次のスピンに載せる：</div>${vSides()}`)}
+else{const l=vs.b*2**k;vs=null;lv=null;st(`<div class="msg" id="m">${n}… 外れ！ 全損 -${l.toLocaleString()}</div>${h}<div class="chips"><button class="btn" onclick="vsPre()">もう一度</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`);chk()}},1300)}
+function vsCash(){if(!vs||!vs.k||vs.bz)return;const p=vs.b*2**vs.k,b=vs.b;chips+=p;vs=null;lv=null;upd();vFx();st(`<div class="msg" id="m">💰 受け取り +${(p-b).toLocaleString()}</div><div class="chips"><button class="btn" onclick="vsPre()">もう一度</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`);chk()}
+function vsLeave(){if(vs&&vs.k)chips+=vs.b*2**vs.k;vs=null;chk()}
+function hcPre(){hell=1;vRe=hcPre;lv=null;$('#gt').textContent='地獄チンチロ';const x=Math.min(chips,vb*2**Math.floor(hs/3));st(`<div class="msg" id="m">ピンゾロ×10・シゴロ×5。ションベン（3回振って役なし）は2倍払い。3連勝ごとにベット自動で倍々</div>${vbR()}<div class="lab">連勝 ${hs} ・ 次のベット ${x.toLocaleString()}</div><div class="chips"><button class="btn" onclick="hcGo(${x})">勝負！</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`)}
+function hcGo(x){if(x<1)return msg('チップがありません');bet=x;chGo()}
+/* VIP：担保ベット（銀行の預金を担保に一発勝負）／チキンレース */
+let vg=0,vc;
+const vAuth=()=>{try{const a=JSON.parse(localStorage.getItem('cj_bank_auth'));return a&&a.acct&&a.secret?a:null}catch(e){return null}};
+const vDep=()=>{try{return Math.max(0,Math.floor(JSON.parse(localStorage.getItem('cj_bank_v1')).dep||0))}catch(e){return 0}};
+const vBtn=(l,f)=>`<div class="chips"><button class="btn" onclick="${f}">${l}</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`;
+function vgPre(t){vg=0;lv=null;vRe=vgPre;$('#gt').textContent='担保ベット';const a=vAuth();st(`<div class="msg" id="m">${t||'銀行の預金を担保に入れて一発勝負。勝てば倍率ぶん、負ければ担保は没収'}</div><div class="lab">${a?`担保にできる預金：${vDep().toLocaleString()}`:'銀行口座が見つかりません。先に銀行で口座を開いてください'}</div><div class="lab">担保にする額（預金から実際に引き落とされます）</div>${vbR()}<div class="chips">${[2,3,5].map(m=>`<button class="btn s" onclick="vgGo(${m})">×${m}（勝率${(97/m).toFixed(1)}%）</button>`).join('')}</div><div class="chips"><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`)}
+async function vgGo(m){if(vg)return;const a=vAuth();if(!a)return msg('銀行口座が見つかりません');const c=Math.min(vb,vDep());if(c<1)return msg('担保にできる預金がありません');vg=1;msg('担保を預けています…');
+try{const r=await fetch(SUPA.url+'/rest/v1/rpc/bank_withdraw',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPA.key,Authorization:'Bearer '+SUPA.key},body:JSON.stringify({p_acct:a.acct,p_secret:a.secret,p_amt:c})});if(!r.ok){let j=null;try{j=await r.json()}catch(e){}vg=0;return msg((j&&j.message)||'担保を預けられませんでした')}}catch(e){vg=0;return msg('通信エラー。銀行で残高を確認してください')}
+try{const k='cj_bank_v1',o=JSON.parse(localStorage.getItem(k));o.dep=Math.max(0,(o.dep||0)-c);localStorage.setItem(k,JSON.stringify(o))}catch(e){}
+const w=R(10000)<9700/m,p=w?c*m:0;chips+=p;upd();
+st(`<div class="msg" id="m">担保 ${c.toLocaleString()} を賭けて ×${m}…</div><div id="vn" style="font-size:72px;text-align:center">🎲</div>`);
+setTimeout(()=>{if(w&&m>=3)vFx();st(`<div class="msg" id="m">${w?`🎉 的中！ 担保が戻って +${(p-c).toLocaleString()}`:`💀 外れ… 担保 ${c.toLocaleString()} 没収`}</div><div id="vn" style="font-size:72px;text-align:center">${w?'💰':'💸'}</div>${vBtn('もう一度','vgPre()')}`);vg=0;chk()},1300)}
+/* VIP：ハイ&ロー クライム／フィーバースロット */
+let vh,fv;
+const vJk='<div class="cd" style="color:#b050ff">🃏</div>';
+function vhPre(){vh=null;lv=null;vRe=vhPre;$('#gt').textContent='ハイ&ロー クライム';st(`<div class="msg" id="m">当てるたび配当が掛け算で積み上がり、いつでも降りて回収できます。5連勝後はジョーカーが2枚混ざり、引くと全損。同じ数字は負け</div>${vbR()}${vBtn('スタート','vhGo()')}`)}
+function vhGo(){const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;upd();const d=deck();vh={d,c:dr(d),b,M:1,n:0};lv=vhLeave;vhR('ハイかローを選んでください')}
+function vhOd(){const h=vh,t=h.d.length||1,f=x=>h.d.filter(y=>!y.j&&f2(y,h.c,x)).length/t;return{hi:f(1),lo:f(-1)}}
+const f2=(y,c,s)=>s>0?y.r>c.r:y.r<c.r;
+function vhR(t){const h=vh,o=vhOd(),pot=Math.floor(h.b*h.M),g=p=>p>0?'×'+(.97/p).toFixed(2):'—';st(`<div class="msg" id="m">${t}</div><div class="row stk">${cd(h.c)}</div><div class="lab">連勝 ${h.n} ・ 配当 ${pot.toLocaleString()}（×${h.M.toFixed(2)}）${h.n>=5?' ・ 🃏ジョーカー混入中':''}</div><div class="chips"><button class="btn s" onclick="vhG('h')" ${o.hi?'':'disabled'}>ハイ ${g(o.hi)}</button><button class="btn s" onclick="vhG('l')" ${o.lo?'':'disabled'}>ロー ${g(o.lo)}</button></div>${h.n?`<div class="chips"><button class="btn" onclick="vhCash()">回収 +${(pot-h.b).toLocaleString()}</button></div>`:''}`)}
+function vhG(k){const h=vh;if(!h)return;const p=vhOd()[k=='h'?'hi':'lo'];if(!(p>0))return;const x=h.d.pop();x.o=seq++;
+if(!x.j&&f2(x,h.c,k=='h'?1:-1)){h.M*=.97/p;h.n++;h.c=x;if(h.n==5){h.d.push({j:1},{j:1});shuf(h.d)}if(h.M>=8)vFx();vhR('的中！ 🔥')}
+else{const l=h.b;vh=null;lv=null;st(`<div class="msg" id="m">${x.j?'🃏 ジョーカー！ 全損':'外れ…'} -${l.toLocaleString()}</div><div class="row stk">${x.j?vJk:cd(x)}</div>${vBtn('もう一度','vhPre()')}`);chk()}}
+function vhCash(){const h=vh;if(!h||!h.n)return;const p=Math.floor(h.b*h.M);chips+=p;vh=null;lv=null;upd();if(p>=h.b*5)vFx();st(`<div class="msg" id="m">💰 回収 +${(p-h.b).toLocaleString()}（×${h.M.toFixed(2)}）</div>${vBtn('もう一度','vhPre()')}`);chk()}
+function vhLeave(){if(vh)chips+=vh.n?Math.floor(vh.b*vh.M):vh.b;vh=null;chk()}
+const FS=['7️⃣','💎','🔔','🍒','🍋'],FP=[3,20,100,250,600],FM=[1000,50,15,6,3],FK='cj_fever';
+const fvPool=()=>{try{return Math.max(0,Math.floor(+localStorage.getItem(FK))||0)}catch(e){return 0}};
+let vfv=null;
+const fvInfo=()=>`<div class="lab">${vfv?`🔥 フィーバー中 ×${vfv.M}（残り${vfv.left}回・当たるたび ×+1 で継続）`:'💎か7️⃣揃いでフィーバー突入（配当×2から）'}</div><div class="lab">🏆 キャリーオーバー ${fvPool().toLocaleString()}</div>`;
+const fvR=s=>`<div class="row" style="font-size:64px;justify-content:center">${[0,1,2].map(i=>`<span id="r${i}">❓</span>`).join('')}</div>${s?`<div class="chips">${[0,1,2].map(i=>`<button class="btn" id="sb${i}" style="touch-action:none;user-select:none" oncontextmenu="return false" onpointerdown="fvDown(${i})" onpointerup="fvUp(${i})" onpointerleave="fvUp(${i})" onpointercancel="fvUp(${i})">停止${i+1}</button>`).join('')}</div>`:''}`;
+function fvPre(){fv=null;lv=null;vRe=fvPre;$('#gt').textContent='フィーバースロット';st(`<div class="msg" id="m">7️⃣×1000＋キャリーオーバー！ 7️⃣揃いは目押し必須（±1コマ以内）。最後のリールは長押しでスローになり、離すと停止</div>${fvInfo()}<div class="lab">7️⃣×1000 💎×50 🔔×15 🍒×6 🍋×3</div>${fvR(0)}${vbR()}${vBtn('スピン','fvGo()')}`)}
+function fvGo(){if(fv)return;const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;dispW();let r=R(10000),k=-1,a=0;for(let i=0;i<5;i++){a+=FP[i];if(r<a){k=i;break}}
+fv={b,k,st:[-1,-1,-1],pos:[R(5),R(5),R(5)],hold:0,rc:0};lv=fvLeave;st(`<div class="msg" id="m">停止ボタンで止めてください（最後の1つは長押し→離して停止）</div>${fvInfo()}${fvR(1)}`);fv.iv=setInterval(fvTick,40)}
+function fvTick(){const f=fv;if(!f)return;if(!$('#r0')){clearInterval(f.iv);return}for(let i=0;i<3;i++)if(f.st[i]<0){f.pos[i]=(f.pos[i]+(f.hold==i+1?2.5:9)*.04)%5;$('#r'+i).textContent=FS[Math.floor(f.pos[i])]}}
+function fvDown(i){const f=fv;if(!f||f.st[i]>=0)return;if(f.st.filter(x=>x<0).length==1){f.hold=i+1;msg('🐌 スロー中… 狙いの絵柄で指を離す！')}else fvStop(i)}
+function fvUp(i){if(fv&&fv.hold==i+1){fv.hold=0;fvStop(i)}}
+function fvStop(i){const f=fv;if(!f||f.st[i]>=0)return;let p=Math.floor(f.pos[i]);if(f.k>=0){const d=(f.k-p+5)%5;if(f.k>0||d<=1||d==4)p=f.k}
+f.st[i]=p;$('#r'+i).textContent=FS[p];$('#sb'+i).disabled=true;const s=f.st.filter(x=>x>=0);if(s.length==3)return fvEnd();if(s.length==2&&s[0]==s[1]&&!f.rc){f.rc=1;msg('🔥 REACH！！');vFx()}}
+function fvEnd(){const f=fv,s=f.st,b=f.b;clearInterval(f.iv);lv=null;if(s[0]==s[1]&&s[1]==s[2]&&f.k<0)s[2]=(s[2]+1)%5;
+const win=s[0]==s[1]&&s[1]==s[2],k=s[0];let pool=fvPool(),pay=0,note='';
+if(win){pay=b*FM[k]*(vfv?vfv.M:1)+(k==0?pool:0);if(k==0)pool=0}else pool+=Math.floor(b*.1);try{localStorage.setItem(FK,pool)}catch(e){}
+if(vfv){if(win){vfv.M=Math.min(10,vfv.M+1);vfv.left=5;note=` ／フィーバー継続 ×${vfv.M}！`}else if(--vfv.left<=0){vfv=null;note=' ／フィーバー終了'}}else if(win&&k<2){vfv={M:2,left:5};note=' ／🔥フィーバー突入 ×2！'}
+chips+=pay;upd();fv=null;if(pay>=b*15)vFx();
+st(`<div class="msg" id="m">${win?`🎉 ${FS[k]}揃い！ +${(pay-b).toLocaleString()}`:`ハズレ… -${b.toLocaleString()}`}${note}</div>${fvInfo()}<div class="row" style="font-size:64px;justify-content:center">${s.map(x=>`<span>${FS[x]}</span>`).join('')}</div>${vBtn('もう一度','fvPre()')}`);chk()}
+function fvLeave(){if(fv){clearInterval(fv.iv);chips+=fv.b}fv=null;chk()}
+/* VIP：三連単つき競馬／ダブルアップ・ポーカー */
+let vk,vp;
+const vkN=['ライジング','ミラクル','サンダー','ブロンズ','ドリーム','ハヤテ','グラン','オーロラ'],vkTn={ex:'馬単',tri:'三連複',tt:'三連単'};
+const vkP=o=>{let W=vk.W,p=1;for(const i of o){p*=vk.w[i]/W;W-=vk.w[i]}return p};
+const vkPerm=a=>a.length<2?[a]:a.flatMap((x,i)=>vkPerm(a.filter((_,j)=>j!=i)).map(r=>[x,...r]));
+const vkSub=(a,k)=>k==0?[[]]:a.flatMap((x,i)=>vkSub(a.slice(i+1),k-1).map(r=>[x,...r]));
+const vkO=(c,t)=>{const p=t=='tri'?vkPerm(c).reduce((a,o)=>a+vkP(o),0):vkP(c);return Math.min(9999,Math.max(1.1,Math.floor(9/p)/10))};
+function vkCombos(){const v=vk,s=v.sel,q=v.t=='ex'?2:3;if(s.length<q)return[];if(v.t=='tri')return vkSub(s,3);if(!v.box)return s.length==q?[s.slice()]:[];return vkSub(s,q).flatMap(vkPerm)}
+function vkPre(){lv=null;const o=typeof HM!='undefined'&&HM,w=vkN.map(()=>5+R(95)),n=vkN.slice();if(o){n[0]=HM.name;w[0]=Math.max(5,Math.round((HM.spd+HM.sta+HM.gut)/3))}
+vk={n,w,W:w.reduce((a,b)=>a+b,0),t:'tt',box:0,sel:[],own:!!o};$('#gt').textContent='VIP競馬';vRe=vkR;vkR()}
+function vkR(t){const v=vk,cs=vkCombos(),b=Math.min(vb,chips);st(`<div class="msg" id="m">${t||'馬券の種類を選び、馬をタップ。ボックスで組み合わせをまとめ買い'}</div><div class="chips">${['ex','tri','tt'].map(k=>`<button class="btn s${v.t==k?'':' d'}" onclick="vkT('${k}')">${vkTn[k]}</button>`).join('')}${v.t!='tri'?`<button class="btn s${v.box?'':' d'}" onclick="vkBox()">ボックス${v.box?'ON':'OFF'}</button>`:''}</div><div class="grid">${v.n.map((x,i)=>{const k=v.sel.indexOf(i);return`<button class="gc" onclick="vkS(${i})"><i>${k<0?'🐴':v.box||v.t=='tri'?'✅':['🥇','🥈','🥉'][k]}</i><b>${i+1} ${x}${v.own&&i==0?'（自分の馬）':''}</b><span>単勝 ${Math.floor(9*v.W/v.w[i])/10}倍</span></button>`}).join('')}</div><div class="lab">買い目 ${cs.length}点 × ${b.toLocaleString()} = ${(cs.length*b).toLocaleString()}${cs.length==1?` ／ オッズ ${vkO(cs[0],v.t)}倍`:''}</div>${vbR()}<div class="chips"><button class="btn" onclick="vkGo()">発走！</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`)}
+function vkT(k){vk.t=k;vk.sel=[];vk.box=0;vkR()}
+function vkBox(){vk.box=!vk.box;vk.sel=[];vkR()}
+function vkS(i){const v=vk,q=v.t=='ex'?2:3,mx=v.box||v.t=='tri'?6:q,k=v.sel.indexOf(i);if(k>=0)v.sel.splice(k,1);else if(v.sel.length<mx)v.sel.push(i);else return msg(`選べるのは${mx}頭までです`);vkR()}
+function vkGo(){const v=vk,cs=vkCombos();if(!cs.length)return msg('馬を選んでください（条件を満たしていません）');const b=Math.min(vb,chips),cost=cs.length*b;if(b<1||cost>chips)return msg(`チップが足りません（${cost.toLocaleString()}必要）`);chips-=cost;dispW();
+const pl=[...Array(8).keys()],res=[];let W=v.W;while(res.length<3){let r=R(W),i=0;for(;i<pl.length;i++){r-=v.w[pl[i]];if(r<0)break}const h=pl.splice(i,1)[0];res.push(h);W-=v.w[h]}
+let pay=0,hit=0;cs.forEach(c=>{const ok=v.t=='ex'?c[0]==res[0]&&c[1]==res[1]:v.t=='tt'?c.every((x,i)=>x==res[i]):[...c].sort()+''==[...res].sort()+'';if(ok){hit++;pay+=Math.floor(b*vkO(c,v.t))}});
+payFx(pay);const T=++pkT;lv=()=>chk();let k=0;st(`<div class="msg" id="m">レース中…</div><div class="lab" id="vkr"></div>`);
+const iv=setInterval(()=>{if(T!=pkT||!$('#vkr')){clearInterval(iv);return}if(k<3){const r=2-k;$('#vkr').innerHTML+=`${r+1}着 ${res[r]+1} ${v.n[res[r]]}<br>`;k++;return}
+clearInterval(iv);dispW();if(pay>=cost*20)vFx();$('#m').textContent=hit?`🎯 的中！ ${hit}点 +${(pay-cost).toLocaleString()}`:`ハズレ… -${cost.toLocaleString()}`;$('#vkr').insertAdjacentHTML('afterend',vBtn('もう一度','vkPre()'));chk()},1000)}
+const VM=[0,1,2,3,4,6,9,25,50],vpV=h=>{const v=sc(h);return v[0]==1&&v[1]<11?0:VM[v[0]]};
+function vpPre(){vp=null;lv=null;vRe=vpPre;$('#gt').textContent='ダブルアップ・ポーカー';st(`<div class="msg" id="m">残すカードをタップしてドロー。役ができたらダブルアップに挑戦（最大5連続で×32）</div><div class="lab">J以上のワンペア×1 ツーペア×2 スリーカード×3 ストレート×4 フラッシュ×6 フルハウス×9 フォーカード×25 SF×50</div>${vbR()}${vBtn('ディール','vpGo()')}`)}
+function vpGo(){const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;upd();const d=deck(),h=[0,1,2,3,4].map(()=>dr(d));vp={d,h,hold:[0,0,0,0,0],b,ph:'h',pot:0,n:0};lv=vpLeave;vpR('残すカードをタップして「ドロー」')}
+function vpR(t){const p=vp;st(`<div class="msg" id="m">${t}</div><div class="row">${p.h.map((c,i)=>`<div style="text-align:center;cursor:pointer" onclick="vpH(${i})">${cd(c)}<div class="lab">${p.hold[i]?'HOLD':'　'}</div></div>`).join('')}</div>${p.ph=='h'?'<div class="chips"><button class="btn" onclick="vpDraw()">ドロー</button></div>':vpBtn()}`)}
+const vpBtn=()=>`<div class="lab">配当 ${vp.pot.toLocaleString()}${vp.n?`（ダブルアップ ${vp.n}連勝）`:''}</div><div class="chips"><button class="btn" onclick="vpCash()">受け取る</button>${vp.n<5?'<button class="btn s" onclick="vpDbl()">ダブルアップ ×2</button>':''}</div>`;
+function vpH(i){if(vp&&vp.ph=='h'){vp.hold[i]^=1;vpR('残すカードをタップして「ドロー」')}}
+function vpDraw(){const p=vp;if(!p||p.ph!='h')return;p.h.forEach((_,i)=>{if(!p.hold[i])p.h[i]=dr(p.d)});const m=vpV(p.h);
+if(!m){p.ph='e';vp=null;lv=null;st(`<div class="msg" id="m">役なし… -${p.b.toLocaleString()}</div><div class="row">${p.h.map(c=>cd(c)).join('')}</div>${vBtn('もう一度','vpPre()')}`);return chk()}
+p.ph='d';p.pot=p.b*m;vpR(`${HN[sc(p.h)[0]]}！ ×${m}`)}
+function vpDbl(){const p=vp;if(!p||p.ph!='d')return;p.cpu=dr(p.d);p.o=[0,1,2,3].map(()=>dr(p.d));p.ph='x';st(`<div class="msg" id="m">CPUの札より高い札を引けば勝ち（同じ数字は負け）</div><div class="lab">CPUの札</div><div class="row">${cd(p.cpu)}</div><div class="lab">自分の札を1枚選ぶ（${p.n+1}/5）</div><div class="row">${p.o.map((_,i)=>`<div style="cursor:pointer" onclick="vpPick(${i})">${cd({r:2,s:0,d:1},1)}</div>`).join('')}</div>`)}
+function vpPick(i){const p=vp;if(!p||p.ph!='x')return;const w=p.o[i].r>p.cpu.r,f=`<div class="lab">CPUの札</div><div class="row">${cd({...p.cpu,d:1})}</div><div class="row">${p.o.map((c,j)=>`<div style="${j==i?'outline:3px solid #ffdf3a;border-radius:8px':''}">${cd({...c,d:1})}</div>`).join('')}</div>`;
+if(w){p.n++;p.pot*=2;if(p.n>=5){p.ph='d';return vpCash(f)}p.ph='d';st(`<div class="msg" id="m">🔥 的中！ ${p.n}連勝</div>${f}${vpBtn()}`)}
+else{vp=null;lv=null;st(`<div class="msg" id="m">💀 外れ… 配当を失いました -${p.b.toLocaleString()}</div>${f}${vBtn('もう一度','vpPre()')}`);chk()}}
+function vpCash(f){const p=vp;if(!p||p.ph!='d')return;chips+=p.pot;vp=null;lv=null;upd();if(p.pot>=p.b*8)vFx();st(`<div class="msg" id="m">💰 受け取り +${(p.pot-p.b).toLocaleString()}${p.n>=5?'（5連勝 ×32！）':''}</div>${typeof f=='string'?f:''}${vBtn('もう一度','vpPre()')}`);chk()}
+function vpLeave(){if(vp&&vp.ph!='h')chips+=vp.pot;vp=null;chk()}
+function vcPre(){vc=null;lv=null;vRe=vcPre;$('#gt').textContent='チキンレース';st(`<div class="msg" id="m">倍率が上がり続けます。墜落する前に「止める」で回収、墜落したら全損</div>${vbR()}${vBtn('スタート','vcGo()')}`)}
+function vcGo(){const b=Math.min(vb,chips);if(b<1)return msg('チップが足りません');chips-=b;upd();const u=R(1e6)/1e6,cp=Math.min(1000,Math.max(1,Math.floor(97/(1-u))/100));vc={b,cp,t0:performance.now(),m:1};lv=vcStop;st(`<div class="msg" id="m">上昇中…</div><div id="vm" style="font-size:64px;text-align:center">×1.00</div><div class="lab">賭け ${b.toLocaleString()}</div><div class="chips"><button class="btn" onclick="vcStop()">止める！</button></div>`);vc.iv=setInterval(vcTick,50)}
+const vcM=()=>Math.exp(.15*(performance.now()-vc.t0)/1000);
+function vcTick(){const v=vc;if(!v||v.done)return;v.m=vcM();if(v.m>=v.cp)return vcEnd(0);const e=$('#vm');if(!e){clearInterval(v.iv);return}e.textContent='×'+v.m.toFixed(2)}
+function vcStop(){if(!vc||vc.done)return;vc.m=vcM();vcEnd(vc.m<vc.cp?1:0)}
+function vcEnd(w){const v=vc;clearInterval(v.iv);v.done=1;lv=null;const m=Math.floor(v.m*100)/100,p=w?Math.floor(v.b*m):0;chips+=p;upd();if(w&&m>=5)vFx();
+st(`<div class="msg" id="m">${w?`✈️ ×${m.toFixed(2)} で脱出！ +${(p-v.b).toLocaleString()}`:`💥 ×${v.cp.toFixed(2)} で墜落… -${v.b.toLocaleString()}`}</div><div id="vn" style="font-size:64px;text-align:center">${w?'🐔':'💥'}</div>${vBtn('もう一度','vcPre()')}`);chk()}
 /* サイコロゲーム メニュー */
-function dcMenu(){$('#gt').textContent='サイコロゲーム';st(`<div class="msg" id="m">遊ぶゲームを選んでください</div><div class="grid"><button class="gc" onclick="chPre()"><i>🎲</i><b>チンチロ</b><span>親はCPU</span></button><button class="gc" onclick="ytPre()"><i>🎯</i><b>ヨット</b><span>5個のダイスで役を作る</span></button></div>`)}
+function dcMenu(){hell=0;$('#gt').textContent='サイコロゲーム';st(`<div class="msg" id="m">遊ぶゲームを選んでください</div><div class="grid"><button class="gc" onclick="chPre()"><i>🎲</i><b>チンチロ</b><span>親はCPU</span></button><button class="gc" onclick="ytPre()"><i>🎯</i><b>ヨット</b><span>5個のダイスで役を作る</span></button></div>`)}
 /* ヨット：ダイス5個・最大3回振り・キープ可。役で配当(返却額=ベット×倍率) */
 const YN={yacht:['ヨット！',10],ls:['ラージストレート',2],four:['フォーカード',2],fh:['フルハウス',1]};
 const ytTable=()=>'ダイス5個・最大3回振り。キープしたい目をタップ<br>ヨット(5つ揃い)×10 ／ ラージストレート×2 ／ フォーカード×2 ／ フルハウス×1(返却)';
@@ -231,7 +336,7 @@ ytR(!k?`役なし… 負け -${y.b}`:m==1?`${YN[k][0]} 返却（引き分け）`
 /* 競馬：馬の購入・育成＋周回コース＋みんなでダービー（パリミュチュエル方式） */
 // 調整用の定数：馬の価格／トレーニング1回の費用／控除率／優勝賞金（総売上に対する割合）／周回数／馬券の受付秒数
 const TAU=1.55,KAP=.5,HBASE={w:1500,p:1200,q:2100,wd:1200};
-const HPRICE=500,HTRAIN=50,HTAKE=.1,HOWN=.05,HLAPS=2,HSEC=25;
+const HPRICE=5000,HTRAIN=500,HTAKE=.1,HOWN=.05,HLAPS=2,HSEC=25;
 const HGC=['#f5f5f5','#111','#c0242b','#2b6cb0','#e8c24a','#2e9e4f','#e8782a','#f08cb4'],HGT=['#111','#fff','#fff','#fff','#111','#fff','#fff','#111'];
 const HPOOL=['ゴールドラッシュ','ブルーサンダー','レッドコメット','ミッドナイト','サクラフブキ','ハヤテノツバサ','シルバーアロー','ダイヤモンド','ジョウホウショリ','カゼノタイショウ'];
 const HTN={w:'単勝',p:'複勝',q:'馬連',wd:'ワイド'},HBN=['太郎','花子','次郎','三郎','桃子','健太','美咲','大輔'],HKEY='cj_horse',HKANA=/^[\u30A1-\u30F6\u30FB\u30FC]{2,9}$/,HSTK=['差し','先行','逃げ'];
@@ -243,7 +348,7 @@ const HID=(()=>{try{let v=localStorage.getItem('cj_horse_id');if(!/^[0-9a-f]{16}
 const hmRpc=(fn,a,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||2500);return fetch(SUPA.url+'/rest/v1/rpc/'+fn,{method:'POST',signal:c.signal,headers:{'Content-Type':'application/json',apikey:SUPA.key,Authorization:'Bearer '+SUPA.key},body:JSON.stringify(a)}).finally(()=>clearTimeout(t))};
 let hmRegT=0;
 function hmReg(){if(!HM)return;clearTimeout(hmRegT);hmRegT=setTimeout(()=>{try{hmRpc('horse_upsert',{p_id:HID,p_name:HM.name,p_spd:HM.spd,p_sta:HM.sta,p_gut:HM.gut,p_fat:HM.fat,p_races:HM.races,p_wins:HM.wins}).catch(()=>{})}catch(e){}},400)}
-async function hmPubGet(){try{const r=await hmRpc('horse_pick',{p_exclude:HID,p_n:7});if(!r.ok)return[];const a=await r.json(),cl=x=>Math.max(1,Math.min(100,Math.floor(+x)||1)),seen=new Set(HM?[HM.name]:[]),o=[];
+async function hmPubGet(){try{const r=await hmRpc('horse_pick',{p_exclude:HID,p_n:7});if(!r.ok)return[];const a=await r.json(),cl=x=>Math.max(1,Math.min(1e9,Math.floor(+x)||1)),seen=new Set(HM?[HM.name]:[]),o=[];
 for(const v of Array.isArray(a)?a:[]){if(!v||!HKANA.test(v.name)||seen.has(v.name))continue;seen.add(v.name);o.push({n:'👤'+v.name,spd:cl(v.spd),sta:cl(v.sta),gut:cl(v.gut),cond:1-Math.max(0,(+v.fat||0)-30)*.001+(R(31)-15)/1000,own:0,net:1});if(o.length>=7)break}return o}catch(e){return[]}}
 const gz=()=>Math.sqrt(-2*Math.log((R(999999)+1)/1e6))*Math.cos(2*Math.PI*R(1000000)/1e6);
 const hmCL=c=>c>=1.02?'🔥絶好調':c>=1.008?'🙂好調':c<=.98?'😣不調':c<=.992?'😟やや不調':'😐普通';
@@ -278,7 +383,7 @@ let k=0,left=N;
 while(left&&k<1000){k++;const t=k*dt;
 for(let i=0;i<N;i++){if(dn[i]){pos[i].push(1);continue}const x=f[i],q=p[i];
 nz[i]+=-nz[i]*.8*dt+.04*Math.sqrt(dt)*gz();
-const ps=.4+.5*x.sta/100,fd=Math.max(0,(q-ps)/(1-ps)),fm=1-.2*fd,gm=1+.1*(x.gut/100)*Math.max(0,Math.min(1,(q-.75)/.25)),sm=1+.035*x.stl*(.5-q)*2;
+const ps=Math.min(.99,.4+.5*x.sta/100),fd=Math.max(0,(q-ps)/(1-ps)),fm=1-.2*fd,gm=1+.1*(x.gut/100)*Math.max(0,Math.min(1,(q-.75)/.25)),sm=1+.035*x.stl*(.5-q)*2;
 const np=q+vb[i]*fm*gm*sm*(1+nz[i])*dt;
 if(np>=1){fin[i]=t-dt+dt*(1-q)/(np-q);dn[i]=1;left--;p[i]=1;pos[i].push(1)}else{p[i]=np;pos[i].push(np)}}}
 f.forEach((_,i)=>{if(!dn[i])fin[i]=99+p[i]*-1});
@@ -286,11 +391,11 @@ return{pos,fin,order:[...f.keys()].sort((a,b)=>fin[a]-fin[b])}}
 const hmPr=(s,t)=>s.pos.map(a=>{const k=Math.max(0,t)/.1,i=Math.min(a.length-1,Math.floor(k)),j=Math.min(a.length-1,i+1),u=Math.min(1,k-i);return a[i]+(a[j]-a[i])*u});
 const hmOrd=(pr,fin)=>[...pr.keys()].sort((a,b)=>pr[b]-pr[a]||(pr[a]>=1?fin[a]-fin[b]:a-b));
 /* ---- 画面まわり ---- */
-function hmLoad(){try{const v=JSON.parse(localStorage.getItem(HKEY));if(v&&HKANA.test(v.name)){const c=x=>Math.max(1,Math.min(100,Math.floor(+x)||1));return{name:v.name,spd:c(v.spd),sta:c(v.sta),gut:c(v.gut),fat:Math.max(0,Math.min(100,Math.floor(+v.fat)||0)),races:Math.max(0,v.races|0),wins:Math.max(0,v.wins|0),earn:Math.max(0,Math.floor(+v.earn)||0)}}}catch(e){}return null}
+function hmLoad(){try{const v=JSON.parse(localStorage.getItem(HKEY));if(v&&HKANA.test(v.name)){const c=x=>Math.max(1,Math.min(1e9,Math.floor(+x)||1));return{name:v.name,spd:c(v.spd),sta:c(v.sta),gut:c(v.gut),fat:Math.max(0,Math.min(100,Math.floor(+v.fat)||0)),races:Math.max(0,v.races|0),wins:Math.max(0,v.wins|0),earn:Math.max(0,Math.floor(+v.earn)||0)}}}catch(e){}return null}
 const hmSave=()=>{try{localStorage.setItem(HKEY,JSON.stringify(HM))}catch(e){}hmReg()};
 HM=hmLoad();hmReg();
 const hmLab=(t,k)=>t=='w'||t=='p'?`${HTN[t]} ${+k+1}番`:`${HTN[t]} ${k.split('-').map(x=>+x+1).join('-')}`;
-const hmBar=(l,v,c)=>`<div class="hmb"><span>${l}</span><div><i style="width:${v}%;background:${c}"></i></div><b>${v}</b></div>`;
+const hmBar=(l,v,c)=>`<div class="hmb"><span>${l}</span><div><i style="width:${Math.min(100,v)}%;background:${c}"></i></div><b>${v}</b></div>`;
 const hmGn=i=>`<span class="gn" style="background:${HGC[i]};color:${HGT[i]}">${i+1}</span>`;
 function hrAbort(){const h=hm;hmT++;if(!h)return;clearInterval(h.iv);const was=h.ph;hm=null;
 if(was=='bet'){let s=0;for(const k in h.mine)s+=h.mine[k];chips+=s;upd()}else if(was=='run')chk()}
@@ -309,11 +414,11 @@ const ex=hmLoad();if(ex){HM=ex;return hmStable()}
 if(!confirm(`「${n}」を${HPRICE.toLocaleString()}チップで購入します。\n名前は後から変更できません。よろしいですか？`))return;
 chips-=HPRICE;const g=()=>25+R(16);HM={name:n,spd:g(),sta:g(),gut:g(),fat:0,races:0,wins:0,earn:0};hmSave();upd();hmStable(`「${n}」を購入しました！`);chk()}
 
-const hmCost=()=>HTRAIN+Math.max(0,HM.spd+HM.sta+HM.gut-100);
+const hmCost=()=>HTRAIN+10*Math.max(0,HM.spd+HM.sta+HM.gut-100);
 function hmStable(t){if(!HM)return hmBuy();hrAbort();betHook=null;const h=HM,tired=h.fat>=80,C=hmCost();
 st(`<div class="msg" id="m">${t||'厩舎'}</div><div class="hms"><b class="hmn">★ ${h.name}</b>${hmBar('スピード',h.spd,'#e8782a')}${hmBar('スタミナ',h.sta,'#2e9e4f')}${hmBar('根性',h.gut,'#c0242b')}${hmBar('疲労',h.fat,'#7a3aa8')}<div class="lab" style="text-align:left">戦績 ${h.races}戦${h.wins}勝 ・ 獲得賞金 ${h.earn.toLocaleString()}</div></div><div class="lab">トレーニング・休養 各1回 ${C}チップ（能力が上がるほど高くなります） ・ 疲労+22（疲労50以上は伸びが悪く、80以上は不可）<br>スピード＝速さ ／ スタミナ＝終盤の粘り ／ 根性＝ラストスパート<br>疲労が高いままレースに出ると調子を落とします</div><div class="sel"><button class="opt" onclick="hmTrain('spd')"${tired?' disabled':''}><b>スピード</b><small>${C}チップ</small></button><button class="opt" onclick="hmTrain('sta')"${tired?' disabled':''}><b>スタミナ</b><small>${C}チップ</small></button><button class="opt" onclick="hmTrain('gut')"${tired?' disabled':''}><b>根性</b><small>${C}チップ</small></button></div><div class="chips"><button class="btn s" onclick="hmRest()">休養（${C}チップ・疲労-60）</button><button class="btn" onclick="hmEntry(1)">レースに出走</button><button class="btn s d" onclick="hmMenu()">← 競馬メニュー</button></div>`)}
 function hmTrain(k){const h=HM;if(!h)return;if(h.fat>=80)return msg('疲れすぎです。休養しましょう');const C=hmCost();if(chips<C)return msg(`チップが足りません（${C}必要）`);
-chips-=C;const g=Math.max(1,Math.round((3+R(4))*(1-h[k]/130)*(h.fat>=50?.6:1)));h[k]=Math.min(100,h[k]+g);h.fat=Math.min(100,h.fat+22);hmSave();upd();
+chips-=C;const g=Math.max(1,Math.round((3+R(4))*(1-h[k]/130)*(h.fat>=50?.6:1)));h[k]+=g;h.fat=Math.min(100,h.fat+22);hmSave();upd();
 hmStable(`${{spd:'スピード',sta:'スタミナ',gut:'根性'}[k]} +${g}！`);chk()}
 function hmRest(){const h=HM;if(!h)return;if(h.fat<=0)return msg('疲労はありません');const C=hmCost();if(chips<C)return msg(`チップが足りません（${C}必要）`);
 chips-=C;h.fat=Math.max(0,h.fat-60);hmSave();upd();hmStable('ぐっすり休んで疲労が抜けました');chk()}
@@ -345,7 +450,7 @@ const hit=(t,k)=>{if(t=='w')return+k==od[0];if(t=='p')return top3.includes(+k);c
 let tb=0,tp=0;const L=[];
 for(const kk in h.mine){const[t,k]=kk.split(':'),b=h.mine[kk],ok=hit(t,k),o=ok?hmO(t,k):0,pay=ok?Math.floor(b*o):0;tb+=b;tp+=pay;L.push({t,k,b,ok,o,pay})}
 const tot=['w','p','q','wd'].reduce((s,t)=>s+hmPT(t),0),oi=f.findIndex(x=>x.own),win=oi>=0&&od[0]==oi,prize=win?Math.floor(tot*HOWN):0;let gr='';
-if(oi>=0){HM.races++;if(win){HM.wins++;HM.earn+=prize}HM.fat=Math.min(100,HM.fat+15);const k=['spd','sta','gut'][R(3)];if(HM[k]<100){HM[k]++;gr=k}hmSave()}
+if(oi>=0){HM.races++;if(win){HM.wins++;HM.earn+=prize}HM.fat=Math.min(100,HM.fat+15);const k=['spd','sta','gut'][R(3)];HM[k]++;gr=k;hmSave()}
 chips+=tp+prize;saveW();h.res={sim,od,L,tb,tp,tot,oi,win,prize,gr};hmRaceUI()}
 
 function hmRaceUI(){const h=hm,f=h.f,T=++hmT,P='M140,187 H260 A62,62 0 0 0 260,63 H140 A62,62 0 0 0 140,187 Z',lx=TK.x1+TK.f;
