@@ -519,7 +519,7 @@ lv(){
   return `<div class="card"><h2>あなたのレベル</h2>
   <div class="lvbig"><b>Lv.${fmt(LV.level)}</b><span class="mut">${LV.rank?`現在 ${fmt(LV.rank)}位`:'ランキング圏外（まだ寄付していません）'}</span></div>
   <div class="prog"><i style="width:${LV.pct}%"></i></div>
-  <div class="mut">次のレベルまで ${LV.pct}%　／　累計寄付 ${bigFmt(LV.donated)}チップ</div>
+  <div class="mut">現在のレベルの進捗 ${LV.pct}%（100%で次のレベル）</div>
   <p class="mut" style="margin-top:8px">1000兆チップを寄付するとレベルが1上がります（レベルの上限なし）。何回かに分けて寄付してもOK。寄付は預金から引かれ、戻りません。</p>
   <label class="lab" for="da">寄付する金額（預金残高 ${fmt(S.dep)}）</label>
   <input id="da" type="number" inputmode="numeric" min="1" step="1" placeholder="例：1000000000000000（1000兆）">
@@ -555,7 +555,6 @@ function render(){
 /* ============ レベル ============ */
 let LV=null,lvBusy=false;
 const UNIT=1e15;   // 1レベルに必要な寄付額（1000兆）
-const bigFmt=s=>{try{return BigInt(s).toLocaleString('ja-JP')}catch(e){return s}};
 async function fetchLv(){
   if(!A||lvBusy)return;lvBusy=true;
   try{LV=await rpc('bank_level_get',{p_acct:A.acct,p_secret:A.secret});if(S&&ui.tab=='lv')render()}
