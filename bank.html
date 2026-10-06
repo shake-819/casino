@@ -95,6 +95,16 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 .prog{height:9px;background:var(--paper2);border-radius:99px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--rule)}
 .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2b6cb0,#4aa3ff)}
 .lock{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--cover);color:var(--gold2);font-weight:700}
+/* レベル */
+.lvbig{display:flex;align-items:baseline;gap:10px}
+.lvbig b{font-family:var(--mj);font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.rk{display:grid;grid-template-columns:34px 1fr auto 56px;gap:8px;align-items:center;padding:9px 6px;border-bottom:1px dashed var(--rule);font-size:15px}
+.rk:last-child{border-bottom:0}
+.rk.h{font-size:12px;color:var(--mut);padding-top:2px}
+.rk.me{background:#fff4c8;border-radius:8px}
+.rk .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .r{font-family:var(--mj);font-weight:800;text-align:center}
+.rk .l,.rk .p{text-align:right;font-variant-numeric:tabular-nums}
 /* 融資 */
 .cs{display:flex;align-items:center;gap:14px}
 .cs b{font-family:var(--mj);font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
@@ -121,7 +131,7 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 .acno{font-family:var(--mj);font-size:26px;font-weight:800;letter-spacing:.14em}
 /* nav */
 #tabs{position:fixed;left:0;right:0;bottom:0;background:var(--cover2);border-top:1px solid #ffffff22;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-#tabs div{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+#tabs div{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
 #tabs button{background:none;border:0;color:#a9b8d0;padding:9px 2px 8px;min-height:56px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;position:relative}
 #tabs button span{font-size:19px;line-height:1.2}
 #tabs button.on{color:var(--gold2);font-weight:700}
@@ -158,6 +168,7 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
   <button data-t="fix" onclick="setTab('fix')"><span>🔒</span>定期</button>
   <button data-t="tx" onclick="setTab('tx')"><span>✉️</span>振込</button>
   <button data-t="loan" onclick="setTab('loan')"><span>🏛️</span>融資</button>
+  <button data-t="lv" onclick="setTab('lv')"><span>🏅</span>レベル</button>
 </div></nav>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -383,12 +394,14 @@ function mgPrev(){
   const e=$('#mq'),o=$('#mp');if(!e||!o)return;
   const q=Math.max(0,Math.floor(+e.value)||0),l=+$('#ml').value,p=P(ui.sel),c=MGC();
   if(!q){o.innerHTML='株数を入力してください';return}
+  if(p<=0){o.innerHTML='株価がマイナス（0以下）の間は信用買い・空売りができません';return}
   const n=Math.round(p*q),m=Math.max(1,Math.ceil(n/l)),dd=m*c.liq/q;
   o.innerHTML=`建玉 <b>${fmt(n)}</b> ／ 必要な保証金 <b>${fmt(m)}</b>（預金から引かれます）<br>ロスカット目安：信用買い <b>${Math.max(0,p-dd).toFixed(1)}</b> 以下 ／ 空売り <b>${(p+dd).toFixed(1)}</b> 以上<br>金利：約 <b>${fmt(Math.round(n*c.rate))}</b> ／ 時間`}
-function mgMax(){const l=+$('#ml').value,p=P(ui.sel);setV('#mq',Math.max(1,Math.floor(S.dep*l/p)));mgPrev()}
+function mgMax(){const l=+$('#ml').value,p=P(ui.sel);if(p<=0)return toast('株価がマイナス（0以下）の間は建てられません','err');setV('#mq',Math.max(1,Math.floor(S.dep*l/p)));mgPrev()}
 function mgOpen(side){
   const q=num('#mq'),l=+$('#ml').value,d=SYMS.find(x=>x.id==ui.sel);
   if(q<1)return toast('株数を入力してください','err');
+  if(P(ui.sel)<=0)return toast('株価がマイナス（0以下）の間は信用買い・空売りができません','err');
   const m=Math.max(1,Math.ceil(Math.round(P(ui.sel)*q)/l));
   if(m>S.dep)return toast(`預金が足りません（必要な保証金 ${fmt(m)}）`,'err');
   act('bank_margin_open',{p_sym:d.id,p_side:side,p_qty:q,p_lev:l},r=>`${d.name}を${side=='long'?'信用買い':'空売り'}しました（${(+r.price).toFixed(1)}・保証金${fmt(r.margin)}）`)}
@@ -396,9 +409,10 @@ function mgClose(sym){
   const d=SYMS.find(x=>x.id==sym)||{name:sym};
   act('bank_margin_close',{p_sym:sym},r=>`${d.name}の建玉を決済しました（受取 ${fmt(r.pay)}・損益 ${r.pnl>=0?'+':'−'}${fmt(Math.abs(r.pnl))}）`)}
 function selSym(id){ui.sel=id;saveUi();render();pollMk()}
-const maxBuy=()=>Math.floor(S.dep/P(ui.sel));
-function qtyPrev(){const e=$('#qty');if(!e)return;const q=Math.max(0,Math.floor(+e.value)||0),p=P(ui.sel);$('#qc').textContent=q?`${fmt(q)}株 × ${p.toFixed(1)} ＝ 約${fmt(Math.round(p*q))}チップ`:''}
-function buy(){const q=num('#qty');if(q<1)return toast('株数を入力してください','err');const d=SYMS.find(x=>x.id==ui.sel);
+const maxBuy=()=>P(ui.sel)>0?Math.max(0,Math.floor(S.dep/P(ui.sel))):0;
+const NEGMSG='株価がマイナス（0以下）の間は買えません';
+function qtyPrev(){const e=$('#qty');if(!e)return;const q=Math.max(0,Math.floor(+e.value)||0),p=P(ui.sel);$('#qc').textContent=p<=0?NEGMSG:q?`${fmt(q)}株 × ${p.toFixed(1)} ＝ 約${fmt(Math.round(p*q))}チップ`:''}
+function buy(){const q=num('#qty');if(q<1)return toast('株数を入力してください','err');if(P(ui.sel)<=0)return toast(NEGMSG,'err');const d=SYMS.find(x=>x.id==ui.sel);
   act('bank_buy',{p_sym:d.id,p_qty:q},r=>`${d.name}を${q}株買いました（${(+r.price).toFixed(1)}）`)}
 function sell(){const q=num('#qty');const d=SYMS.find(x=>x.id==ui.sel);if(q<1)return toast('株数を入力してください','err');if(q>H(d.id).q)return toast(`保有は${H(d.id).q}株です`,'err');
   act('bank_sell',{p_sym:d.id,p_qty:q},r=>`${d.name}を${q}株売りました（${(+r.price).toFixed(1)}）`)}
@@ -407,7 +421,7 @@ function hinfo(){const h=H(ui.sel),p=P(ui.sel),v=h.q*p,pl=v-h.c;
 function spark(h){const a=h.length<2?[h[0],h[0]]:h;let mn=Math.min(...a),mx=Math.max(...a);if(mx-mn<1e-9){mx+=1;mn-=1}
   const pts=a.map((v,i)=>`${(i/(a.length-1)*100).toFixed(1)},${(26-(v-mn)/(mx-mn)*24).toFixed(1)}`).join(' ');
   return `<svg viewBox="0 0 100 28" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${a[a.length-1]>=a[0]?'#c62839':'#1f6fd1'}" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`}
-function chartSVG(h){const W=600,H=220,a=h.length<2?[h[0],h[0]]:h;let mn=Math.min(...a),mx=Math.max(...a);if(mx-mn<mn*.002){mx+=mn*.001;mn-=mn*.001}
+function chartSVG(h){const W=600,H=220,a=h.length<2?[h[0],h[0]]:h;let mn=Math.min(...a),mx=Math.max(...a);if(mx-mn<Math.abs(mn)*.002+1e-9){const e=Math.abs(mn)*.001+.01;mx+=e;mn-=e}
   const pad=(mx-mn)*.14;mn-=pad;mx+=pad;const X=i=>i/(a.length-1)*W,Y=v=>H-(v-mn)/(mx-mn)*H;
   const pts=a.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' '),up=a[a.length-1]>=a[0],c=up?'#c62839':'#1f6fd1';
   const grid=[0,1,2,3].map(i=>{const y=(H/3*i).toFixed(1),v=mx-(mx-mn)/3*i;return `<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="#d6e1ea" stroke-width="1"/><text x="${W-6}" y="${Math.min(H-4,+y+13)}" text-anchor="end" font-size="12" fill="#5a6b85">${v.toFixed(1)}</text>`}).join('');
@@ -467,7 +481,7 @@ const views={
 acct(){return `<div class="card"><h2>入出金</h2><p class="mut">手持ちチップはカジノと共通です。預金に移すと、投資・定期預金・振込に使えます。預金⇔手持ちの移動に手数料はかかりません。</p>
   <div class="two"><div><span class="lab">手持ち（カジノ）</span><b class="amt" data-w></b></div><div><span class="lab">預金</span><b class="amt">${fmt(S.dep)}</b></div></div>
   <label class="lab" for="ma">金額</label><input id="ma" type="number" inputmode="numeric" min="1" step="1" placeholder="例：500">
-  <div class="qs"><button class="q" onclick="setV('#ma',100)">100</button><button class="q" onclick="setV('#ma',500)">500</button><button class="q" onclick="setV('#ma',1000)">1000</button><button class="q" onclick="setV('#ma',Math.max(0,wallet()))">手持ち全部</button><button class="q" onclick="setV('#ma',S.dep)">預金全部</button></div>
+  <div class="qs"><button class="q" onclick="setV('#ma',100)">100</button><button class="q" onclick="setV('#ma',500)">500</button><button class="q" onclick="setV('#ma',1000)">1000</button><button class="q" onclick="setV('#ma',Math.max(0,wallet()))">手持ち全部</button><button class="q" onclick="setV('#ma',Math.max(0,S.dep))">預金全部</button></div>
   <div class="btns"><button class="btn" onclick="doIn()">預金に入金</button><button class="btn alt" onclick="doOut()">手持ちへ出金</button></div></div>
   <div class="card"><h2>通帳</h2>${ledger()}</div>
   <div class="card"><h2>お知らせ</h2>${S.notices.slice(0,8).map(n=>`<div class="notice ${n.k}"><time>${fmtD(n.t)}</time><span>${esc(n.m)}</span></div>`).join('')||'<p class="mut">お知らせはありません。</p>'}</div>`},
@@ -499,6 +513,22 @@ tx(){return `<div class="card"><h2>自分の口座</h2><div class="acno">${S.acc
   <div class="card"><h2>振込履歴</h2>${S.tx.map(x=>`<div class="tx-i"><div><b>${x.dir=='out'?'→ ':'← '}${esc(x.peer_name||'')}</b> <span class="mut">${x.peer}</span> <span class="mut">${esc(x.memo)}</span><br><span class="mut">${fmtDate(x.t)}</span></div><div><b class="amt" style="font-size:18px">${x.dir=='out'?'−':'+'}${fmt(x.a)}</b> <span class="st sent">${x.dir=='out'?'送金':'受取'}</span></div></div>`).join('')||'<p class="mut">振込の履歴はありません。</p>'}</div>
   <div class="card"><h2>引き継ぎコード</h2><p class="mut">別の端末やブラウザで同じ口座を使うための合言葉です。<b>他人に教えないでください</b>（知られると、その人がこの口座を操作できます）。</p>
   <div class="btns"><button class="btn" onclick="copyCode()">コードをコピー</button><button class="btn alt" onclick="logout()">この端末から外す</button></div></div>`},
+lv(){
+  if(!LV)return `<div class="card"><h2>レベル</h2><p class="mut">読み込み中…</p></div>`;
+  const top=LV.top||[];
+  return `<div class="card"><h2>あなたのレベル</h2>
+  <div class="lvbig"><b>Lv.${fmt(LV.level)}</b><span class="mut">${LV.rank?`現在 ${fmt(LV.rank)}位`:'ランキング圏外（まだ寄付していません）'}</span></div>
+  <div class="prog"><i style="width:${LV.pct}%"></i></div>
+  <div class="mut">次のレベルまで ${LV.pct}%　／　累計寄付 ${bigFmt(LV.donated)}チップ</div>
+  <p class="mut" style="margin-top:8px">1000兆チップを寄付するとレベルが1上がります（レベルの上限なし）。何回かに分けて寄付してもOK。寄付は預金から引かれ、戻りません。</p>
+  <label class="lab" for="da">寄付する金額（預金残高 ${fmt(S.dep)}）</label>
+  <input id="da" type="number" inputmode="numeric" min="1" step="1" placeholder="例：1000000000000000（1000兆）">
+  <div class="qs"><button class="q" onclick="setV('#da',${UNIT})">1000兆（1レベル分）</button><button class="q" onclick="setV('#da',Math.max(0,S.dep))">預金全部</button></div>
+  <div class="btns"><button class="btn" onclick="doDonate()">寄付する</button><button class="btn alt" onclick="fetchLv()">ランキング更新</button></div></div>
+  <div class="card"><h2>レベルランキング <small>TOP10</small></h2>
+  ${top.length?`<div class="rk h"><span style="text-align:center">順位</span><span>名前</span><span style="text-align:right">レベル</span><span style="text-align:right">進捗</span></div>`
+    +top.map(t=>`<div class="rk${t.me?' me':''}"><span class="r">${t.rank}</span><span class="n">${esc(t.name)}${t.me?'（あなた）':''}</span><span class="l">Lv.${fmt(t.lv)}</span><span class="p">${t.pct}%</span></div>`).join('')
+    :'<p class="mut">まだ誰も寄付していません。最初のランクインを目指しましょう。</p>'}</div>`},
 loan(){return `<div class="card"><h2>信用スコア</h2><div class="cs"><b>${S.credit}</b><div class="bar"><i style="width:${S.credit}%"></i></div></div>
   <p class="mut" style="margin-top:8px">期限内の返済で上がり、延滞や否決で下がります。高いほど審査に通りやすくなります。</p></div>
   ${S.loans.length?`<div class="card"><h2>借入中</h2>${S.loans.map(l=>`<div class="row-l"><div><b>${CO(l.co).name}</b> <span class="mut">借入 ${fmt(l.amt)}</span></div><div>返済額 <b class="amt" data-owed="${l.id}"></b></div><div class="due" data-due="${l.id}"></div><button class="btn s" style="justify-self:start" onclick="repay('${l.id}')">全額返済</button></div>`).join('')}</div>`:''}
@@ -522,7 +552,22 @@ function render(){
   if(ui.tab=='inv'){qtyPrev();mgPrev()}
   updateLive();
 }
-function setTab(t){ui.tab=t;saveUi();if(S){render();syncHist();if(t=='inv')pollMk()}window.scrollTo(0,0)}
+/* ============ レベル ============ */
+let LV=null,lvBusy=false;
+const UNIT=1e15;   // 1レベルに必要な寄付額（1000兆）
+const bigFmt=s=>{try{return BigInt(s).toLocaleString('ja-JP')}catch(e){return s}};
+async function fetchLv(){
+  if(!A||lvBusy)return;lvBusy=true;
+  try{LV=await rpc('bank_level_get',{p_acct:A.acct,p_secret:A.secret});if(S&&ui.tab=='lv')render()}
+  catch(e){toast(e.message,'err')}finally{lvBusy=false}
+}
+async function doDonate(){
+  const a=num('#da');if(a<1)return toast('寄付する金額を入力してください','err');
+  if(a>S.dep)return toast('預金残高が足りません','err');
+  const r=await act('bank_donate',{p_amount:a},r=>r.up>0?`🏅 レベルが${fmt(r.up)}上がりました！ Lv.${fmt(r.level)}`:`寄付しました（Lv.${fmt(r.level)}・進捗${r.pct}%）`);
+  if(r.ok){LV=r.r;render()}
+}
+function setTab(t){ui.tab=t;saveUi();if(S){render();syncHist();if(t=='inv')pollMk();if(t=='lv')fetchLv()}window.scrollTo(0,0)}
 function updateLive(){
   const w=wallet();$('#s-w').textContent=fmt(w);
   if(!S){['#s-d','#s-i','#s-f','#s-l','#net'].forEach(s=>$(s).textContent='—');$('#acct').textContent=A?A.acct:'------';$('#link').textContent='口座未開設';return}
@@ -538,7 +583,7 @@ function updateLive(){
   document.querySelectorAll('[data-owed]').forEach(e=>{const l=S.loans.find(x=>x.id==e.dataset.owed);if(l)e.textContent=fmt(owed(l,t))});
   document.querySelectorAll('[data-due]').forEach(e=>{const l=S.loans.find(x=>x.id==e.dataset.due);if(!l)return;const x=l.due-t;e.textContent=x>0?'期限まで '+fmtDur(x):'延滞中 '+fmtDur(-x)+'（延滞金が増加中）';e.classList.toggle('bad',x<=0)});
   if(ui.tab=='inv'&&$('#chart')){
-    SYMS.forEach(d=>{const m=MK[d.id];if(!m)return;const c=m.p/m.h[0]-1;
+    SYMS.forEach(d=>{const m=MK[d.id];if(!m)return;const c=m.h[0]?(m.p-m.h[0])/Math.abs(m.h[0]):0;
       document.querySelectorAll(`[data-pr="${d.id}"]`).forEach(e=>e.textContent=m.p.toFixed(1));
       document.querySelectorAll(`[data-chg="${d.id}"]`).forEach(e=>{e.textContent=(c>=0?'▲ +':'▼ −')+Math.abs(c*100).toFixed(2)+'%';e.className='chg '+(c>=0?'up':'dn')});
       const sp=document.querySelector(`[data-sp="${d.id}"]`);if(sp)sp.innerHTML=spark(m.h)});
