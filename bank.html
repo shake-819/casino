@@ -360,6 +360,8 @@ async function doOut(){const a=num('#ma');if(a<1)return toast('金額を入力�
 
 /* ============ 投資 ============ */
 /* ---- 信用取引・空売り ---- */
+const MG_LIMIT=1e10,MG_HOLD=30000,MG_CD=30000;   // 1回の建玉の上限（100億）／建ててから決済できるまで／決済後に建てられるまで（ミリ秒）
+let mgCd=0;                                     // 次に建てられるようになる時刻（決済後30秒）
 function mgCard(){
   if(!S.mgc)return '';   // サーバー側が未更新のときは出さない
   const c=MGC(),L=S.margin||[],has=L.some(p=>p.sym==ui.sel),d=SYMS.find(x=>x.id==ui.sel);
@@ -370,7 +372,7 @@ function mgCard(){
   <label class="lab" for="ml">倍率</label><select id="ml" onchange="mgPrev()">${c.levs.map(l=>`<option value="${l}"${l==3?' selected':''}>${l}倍</option>`).join('')}</select>
   <div id="mp" class="lp"></div>
   <div class="btns"><button class="btn buy" onclick="mgOpen('long')">信用買い</button><button class="btn sell" onclick="mgOpen('short')">空売り</button></div>`;
-  const rule=`<p class="mut">預金を<b>保証金</b>にして、その${c.levs.join('・')}倍までの株を取引します。<b>信用買い</b>は値上がりで得、<b>空売り</b>は値下がりで得。損益は倍率ぶん大きくなります。損失が保証金の${Math.round(c.liq*100)}％に達すると自動で<b>ロスカット</b>（強制決済）。損失は保証金までで、借金にはなりません。保有中は建玉の${+(c.rate*100).toFixed(2)}％／時間の金利がかかります。</p>`;
+  const rule=`<p class="mut">預金を<b>保証金</b>にして、その${c.levs.join('・')}倍までの株を取引します。<b>信用買い</b>は値上がりで得、<b>空売り</b>は値下がりで得。損益は倍率ぶん大きくなります。損失が保証金の${Math.round(c.liq*100)}％に達すると自動で<b>ロスカット</b>（強制決済）。損失は保証金までで、借金にはなりません。保有中は建玉の${+(c.rate*100).toFixed(2)}％／時間の金利がかかります。<br><b>1回の建玉は100億まで</b>。建ててから<b>30秒間は決済できず</b>、決済したあと<b>30秒間は新しく建てられません</b>。</p>`;
   const lst=L.length?`<div class="card"><h2>信用建玉 <small>含み損益はリアルタイム</small></h2>${L.map(mgItem).join('')}</div>`:'';
   return `<div class="card"><h2>信用取引・空売り <small>${esc(d.name)}</small></h2>${rule}${form}</div>${lst}`}
 function mgItem(p){
@@ -379,7 +381,8 @@ function mgItem(p){
   <div class="mut">${fmt(p.q)}株 ／ 建値 ${(+p.e).toFixed(1)} → 現在値 <b ${k('px')}></b> ／ 保証金 ${fmt(p.m)}</div>
   <div class="mut">評価額 <b ${k('eq')}></b> ／ 金利累計 <b ${k('it')}></b> ／ ロスカット <b ${k('lq')}></b></div>
   <div class="prog"><i ${k('bar')} style="width:0"></i></div><div class="mut">ロスカットまでの余裕（右へ行くほど危険）</div>
-  <button class="btn s" style="margin-top:8px" onclick="mgClose('${p.sym}')">決済する</button></div>`}
+  <div class="mut" ${k('hd')}></div>
+  <button class="btn s" style="margin-top:8px" ${k('btn')} onclick="mgClose('${p.sym}')">決済する</button></div>`}
 function mgLive(){
   if(!S||!S.mgc||!S.margin)return;
   const t=now(),c=MGC();
@@ -388,26 +391,35 @@ function mgLive(){
     const eq=mgEq(p,t),pl=eq-p.m,it=mgInt(p,t),dist=(p.m*c.liq-it)/p.q,lq=Math.max(0,p.side=='long'?p.e-dist:p.e+dist),use=clamp((p.m-eq)/(p.m*c.liq),0,1);
     const a=q('pl');a.textContent=(pl>=0?'+':'−')+fmt(Math.abs(pl));a.className='amt '+(pl>=0?'up':'dn');
     q('px').textContent=P(p.sym).toFixed(1);q('eq').textContent=fmt(Math.max(0,eq));q('it').textContent=fmt(it);q('lq').textContent=lq.toFixed(1)+(p.side=='long'?' 以下':' 以上');
-    const b=q('bar');b.style.width=(use*100).toFixed(1)+'%';b.style.background=use<.5?'#1b7f4b':use<.8?'#d4af37':'#c8322f'});
+    const b=q('bar');b.style.width=(use*100).toFixed(1)+'%';b.style.background=use<.5?'#1b7f4b':use<.8?'#d4af37':'#c8322f';
+    const rem=Math.ceil((p.t+MG_HOLD-t)/1000),hd=q('hd'),bt=q('btn');
+    if(hd)hd.textContent=rem>0?`⏳ あと${rem}秒で決済できます`:'';if(bt)bt.disabled=rem>0});
   mgPrev()}
 function mgPrev(){
   const e=$('#mq'),o=$('#mp');if(!e||!o)return;
   const q=Math.max(0,Math.floor(+e.value)||0),l=+$('#ml').value,p=P(ui.sel),c=MGC();
   if(!q){o.innerHTML='株数を入力してください';return}
   if(p<=0){o.innerHTML='株価がマイナス（0以下）の間は信用買い・空売りができません';return}
-  const n=Math.round(p*q),m=Math.max(1,Math.ceil(n/l)),dd=m*c.liq/q;
-  o.innerHTML=`建玉 <b>${fmt(n)}</b> ／ 必要な保証金 <b>${fmt(m)}</b>（預金から引かれます）<br>ロスカット目安：信用買い <b>${Math.max(0,p-dd).toFixed(1)}</b> 以下 ／ 空売り <b>${(p+dd).toFixed(1)}</b> 以上<br>金利：約 <b>${fmt(Math.round(n*c.rate))}</b> ／ 時間`}
-function mgMax(){const l=+$('#ml').value,p=P(ui.sel);if(p<=0)return toast('株価がマイナス（0以下）の間は建てられません','err');setV('#mq',Math.max(1,Math.floor(S.dep*l/p)));mgPrev()}
+  const n=Math.round(p*q),m=Math.max(1,Math.ceil(n/l)),dd=m*c.liq/q,cd=Math.ceil((mgCd-now())/1000);
+  const warn=(cd>0?`<span class="dn">⏳ 決済後のため、あと${cd}秒は建てられません</span><br>`:'')+(n>MG_LIMIT?`<span class="dn">1回の建玉は100億までです（今回 ${fmt(n)}）</span><br>`:'');
+  o.innerHTML=warn+`建玉 <b>${fmt(n)}</b> ／ 必要な保証金 <b>${fmt(m)}</b>（預金から引かれます）<br>ロスカット目安：信用買い <b>${Math.max(0,p-dd).toFixed(1)}</b> 以下 ／ 空売り <b>${(p+dd).toFixed(1)}</b> 以上<br>金利：約 <b>${fmt(Math.round(n*c.rate))}</b> ／ 時間`}
+function mgMax(){const l=+$('#ml').value,p=P(ui.sel);if(p<=0)return toast('株価がマイナス（0以下）の間は建てられません','err');setV('#mq',Math.max(1,Math.floor(Math.min(S.dep*l,MG_LIMIT)/p)));mgPrev()}
 function mgOpen(side){
   const q=num('#mq'),l=+$('#ml').value,d=SYMS.find(x=>x.id==ui.sel);
   if(q<1)return toast('株数を入力してください','err');
   if(P(ui.sel)<=0)return toast('株価がマイナス（0以下）の間は信用買い・空売りができません','err');
+  const cd=Math.ceil((mgCd-now())/1000);
+  if(cd>0)return toast(`決済したあと30秒間は建てられません（あと${cd}秒）`,'err');
+  if(Math.round(P(ui.sel)*q)>MG_LIMIT)return toast(`1回の建玉は100億までです`,'err');
   const m=Math.max(1,Math.ceil(Math.round(P(ui.sel)*q)/l));
   if(m>S.dep)return toast(`預金が足りません（必要な保証金 ${fmt(m)}）`,'err');
   act('bank_margin_open',{p_sym:d.id,p_side:side,p_qty:q,p_lev:l},r=>`${d.name}を${side=='long'?'信用買い':'空売り'}しました（${(+r.price).toFixed(1)}・保証金${fmt(r.margin)}）`)}
-function mgClose(sym){
-  const d=SYMS.find(x=>x.id==sym)||{name:sym};
-  act('bank_margin_close',{p_sym:sym},r=>`${d.name}の建玉を決済しました（受取 ${fmt(r.pay)}・損益 ${r.pnl>=0?'+':'−'}${fmt(Math.abs(r.pnl))}）`)}
+async function mgClose(sym){
+  const d=SYMS.find(x=>x.id==sym)||{name:sym},p=(S.margin||[]).find(x=>x.sym==sym);
+  const rem=p?Math.ceil((p.t+MG_HOLD-now())/1000):0;
+  if(rem>0)return toast(`建ててから30秒間は決済できません（あと${rem}秒）`,'err');
+  const r=await act('bank_margin_close',{p_sym:sym},r=>`${d.name}の建玉を決済しました（受取 ${fmt(r.pay)}・損益 ${r.pnl>=0?'+':'−'}${fmt(Math.abs(r.pnl))}）`);
+  if(r.ok)mgCd=now()+MG_CD}
 function selSym(id){ui.sel=id;saveUi();render();pollMk()}
 const maxBuy=()=>P(ui.sel)>0?Math.max(0,Math.floor(S.dep/P(ui.sel))):0;
 const NEGMSG='株価がマイナス（0以下）の間は買えません';
