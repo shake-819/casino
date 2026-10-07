@@ -196,7 +196,8 @@ body.vip .mat{border-color:#f6e27a;box-shadow:0 0 18px #d4af3788}
 <div id="over"><div><h2>破産…</h2><p id="ovp">チップがなくなりました</p><button class="btn" id="ovb">🏦 銀行へ行く</button></div></div>
 <script>
 const $=s=>document.querySelector(s),col={10:'#2b6cb0',50:'#c0242b',100:'#222',500:'#7a3aa8'},RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-const WK='cj_wallet';const ldW=()=>{try{const v=JSON.parse(localStorage.getItem(WK));if(v&&Number.isFinite(v.chips))return Math.floor(v.chips)}catch(e){}return null};
+const CAP=1e15;   /* 手持ちの上限：1000兆 */
+const WK='cj_wallet';const ldW=()=>{try{const v=JSON.parse(localStorage.getItem(WK));if(v&&Number.isFinite(v.chips))return Math.min(CAP,Math.floor(v.chips))}catch(e){}return null};
 const slotAlive=()=>{try{const v=JSON.parse(localStorage.getItem('cj_slot'));return!!v&&(v.cr>=3||!!v.free||!!v.betOn||!!(v.bonus&&v.bonus.left>0))}catch(e){return false}};
 let chips=ldW()??1000,bet=50,bets={},rot=0,busy=0,seq=0,base=0,bj,ch,pk,yt;
 const R=n=>{const a=new Uint32Array(1),m=Math.floor(2**32/n)*n;do crypto.getRandomValues(a);while(a[0]>=m);return a[0]%n};
@@ -204,8 +205,8 @@ const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[
 const deck=()=>shuf([...Array(52)].map((_,i)=>({r:i%13+2,s:Math.floor(i/13)})));
 const L=r=>r<11?r:'JQKA'[r-11],cd=(c,h)=>{const n=!c.d;c.d=1;return`<div class="cd${n?' nw':''}${h?' bk':''}${c.s==1||c.s==2?' r':''}"${n?` style="animation-delay:${(c.o-base)*.3}s"`:''}>${L(c.r)}<b>${'♠♥♦♣'[c.s]}</b></div>`},dr=d=>{const c=d.pop();c.o=seq++;return c};
 const dispW=()=>document.querySelectorAll('.bank').forEach(e=>e.textContent='🪙 '+chips.toLocaleString());
-const saveW=()=>{try{localStorage.setItem(WK,JSON.stringify({chips:Math.floor(chips),t:Date.now(),src:'casino'}))}catch(e){}};
-const upd=()=>{dispW();saveW()};
+const saveW=()=>{try{localStorage.setItem(WK,JSON.stringify({chips:Math.min(CAP,Math.floor(chips)),t:Date.now(),src:'casino'}))}catch(e){}};
+const upd=()=>{if(chips>CAP)chips=CAP;dispW();saveW()};
 const broke=()=>chips<=0&&!slotAlive();
 const syncW=()=>{const v=ldW();if(v!=null&&v!=chips){chips=v;dispW();if(!broke())$('#over').classList.remove('on');else showOver()}};
 addEventListener('storage',e=>{if(e.key==WK)syncW()});addEventListener('pageshow',syncW);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>document.hidden?saveW():syncW());
@@ -220,7 +221,7 @@ function moreSet(){const i=$('#mb');if(!i)return;let n=Math.floor(+i.value);if(!
 const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['サイコロゲーム',()=>dcMenu()],ru:['ルーレット',()=>ruPre()],sl:['スロット',()=>slPre()],hr:['競馬',()=>hmMenu()],bc:['バカラ',()=>bcPre()],hl:['ハイ&ロー',()=>hlPre()],cr:['クラップス',()=>crPre()],sb:['シックボー',()=>sbPre()],vp:['VIPルーム',()=>vipMenu()]};
 function play(k){pkT++;betHook=null;show('s2');$('#gt').textContent=G[k][0];G[k][1]()}
 function back(){if(JG&&(JG.ph=='spin'||JG.ph=='pull'))return;slHalt();pkT++;hrAbort();if(lv){const f=lv;lv=null;f()}ruClr();show('s1')}
-function bankAssets(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1'));if(!b)return 0;let a=Math.max(0,b.dep||0);(b.fixed||[]).forEach(f=>a+=f.amt||0);for(const k in(b.hold||{})){const q=b.hold[k].q||0,p=b.mk&&b.mk.s&&b.mk.s[k]?b.mk.s[k].p:0;a+=q*p}a+=Math.max(0,b.mg||0);return Math.floor(a)}catch(e){return 0}}
+function bankAssets(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1'));if(!b)return 0;let a=Math.max(0,Number(b.dep)||0);(b.fixed||[]).forEach(f=>a+=Number(f.amt)||0);for(const k in(b.hold||{})){const q=Number(b.hold[k].q)||0,p=b.mk&&b.mk.s&&b.mk.s[k]?b.mk.s[k].p:0;a+=q*p}a+=Math.max(0,b.mg||0);return Math.floor(a)}catch(e){return 0}}
 function showOver(){const a=bankAssets(),bt=$('#ovb');
 const hd=chips<0?`手持ちが${chips.toLocaleString()}チップのマイナスです。`:'チップがなくなりました。';$('#ovp').textContent=a>=10?`${hd}銀行に約${a.toLocaleString()}チップの資産があります。出金するか、融資を受けて再挑戦しよう`:`${hd}${chips<0?'':'再入店はできません。'}銀行で融資を受けて再挑戦しよう`;
 bt.textContent='🏦 銀行へ行く';bt.onclick=()=>{location.href='bank.html'};$('#over').classList.add('on')}
@@ -310,12 +311,12 @@ function hcGo(x){if(x<1)return msg('チップがありません');bet=x;chGo()}
 /* VIP：担保ベット（銀行の預金を担保に一発勝負）／チキンレース */
 let vg=0,vc;
 const vAuth=()=>{try{const a=JSON.parse(localStorage.getItem('cj_bank_auth'));return a&&a.acct&&a.secret?a:null}catch(e){return null}};
-const vDep=()=>{try{return Math.max(0,Math.floor(JSON.parse(localStorage.getItem('cj_bank_v1')).dep||0))}catch(e){return 0}};
+const vDep=()=>{try{return Math.max(0,Math.floor(Number(JSON.parse(localStorage.getItem('cj_bank_v1')).dep)||0))}catch(e){return 0}};
 const vBtn=(l,f)=>`<div class="chips"><button class="btn" onclick="${f}">${l}</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`;
 function vgPre(t){vg=0;lv=null;vRe=vgPre;$('#gt').textContent='担保ベット';const a=vAuth();st(`<div class="msg" id="m">${t||'預金を担保に入れ、倍率の枚数だけ並んだカードから当たりを選ぶ。当たれば担保×倍率、負ければ担保は没収'}</div><div class="lab">${a?`担保にできる預金：${vDep().toLocaleString()}`:'銀行口座が見つかりません。先に銀行で口座を開いてください'}</div><div class="lab">担保にする額（預金から実際に引き落とされます）</div>${vbR()}<div class="chips">${[2,3,5].map(m=>`<button class="btn s" onclick="vgGo(${m})">×${m}（カード${m}枚・勝率${(97/m).toFixed(1)}%）</button>`).join('')}</div><div class="chips"><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`)}
 async function vgGo(m){if(vg)return;const a=vAuth();if(!a)return msg('銀行口座が見つかりません');const c=Math.min(vb,vDep());if(c<1)return msg('担保にできる預金がありません');vg=1;msg('担保を預けています…');
-try{const r=await fetch(SUPA.url+'/rest/v1/rpc/bank_withdraw',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPA.key,Authorization:'Bearer '+SUPA.key},body:JSON.stringify({p_acct:a.acct,p_secret:a.secret,p_amt:c})});if(!r.ok){let j=null;try{j=await r.json()}catch(e){}vg=0;return msg((j&&j.message)||'担保を預けられませんでした')}}catch(e){vg=0;return msg('通信エラー。銀行で残高を確認してください')}
-try{const k='cj_bank_v1',o=JSON.parse(localStorage.getItem(k));o.dep=Math.max(0,(o.dep||0)-c);localStorage.setItem(k,JSON.stringify(o))}catch(e){}
+try{const r=await fetch(SUPA.url+'/rest/v1/rpc/bank_withdraw',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPA.key,Authorization:'Bearer '+SUPA.key},body:JSON.stringify({p_acct:a.acct,p_secret:a.secret,p_amt:String(c)})});if(!r.ok){let j=null;try{j=await r.json()}catch(e){}vg=0;return msg((j&&j.message)||'担保を預けられませんでした')}}catch(e){vg=0;return msg('通信エラー。銀行で残高を確認してください')}
+try{const k='cj_bank_v1',o=JSON.parse(localStorage.getItem(k));{const d0=BigInt(String(o.dep||0).split('.')[0]),c0=BigInt(c);o.dep=String(d0>c0?d0-c0:0n)}localStorage.setItem(k,JSON.stringify(o))}catch(e){}
 vg={c,m,wi:R(10000)<9700?R(m):-1,done:0};lv=vgLeave;vgR(`担保 ${c.toLocaleString()} ・ ×${m}。${m}枚のうち当たりは1枚（ハズレだけの場合も…）。1枚選んでめくろう`)}
 function vgCards(g,rv,pk){return`<div class="row">${[...Array(g.m)].map((_,i)=>rv||i==pk?`<div style="${i==pk?'outline:3px solid #ffdf3a;border-radius:8px':''}"><div class="cd${i==g.wi?' r':''}"><b style="margin-top:14px">${i==g.wi?'💰':'💀'}</b></div></div>`:`<div style="cursor:pointer" onclick="vgPick(${i})">${cd({r:2,s:0,d:1},1)}</div>`).join('')}</div>`}
 function vgR(t){$('#gt').textContent='担保ベット';st(`<div class="msg" id="m">${t}</div>${vgCards(vg,0,-1)}`)}
