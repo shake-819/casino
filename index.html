@@ -291,7 +291,7 @@ const vbR=()=>{const all=vRe==vgPre?vDep():chips,P=vRe==vrPre?[[1e7,'1000万','#
 function vMoreOpen(){const r=$('#vmrow');if(!r)return;r.style.display=r.style.display=='none'?'flex':'none';const e=$('#vmb');if(e&&r.style.display!='none')e.focus()}
 function vMoreSet(){const e=$('#vmb'),n=Math.floor(+(e&&e.value));if(!(n>=vMin()))return msg(`${vMin().toLocaleString()}以上の金額を入れてください`);vb=n;if(vRe)vRe()}
 function vSet(v){vb=v||Math.max(vRe==vgPre?vDep():chips,1);if(vRe)vRe()}
-function vipRoom(t){t=t||vNote;vNote='';hell=0;vs=null;vfv=null;lv=null;vRe=null;$('#gt').textContent='VIPルーム';st(`<div class="msg" id="m">${t||'👑 VIPルーム'}</div><div class="grid"><button class="gc" onclick="vsPre()"><i>🎡</i><b>サドンデス・ルーレット</b><span>勝つたび倍々・外れたら全損</span></button><button class="gc" onclick="hcPre()"><i>🎲</i><b>地獄チンチロ</b><span>ピンゾロ×10・3連勝で倍々</span></button><button class="gc" onclick="vgPre()"><i>🏦</i><b>担保ベット</b><span>銀行の預金を担保に一発勝負</span></button><button class="gc" onclick="vcPre()"><i>🐔</i><b>チキンレース</b><span>墜落前に止めて回収</span></button><button class="gc" onclick="vhPre()"><i>⬆️</i><b>ハイ&ロー クライム</b><span>連勝で積み上げ・ジョーカー注意</span></button><button class="gc" onclick="fvPre()"><i>🎰</i><b>フィーバースロット</b><span>7揃い×1000＋キャリーオーバー</span></button><button class="gc" onclick="vkPre()"><i>🏇</i><b>VIP競馬</b><span>馬単・三連複・三連単＋ボックス</span></button><button class="gc" onclick="vpPre()"><i>🃏</i><b>ダブルアップ・ポーカー</b><span>役ができたら最大5連続で×32</span></button><button class="gc" onclick="vrPre()"><i>🔫</i><b>ロシアンルーレット</b><span>HP5の撃ち合い・1000万から</span></button><button class="gc" onclick="olLobby()"><i>🌐</i><b>オンライン対戦</b><span>ロシアンルーレット・ポーカー（最大6人）／通信料1％</span></button></div>${vFeeInfo()}`)}
+function vipRoom(t){t=t||vNote;vNote='';hell=0;vs=null;vfv=null;lv=null;vRe=null;$('#gt').textContent='VIPルーム';st(`<div class="msg" id="m">${t||'👑 VIPルーム'}</div><div class="grid"><button class="gc" onclick="vsPre()"><i>🎡</i><b>サドンデス・ルーレット</b><span>勝つたび倍々・外れたら全損</span></button><button class="gc" onclick="hcPre()"><i>🎲</i><b>地獄チンチロ</b><span>ピンゾロ×10・3連勝で倍々</span></button><button class="gc" onclick="vgPre()"><i>🏦</i><b>担保ベット</b><span>銀行の預金を担保に一発勝負</span></button><button class="gc" onclick="vcPre()"><i>🐔</i><b>チキンレース</b><span>墜落前に止めて回収</span></button><button class="gc" onclick="vhPre()"><i>⬆️</i><b>ハイ&ロー クライム</b><span>連勝で積み上げ・ジョーカー注意</span></button><button class="gc" onclick="fvPre()"><i>🎰</i><b>フィーバースロット</b><span>7揃い×1000＋キャリーオーバー</span></button><button class="gc" onclick="vkPre()"><i>🏇</i><b>VIP競馬</b><span>馬単・三連複・三連単＋ボックス</span></button><button class="gc" onclick="vpPre()"><i>🃏</i><b>ダブルアップ・ポーカー</b><span>役ができたら最大5連続で×32</span></button><button class="gc" onclick="vrPre()"><i>🔫</i><b>ロシアンルーレット</b><span>HP5の撃ち合い・1000万から</span></button><button class="gc" onclick="olLobby()"><i>🌐</i><b>オンライン対戦</b><span>ロシアンルーレット・ポーカー・ババ抜き（最大6人）／通信料1％</span></button></div>${vFeeInfo()}`)}
 const vOK=(s,n)=>n>0&&(s=='rd'?RED.includes(n):s=='bk'?!RED.includes(n):s=='od'?n%2==1:n%2==0);
 const vWh=()=>{const sg=360/37,lb=ORDER.map((n,i)=>`<span class="wn" style="transform:rotate(${(i+.5)*sg}deg)">${n}</span>`).join(''),g=ORDER.map((n,i)=>`${n==0?'#0d6b42':RED.includes(n)?'#c0242b':'#111'} ${i*sg}deg ${(i+1)*sg}deg`).join(',');return`<div class="wrap"><div class="wheel" id="wh" style="background:conic-gradient(${g});transform:rotate(${rot}deg)">${lb}</div><div id="rn">?</div></div>`};
 const vsUI=(t,x,n,c)=>{st(`${vWh()}<div class="msg" id="m">${t}</div>${x}`);if(n!=null){$('#rn').textContent=n;$('#rn').className=c}};
@@ -909,6 +909,7 @@ const olPres=p=>{if(ol)ol.keys=new Set(Object.keys(p))};
 function olClose(){if(ol){const o=ol;ol=null;clearTimeout(o.tm);clearInterval(o.iv);clearInterval(o.cd);Object.values(o.pc||{}).forEach(oBye);oBye(o.c)}if(olL){oBye(olL);olL=null}olTb=[]}
 const olMyStk=vd=>{const o=ol;if(!o)return 0;const m=o.V&&o.V.ps.find(p=>p.id==HID);return m?m.stk+(vd&&o.V.st=='play'?(m.tot||0):0):(o.paid&&!o.V?o.need:0)};   // vd=1：ハンド無効（ホスト終了）→ 場に出したチップも返す
 function olOut(){const o=ol;if(o){if(o.g=='pk'){const rf=o.host&&o.G.st=='play'?Object.fromEntries(o.G.ps.filter(p=>!p.lv).map(p=>[p.id,p.stk+p.tot])):null;if(o.paid){chips+=olMyStk(o.host);o.paid=0}oSend(o.c,o.host?'close':'leave',{pid:HID,rf})}
+  else if(o.g=='bb'){const pl=o.host?o.G.st=='play':!!(o.V&&o.V.st=='play'),oth=o.host?o.G.ps.filter(p=>!p.lv&&p.id!=HID):[];const rf=o.host&&pl&&oth.length?Object.fromEntries(oth.map(p=>[p.id,obPay(o,o.G.ps.length,oth.length)])):null;if(o.paid&&!pl)chips+=o.need;o.paid=0;oSend(o.c,o.host?'close':'leave',{pid:HID,rf})}
   else if(o.g=='ru'){if(o.paid&&!o.pr&&o.host){chips+=o.need;o.paid=0}else if(o.pr&&!o.pr.fin)oSend(o.c,'quit',{})}}   // 試合中に抜けたら負け
   olClose();olT++;chk()}
 function olBackVip(){olOut();lv=null;vipRoom()}
@@ -922,12 +923,12 @@ async function olLobby(note){
   catch(e){if(T==olT){lv=null;st(`<div class="msg" id="m">通信できませんでした</div><div class="lab">ネットワークを確認してください（学校などのネットワークでは使えないことがあります）</div>${vBtn('再接続','olLobby()')}`)}return}
   if(T==olT)olList(note)}
 // 賭け額の選択：プリセット／ALL IN／more（好きな金額）。ロシアンルーレット＝賭け額、ポーカー＝BB（バイインはBBの50倍）
-const OLP={ru:[[1e7,'1000万','#c0242b'],[5e7,'5000万','#6a2fb0'],[1e8,'1億','#2b6cb0']],pk:[[1e5,'10万','#2b6cb0'],[5e5,'50万','#6a2fb0'],[1e6,'100万','#c0242b'],[5e6,'500万','#b8860b']]},
-  OLMIN={ru:1e7,pk:1e5},olSel={ru:1e7,pk:1e5},olOpen={ru:0,pk:0},olTxt={ru:'',pk:''};let olDirty=0;
-const olNeed=(g,b)=>g=='ru'?b:b*50,
-  olMax=g=>g=='ru'?Math.floor(chips):Math.floor(chips/50),      // いまの手持ちで作れる最大の賭け額（BB）
+const OLP={ru:[[1e7,'1000万','#c0242b'],[5e7,'5000万','#6a2fb0'],[1e8,'1億','#2b6cb0']],pk:[[1e5,'10万','#2b6cb0'],[5e5,'50万','#6a2fb0'],[1e6,'100万','#c0242b'],[5e6,'500万','#b8860b']],bb:[[1e6,'100万','#2b6cb0'],[5e6,'500万','#6a2fb0'],[1e7,'1000万','#c0242b'],[1e8,'1億','#b8860b']]},
+  OLMIN={ru:1e7,pk:1e5,bb:1e6},olSel={ru:1e7,pk:1e5,bb:1e6},olOpen={ru:0,pk:0,bb:0},olTxt={ru:'',pk:'',bb:''};let olDirty=0;
+const olNeed=(g,b)=>g=='pk'?b*50:b,
+  olMax=g=>g!='pk'?Math.floor(chips):Math.floor(chips/50),      // いまの手持ちで作れる最大の賭け額（BB）
   olAmt=g=>olSel[g]=='all'?olMax(g):olSel[g],
-  olUnit=g=>g=='ru'?'賭け':'BB';
+  olUnit=g=>g!='pk'?'賭け':'BB';
 function olPick(g,v){olSel[g]=v||'all';if(v)olOpen[g]=0;olList()}
 function olMoreOpen(g){olOpen[g]=olOpen[g]?0:1;olList();if(olOpen[g]){const e=$('#omb-'+g);if(e)e.focus()}}
 function olMoreSet(g){const e=$('#omb-'+g);let n=Math.floor(+(e&&e.value||olTxt[g]));const mn=OLMIN[g],mx=olMax(g);
@@ -937,51 +938,52 @@ function olMoreSet(g){const e=$('#omb-'+g);let n=Math.floor(+(e&&e.value||olTxt[
 function olSelR(g){const P=OLP[g],b=olAmt(g),mx=olMax(g),all=olSel[g]=='all',cu=!all&&!P.some(x=>x[0]==b);
   return`<div class="chips">${P.map(([v,l,c])=>`<button class="ch${!all&&b==v?' on':''}" style="--c:${c}" onclick="olPick('${g}',${v})">${l}</button>`).join('')}<button class="ch more${all?' on':''}" style="--c:#111" onclick="olPick('${g}',0)">ALL IN</button><button class="ch more${cu?' on':''}" style="--c:#0f766e" onclick="olMoreOpen('${g}')" aria-label="好きな金額">${cu?`<small>more</small>${b.toLocaleString()}`:'more'}</button></div>
 <div class="chips" style="display:${olOpen[g]?'flex':'none'}"><input type="number" id="omb-${g}" inputmode="numeric" min="${OLMIN[g]}" step="1" value="${olTxt[g]}" placeholder="${olUnit(g)}（${OLMIN[g].toLocaleString()}〜）" aria-label="${olUnit(g)}の金額" oninput="olTxt['${g}']=this.value" onkeydown="if(event.key=='Enter')olMoreSet('${g}')"><button class="btn s" onclick="olMoreSet('${g}')">決定</button></div>
-<div class="lab">${olUnit(g)} ${b.toLocaleString()}${g=='pk'?`　バイイン ${olNeed(g,b).toLocaleString()}`:`　勝てば ${(b*2).toLocaleString()}`}</div><div class="chips"><button class="btn s" onclick="olCreate('${g}')">テーブルを作る</button></div>`}
-function olCreate(g){const b=olAmt(g);if(!(b>=OLMIN[g]))return msg(olSel[g]=='all'?(g=='pk'?'ポーカーのALL INはチップ500万から使えます':'ロシアンルーレットのALL INはチップ1000万から使えます'):`${OLMIN[g].toLocaleString()}以上の金額を選んでください`);olMake(g,b)}
+<div class="lab">${olUnit(g)} ${b.toLocaleString()}${g=='pk'?`　バイイン ${olNeed(g,b).toLocaleString()}`:g=='bb'?`　ビリ以外で山分け（ビリは賭け全額を失う）`:`　勝てば ${(b*2).toLocaleString()}`}</div><div class="chips"><button class="btn s" onclick="olCreate('${g}')">テーブルを作る</button></div>`}
+function olCreate(g){const b=olAmt(g);if(!(b>=OLMIN[g]))return msg(olSel[g]=='all'?(g=='pk'?'ポーカーのALL INはチップ500万から使えます':g=='bb'?'ババ抜きのALL INはチップ100万から使えます':'ロシアンルーレットのALL INはチップ1000万から使えます'):`${OLMIN[g].toLocaleString()}以上の金額を選んでください`);olMake(g,b)}
 // 入力中（名前・金額）はロビーの再描画で入力が消えないよう、あとで描き直す
 function olRefresh(){const a=document.activeElement;if(a&&a.tagName=='INPUT'&&$('#stage').contains(a)){olDirty=1;return}olList()}
 addEventListener('focusout',()=>{if(!olDirty)return;setTimeout(()=>{const a=document.activeElement;if(olDirty&&olV=='l'&&!(a&&a.tagName=='INPUT'))olList()},250)});
 function olList(note){olV='l';olDirty=0;
-  const need=x=>x.g=='ru'?x.b:x.b*50,rows=olTb.map(x=>`<div class="hand" style="margin:6px 0"><div class="lab">${x.g=='ru'?'🔫 ロシアンルーレット':'🃏 ポーカー'}　ホスト：${vEsc(x.nm)}　${x.g=='ru'?'賭け '+x.b.toLocaleString():'BB '+x.b.toLocaleString()+'／バイイン '+need(x).toLocaleString()}　${x.n}/${x.m}人${x.pl?'（進行中）':''}</div><button class="btn s" onclick="olJoin('${x.id}')"${x.n>=x.m||(x.pl&&x.g=='ru')?' disabled':''}>参加</button></div>`).join('')||'<div class="lab">開催中のテーブルはありません。作ってみよう</div>';
+  const need=x=>x.g=='pk'?x.b*50:x.b,rows=olTb.map(x=>`<div class="hand" style="margin:6px 0"><div class="lab">${x.g=='ru'?'🔫 ロシアンルーレット':x.g=='bb'?'🃏 ババ抜き':'🃏 ポーカー'}　ホスト：${vEsc(x.nm)}　${x.g!='pk'?'賭け '+x.b.toLocaleString():'BB '+x.b.toLocaleString()+'／バイイン '+need(x).toLocaleString()}　${x.n}/${x.m}人${x.pl?'（進行中）':''}</div><button class="btn s" onclick="olJoin('${x.id}')"${x.n>=x.m||(x.pl&&x.g!='pk')?' disabled':''}>参加</button></div>`).join('')||'<div class="lab">開催中のテーブルはありません。作ってみよう</div>';
   st(`<div class="msg" id="m">${note||'👑 オンライン対戦（VIP限定）'}</div><div class="lab">通信料：1プレイにつき、稼いだチップの<b>1％</b>をいただきます</div>
 <div class="lab">名前 <input type="text" id="pn" maxlength="10" value="${vEsc(oName())}" onchange="oSetName(this.value)" style="width:min(140px,40vw);padding:8px 10px;font-size:16px;text-align:center;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);color:#fff"></div>
 ${rows}<div class="lab" style="margin-top:14px">🔫 ロシアンルーレットのテーブルを作る（賭け額）</div>${olSelR('ru')}
-<div class="lab" style="margin-top:14px">🃏 ポーカー（最大6人）のテーブルを作る（BB。バイインはBBの50倍）</div>${olSelR('pk')}
+<div class="lab" style="margin-top:14px">🃏 ポーカー（最大6人）のテーブルを作る（BB。バイインはBBの50倍）</div>${olSelR('pk')}<div class="lab" style="margin-top:14px">🃏 ババ抜き（3〜6人）のテーブルを作る（賭け額。ビリが賭けを失い、残りで山分け）</div>${olSelR('bb')}
 <div class="chips"><button class="btn s d" onclick="olBackVip()">← VIPルーム</button></div>`)}
 const OLH={};
 const olFail=t=>{const o=ol;if(o&&o.paid){if(o.g=='pk')chips+=olMyStk();else if(!o.pr)chips+=o.need;upd()}olLobby(t)};
-async function olMake(g,b){b=Math.floor(b);const need=g=='ru'?b:b*50;if(chips<need)return msg(`チップが足りません（必要 ${need.toLocaleString()}）`);
+async function olMake(g,b){b=Math.floor(b);const need=g=='pk'?b*50:b;if(chips<need)return msg(`チップが足りません（必要 ${need.toLocaleString()}）`);
   const id=HID.slice(0,6)+Date.now().toString(36),T=olT;chips-=need;upd();
   const o=ol={g,id,b,host:1,need,pc:{},paid:1};
-  try{if(g=='pk'){o.G=hNew(b);hAdd(o.G,HID,oName(),need);o.V=hView(o.G)}
+  try{if(g=='pk'){o.G=hNew(b);hAdd(o.G,HID,oName(),need);o.V=hView(o.G)}else if(g=='bb'){o.G=obNew();obAdd(o.G,HID,oName());o.V=obView(o.G)}
     o.c=await oCh('cj-t-'+id,OLH,olPres);if(ol!=o||T!=olT)return oBye(o.c);o.c.track({});o.iv=setInterval(olWatch,3000);olTbl();lv=olOut;
     if(g=='ru')st(`<div class="msg" id="m">対戦相手を待っています…</div><div class="lab">賭け ${b.toLocaleString()}　勝てば ${(b*2).toLocaleString()}（通信料：勝ち分の1％）</div><div class="chips"><button class="btn s d" onclick="olCancel()">やめる</button></div>`);
-    else opR()}
+    else if(g=='bb')obSync();else opR()}
   catch(e){olFail('テーブルを作れませんでした')}}
 function olCancel(){olOut();lv=null;olLobby()}
 async function olJoin(id){const x=olTb.find(t=>t.id==id);if(!x||x.n>=x.m)return msg('このテーブルは満席です');
-  const need=x.g=='ru'?x.b:x.b*50;if(chips<need)return msg(`チップが足りません（必要 ${need.toLocaleString()}）`);
+  const need=x.g=='pk'?x.b*50:x.b;if(chips<need)return msg(`チップが足りません（必要 ${need.toLocaleString()}）`);
   const T=olT;msg('参加しています…');const o=ol={g:x.g,id,b:x.b,host:0,need,hid:x.hid,pc:{},paid:0};
   try{o.c=await oCh('cj-t-'+id,OLH,olPres);if(ol!=o||T!=olT)return oBye(o.c);o.c.track({});
-    o.pc[HID]=await oCh('cj-t-'+id+'-'+HID,{hole:d=>{o.hole=d;opR()}});if(ol!=o||T!=olT)return;
+    o.pc[HID]=await oCh('cj-t-'+id+'-'+HID,{hole:d=>{o.hole=d;opR()},hand:d=>{o.hand=d;obR()}});if(ol!=o||T!=olT)return;
     lv=olOut;o.iv=setInterval(olWatch,3000);oSend(o.c,'join',{pid:HID,nm:oName()});
     o.tm=setTimeout(()=>{if(ol==o&&!o.paid)olFail('応答がありません')},7000)}
   catch(e){olFail('参加できませんでした')}}
 OLH.join=async d=>{const o=ol;if(!o||!o.host)return;
   if(o.g=='ru'){if(o.guest||o.pr)return oSend(o.c,'no',{to:d.pid,r:'満席です'});o.guest={id:d.pid,nm:String(d.nm).slice(0,10)};oSend(o.c,'ok',{to:d.pid});olTbl();setTimeout(()=>{if(ol==o)rqBegin()},1200)}
+  else if(o.g=='bb')obJoin(d);
   else{const G=o.G;if(G.st=='play'||G.ps.length>=6||G.ps.some(p=>p.id==d.pid))return oSend(o.c,'no',{to:d.pid,r:G.st=='play'?'ハンド進行中です。終わってから参加してください':'満席です'});
     hAdd(G,d.pid,String(d.nm).slice(0,10),o.need);
     try{o.pc[d.pid]=await oCh('cj-t-'+o.id+'-'+d.pid,{})}catch(e){G.ps=G.ps.filter(p=>p.id!=d.pid);return oSend(o.c,'no',{to:d.pid,r:'接続に失敗しました'})}
     oSend(o.c,'ok',{to:d.pid});olTbl();opSync()}};
 OLH.ok=d=>{const o=ol;if(!o||o.host||d.to!=HID||o.paid)return;o.paid=1;chips-=o.need;upd();clearTimeout(o.tm);
-  if(o.g=='pk')st(`<div class="msg" id="m">参加しました。ホストの開始を待っています…</div>`);else st(`<div class="msg" id="m">対戦相手が見つかりました</div>`)};
+  if(o.g!='ru')st(`<div class="msg" id="m">参加しました。ホストの開始を待っています…</div>`);else st(`<div class="msg" id="m">対戦相手が見つかりました</div>`)};
 OLH.no=d=>{if(d.to==HID&&ol&&!ol.host&&!ol.paid){clearTimeout(ol.tm);olLobby(d.r||'参加できませんでした')}};
-OLH.close=d=>{const o=ol;if(!o||o.host||o.out)return;o.out=1;if(o.g=='pk'&&o.paid){chips+=d&&d.rf&&d.rf[HID]!=null?d.rf[HID]:olMyStk(1);o.paid=0}upd();lv=null;if(o.g=='ru'&&o.pr&&!o.pr.fin)return rqEnd(1,'ホストが退出しました。');olLobby('ホストが退出したので終了しました')};
+OLH.close=d=>{const o=ol;if(!o||o.host||o.out)return;o.out=1;if(o.g=='pk'&&o.paid){chips+=d&&d.rf&&d.rf[HID]!=null?d.rf[HID]:olMyStk(1);o.paid=0}else if(o.g=='bb'&&o.paid){chips+=d&&d.rf&&d.rf[HID]!=null?d.rf[HID]:o.need;o.paid=0}upd();lv=null;if(o.g=='ru'&&o.pr&&!o.pr.fin)return rqEnd(1,'ホストが退出しました。');olLobby('ホストが退出したので終了しました')};
 OLH.bust=d=>{if(d.to==HID&&ol&&!ol.host){lv=null;olLobby('チップがなくなったので退席しました')}};
-function olWatch(){const o=ol;if(!o)return;const k=o.keys||new Set();
+function olWatch(){const o=ol;if(!o||o.fin)return;const k=o.keys||new Set();
   if(o.g=='ru'){const v=o.pr,oid=o.host?o.guest&&o.guest.id:o.hid;if(!oid||!v||v.fin)return;if(o.host&&o.H)oSend(o.c,'rsync',rqSnap(o.H));if(v.an||v.q.length)return;if(k.has(oid)){o.seen=1;o.miss=0}else if(o.seen&&++o.miss>=2)rqEnd(1,'相手との通信が切れました。')}
-  else if(o.host){let ch=0;o.G.ps.forEach(p=>{if(p.id==HID)return;if(k.has(p.id)){p.seen=1;p.miss=0}else if(p.seen&&++p.miss>=2&&!p.lv){p.lv=1;ch=1}});if(ch)opLeft()}
+  else if(o.host){let ch=0;o.G.ps.forEach(p=>{if(p.id==HID)return;if(k.has(p.id)){p.seen=1;p.miss=0}else if(p.seen&&++p.miss>=2&&!p.lv){p.lv=1;ch=1}});if(ch)o.g=='bb'?obLeft():opLeft()}
   else if(o.paid&&!o.out){if(k.has(o.hid)){o.seen=1;o.miss=0}else if(o.seen&&++o.miss>=2)OLH.close()}}
 
 // ---- ロシアンルーレット（対人）：ホスト＝席0、参加者＝席1 ----
@@ -1044,7 +1046,7 @@ function opNext(){const o=ol;if(!o||!o.host)return;const G=o.G,out=hClean(G);out
   if(G.ps.length<2){G.st='wait';G.dd=0;clearTimeout(o.tm);opSync();olTbl();return}
   hDeal(G);opTurn();opHoles();opSync();olTbl()}
 function opLeft(){const o=ol,G=o.G;if(G.st=='play'){const p=G.ps[G.cur];if(p&&p.lv)opTurn()}else{hClean(G);if(G.st=='end'&&G.ps.length<2){G.st='wait';clearTimeout(o.tm)}opSync()}olTbl()}
-OLH.leave=d=>{const o=ol;if(!o||!o.host||o.g!='pk')return;const p=o.G.ps.find(q=>q.id==d.pid);if(p&&!p.lv){p.lv=1;opLeft()}};
+OLH.leave=d=>{const o=ol;if(o&&o.host&&o.g=='bb')return obLeft(d.pid);if(!o||!o.host||o.g!='pk')return;const p=o.G.ps.find(q=>q.id==d.pid);if(p&&!p.lv){p.lv=1;opLeft()}};
 OLH.act=d=>{const o=ol;if(!o||!o.host||o.g!='pk')return;const G=o.G;if(G.st!='play'||!G.ps[G.cur]||G.ps[G.cur].id!=d.pid)return;if(!opDo(G.cur,d.a,d.x))opSync()};   // 不正な操作は状態を送り直して、相手の画面を元に戻す
 OLH.need=d=>{const o=ol;if(o&&o.host&&o.g=='pk'&&o.G.st=='play')opHoles(d.pid)};
 OLH.ps=d=>{const o=ol;if(!o||o.host||o.g!='pk')return;o.V=d;o.dl=Date.now()+d.ms;const m=d.ps.find(p=>p.id==HID);
@@ -1072,6 +1074,62 @@ function opR(){const o=ol;if(!o||o.g!='pk')return;const V=o.V;if(!V)return;
   st(`<div class="msg" id="m">${t}</div><div class="lab">ハンド #${V.hn||'-'}　ポット ${V.pot.toLocaleString()}　<span id="tm"></span>　通信料：ハンドで稼いだ分の1％</div><div class="row">${V.bd.map(c=>mc(c)).join('')}${'<div class="ph"></div>'.repeat(5-V.bd.length)}</div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">${V.ps.map(seat).join('')}</div>${ctl}${host}<div class="lab">${o.host?'あなたがホストです。退出するとテーブルは終了します':'← ロビー で退出するとチップは手持ちに戻ります'}</div>`);
   clearInterval(o.cd);o.cd=setInterval(()=>{const e=$('#tm');if(!e||!ol||!ol.V||ol.V.st=='wait'){return}const s=Math.max(0,Math.ceil((ol.dl-Date.now())/1000));e.textContent=ol.V.st=='play'?`残り ${s}秒`:''},500)}
 addEventListener('pagehide',()=>{const o=ol;if(o&&o.g=='pk'&&o.paid&&!o.out){o.out=1;chips+=olMyStk(o.host);saveW()}});
+
+// ---- ババ抜き（3〜6人）：進行はホスト。手札は本人にだけ送り、他の人には枚数だけ見せる ----
+// 賭け：全員が同額を出し、ビリ（ババを持った人）の分を、あがった人で山分け。稼いだ分の1％が通信料。途中で抜けた人は賭けを失う
+const obNew=()=>({st:'wait',ps:[],ctr:[],cur:-1,tg:-1,rk:0,last:null,dd:0}),
+  obAdd=(G,id,nm)=>G.ps.push({id,nm,h:[],seen:0,miss:0,lv:0,pl:0}),
+  obCnt=G=>G.ps.filter(p=>p.h.length>0).length,
+  obView=G=>({st:G.st,cur:G.cur,tg:G.tg,ctr:G.ctr,last:G.last,ms:Math.max(0,G.dd-Date.now()),ps:G.ps.map(p=>({id:p.id,nm:p.nm,n:p.h.length,pl:p.pl,lv:p.lv}))}),
+  obPay=(o,N,n)=>{const g=Math.floor(N*o.b/n);return g-oFee(g-o.b)};
+function obMatch(G,p){const m={};p.h.forEach(c=>{if(!c.j)(m[c.r]=m[c.r]||[]).push(c)});   // 同じ数字のペアは自動で真ん中へ
+  for(const r in m){const a=m[r];while(a.length>=2){const x=a.pop(),y=a.pop();G.ctr.push([x,y]);p.h=p.h.filter(c=>c!==x&&c!==y)}}}
+function obSync(){const o=ol;if(!o||!o.host)return;o.V=obView(o.G);o.dl=Date.now()+o.V.ms;oSend(o.c,'bs',o.V);obR()}
+function obHands(pid){const o=ol;o.G.ps.forEach(p=>{if(p.id!=HID&&!p.lv&&(!pid||p.id==pid))oSend(o.pc[p.id],'hand',{h:p.h})})}
+function obStart(){const o=ol;if(!o||!o.host||o.G.st!='wait'||o.G.ps.length<3)return;const G=o.G,n=G.ps.length,d=shuf([...deck(),{r:0,s:0,j:1}]);
+  G.st='play';G.ctr=[];G.rk=0;G.ps.forEach(p=>{p.h=[];p.pl=0});d.forEach((c,i)=>G.ps[i%n].h.push(c));
+  G.ps.forEach(p=>obMatch(G,p));G.ps.forEach(p=>{if(!p.h.length)p.pl=++G.rk});
+  G.cur=R(n);if(!G.ps[G.cur].h.length)G.cur=hNx(G,G.cur,p=>p.h.length>0);G.last=null;obHands();obTurn();olTbl()}
+function obTurn(){const o=ol,G=o.G;clearTimeout(o.tm);if(obCnt(G)<2)return obEnd();
+  G.tg=hNx(G,G.cur,p=>p.h.length>0);shuf(G.ps[G.tg].h);obHands(G.ps[G.tg].id);   // 引かれる人の手札は毎回混ぜ直す
+  const p=G.ps[G.cur],t=p.lv?900:20000,cur=G.cur,tg=G.tg;G.dd=Date.now()+t;o.tm=setTimeout(()=>{const o2=ol;if(o2==o&&G.st=='play'&&G.cur==cur&&G.tg==tg)obPick(cur,R(G.ps[tg].h.length))},t);obSync()}
+function obPick(i,k){const o=ol,G=o.G,p=G.ps[i],t=G.ps[G.tg];if(G.st!='play'||G.cur!=i||!t||!(k>=0&&k<t.h.length))return 0;
+  const c=t.h.splice(Math.floor(k),1)[0],n0=G.ctr.length;p.h.push(c);obMatch(G,p);
+  G.last={f:p.nm,t:t.nm,m:G.ctr.length>n0?G.ctr[G.ctr.length-1][0].r:0};
+  G.ps.forEach(q=>{if(!q.h.length&&!q.pl)q.pl=++G.rk});G.cur=hNx(G,i,q=>q.h.length>0);obHands(p.id);obHands(t.id);obTurn();return 1}
+function obEnd(){const o=ol,G=o.G;clearTimeout(o.tm);G.st='end';const N=G.ps.length,L=G.ps.findIndex(p=>p.h.length>0),W=G.ps.filter((p,i)=>i!=L&&!p.lv),pay={},fee={};
+  if(W.length){const q=Math.floor(N*o.b/W.length);W.forEach(p=>pay[p.id]=q);pay[W[0].id]+=N*o.b-q*W.length}
+  for(const id in pay){const f=oFee(pay[id]-o.b);if(f>0){pay[id]-=f;fee[id]=f}}
+  const d={pay,fee,ln:L>=0?G.ps[L].nm:'',lid:L>=0?G.ps[L].id:''};oSend(o.c,'be',d);setTimeout(()=>{if(ol==o)oSend(o.c,'be',d)},900);obFin(d)}
+function obFin(d){const o=ol;if(!o||o.fin||o.g!='bb')return;o.fin=1;const me=d.pay[HID]||0,b=o.b,lose=d.lid==HID;chips+=me;o.paid=0;upd();if(me>b)vFx();lv=null;
+  st(`<div class="msg" id="m">${lose?`💀 ババを持ったまま… -${b.toLocaleString()}`:me>0?`🏆 あがり！ +${(me-b).toLocaleString()}`:'通信が切れたため賞金はありません'}</div><div class="lab">ビリ：${vEsc(d.ln)}${d.fee[HID]?`　通信料 ${d.fee[HID].toLocaleString()}（稼いだ分の1％）を引きました`:''}</div><div class="chips"><button class="btn" onclick="olLobby()">ロビーへ</button><button class="btn s d" onclick="olBackVip()">← VIPルーム</button></div>`);
+  if(o.host)setTimeout(()=>{if(ol==o)olClose()},1500);else olClose();chk()}
+function obJoin(d){const o=ol,G=o.G;o.jp=o.jp||{};if(o.jp[d.pid])return;
+  if(G.st!='wait'||G.ps.length>=6||G.ps.some(p=>p.id==d.pid))return oSend(o.c,'no',{to:d.pid,r:G.st!='wait'?'ゲームが始まっています':'満席です'});
+  o.jp[d.pid]=1;oCh('cj-t-'+o.id+'-'+d.pid,{}).then(c=>{if(ol!=o){oBye(c);return}
+    if(G.st!='wait'||G.ps.length>=6){oBye(c);delete o.jp[d.pid];return oSend(o.c,'no',{to:d.pid,r:'満席、またはゲームが始まっています'})}
+    o.pc[d.pid]=c;obAdd(G,d.pid,String(d.nm).slice(0,10));oSend(o.c,'ok',{to:d.pid});olTbl();obSync()}).catch(()=>{delete o.jp[d.pid];oSend(o.c,'no',{to:d.pid,r:'接続に失敗しました'})})}
+function obLeft(pid){const o=ol,G=o.G;if(pid){const p=G.ps.find(q=>q.id==pid);if(p)p.lv=1}
+  if(G.st=='wait'){G.ps.filter(p=>p.lv).forEach(p=>{oBye(o.pc[p.id]);delete o.pc[p.id];if(o.jp)delete o.jp[p.id]});G.ps=G.ps.filter(p=>!p.lv);obSync();olTbl();return}
+  if(G.st=='play'){const p=G.ps[G.cur];if(p&&p.lv)obTurn()}olTbl()}
+OLH.draw=d=>{const o=ol;if(!o||!o.host||o.g!='bb')return;const G=o.G;if(G.st!='play'||!G.ps[G.cur]||G.ps[G.cur].id!=d.pid)return;if(!obPick(G.cur,+d.k))obSync()};
+OLH.bs=d=>{const o=ol;if(!o||o.host||o.g!='bb')return;o.V=d;o.dl=Date.now()+d.ms;obR()};
+OLH.be=d=>{const o=ol;if(o&&!o.host&&o.g=='bb'&&o.paid)obFin(d)};
+function obAct(k){const o=ol,V=o&&o.V;if(!V||V.st!='play'||V.wt)return;const i=V.ps.findIndex(p=>p.id==HID);if(i!=V.cur)return;
+  if(o.host)obPick(i,k);else{oSend(o.c,'draw',{pid:HID,k});o.V=Object.assign({},V,{wt:1});obR();setTimeout(()=>{if(ol==o&&o.V&&o.V.wt){o.V=V;obR()}},4000)}}
+function obR(){const o=ol;if(!o||o.g!='bb'||o.fin)return;const V=o.V;if(!V)return;
+  const me=V.ps.findIndex(p=>p.id==HID),hand=(o.host?(o.G.ps[me]||{}).h:o.hand&&o.hand.h)||[],bk=mc({r:2,s:0},1),pk=V.st=='play'&&V.cur==me&&!V.wt;
+  const seat=(p,i)=>{const t=i==V.tg&&V.st=='play',cp=t&&pk,cs=i==me?'':`<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;zoom:${cp?.8:.5}">${[...Array(p.n)].map((_,k)=>cp?`<span onclick="obAct(${k})" style="cursor:pointer">${bk}</span>`:bk).join('')}</div>`;
+    return`<div class="seat${i==V.cur&&V.st=='play'?' act':''}${p.pl?' fd':''}" style="min-width:112px;max-width:100%${t?';border-color:#6fdc8c':''}"><div class="lab">${i==V.cur&&V.st=='play'?'👉 ':''}${vEsc(p.nm)}${i==me?'（あなた）':''}${p.lv?' 切断':''}</div><div class="lab">${p.pl?'🏁 あがり':p.n+'枚'}${t?' ← 引かれる':''}</div>${cs}</div>`};
+  let t;if(V.st=='wait')t=`プレイヤー待ち（${V.ps.length}/6）　3人から開始できます`;
+  else if(V.wt)t='送信中…';else if(V.cur==me)t=`あなたの番です。${vEsc((V.ps[V.tg]||{}).nm||'')}の手札から1枚引こう（裏向きのカードをタップ）`;else t=`${vEsc((V.ps[V.cur]||{}).nm||'')}が${vEsc((V.ps[V.tg]||{}).nm||'')}から引くところ…`;
+  const ls=V.last?`${vEsc(V.last.f)}が${vEsc(V.last.t)}から1枚引いた${V.last.m?` → ${L(V.last.m)}が揃って真ん中へ`:''}`:'',
+    ctr=V.ctr.length?`<div class="lab">真ん中（捨てたペア ${V.ctr.length}組）</div><div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;zoom:.5">${V.ctr.map(p=>`<span style="display:flex">${p.map(c=>mc(c)).join('')}</span>`).join('')}</div>`:'',
+    host=o.host&&V.st=='wait'?`<div class="chips"><button class="btn" onclick="obStart()"${V.ps.length<3?' disabled':''}>ゲーム開始</button></div>`:'',
+    hd=V.st=='play'?(me>=0&&V.ps[me].pl?`<div class="lab">🏁 あがり！ 結果が出るまで待とう（退出すると賞金は受け取れません）</div>`:`<div class="lab">あなたの手札（${hand.length}枚）</div><div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center">${hand.map(c=>c.j?vJk:mc(c)).join('')}</div>`):'';
+  st(`<div class="msg" id="m">${t}</div><div class="lab">賭け ${o.b.toLocaleString()}　<span id="tm"></span>　通信料：稼いだ分の1％　ババ（🃏）を持ったままの人がビリ</div>${ls?`<div class="lab">${ls}</div>`:''}${ctr}<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0">${V.ps.map(seat).join('')}</div>${hd}${host}<div class="lab">${o.host?'あなたがホストです。退出するとテーブルは終了します':'← ロビー で退出できます（ゲーム中に抜けると賭けは戻りません）'}</div>`);
+  clearInterval(o.cd);o.cd=setInterval(()=>{const e=$('#tm');if(!e||!ol||!ol.V||ol.V.st!='play')return;e.textContent=`残り ${Math.max(0,Math.ceil((ol.dl-Date.now())/1000))}秒`},500)}
+addEventListener('pagehide',()=>{const o=ol;if(o&&o.g=='bb'&&o.paid&&!o.out){o.out=1;if(!(o.host?o.G.st=='play':o.V&&o.V.st=='play'))chips+=o.need;saveW()}});
 
 VT.add('オンライン対戦');
 </script></body></html>
