@@ -499,7 +499,7 @@ acct(){return `<div class="card"><h2>入出金</h2><p class="mut">手持ちチ�
   <div class="card"><h2>お知らせ</h2>${S.notices.slice(0,8).map(n=>`<div class="notice ${n.k}"><time>${fmtD(n.t)}</time><span>${esc(n.m)}</span></div>`).join('')||'<p class="mut">お知らせはありません。</p>'}</div>`},
 inv(){const d=SYMS.find(x=>x.id==ui.sel);
   return `<div class="syms">${SYMS.map(x=>`<button class="sym${x.id==ui.sel?' on':''}" onclick="selSym('${x.id}')" aria-pressed="${x.id==ui.sel}"><span class="tk">${x.id}</span><b>${x.name}</b><span class="pr" data-pr="${x.id}"></span><span class="chg" data-chg="${x.id}"></span><span class="spark" data-sp="${x.id}"></span></button>`).join('')}</div>
-  <div class="card"><div class="ch-h"><div><h2>${d.name} <small>${d.id}</small></h2><span class="mut">${d.sub}（${d.tag}）</span></div><div><div class="amt" data-pr="${d.id}"></div><span class="chg" data-chg="${d.id}"></span></div></div>
+  <div class="card"><div class="ch-h"><div><h2>${d.name} <small>${d.id}</small>${d.ln?` <small>👑 リーダー：${esc(d.ln)}</small>`:''}${+d.dv>0?` <small>💰 配当 ${(+d.dv).toLocaleString('ja-JP')}／株（毎日）</small>`:''}</h2><span class="mut">${d.sub}（${d.tag}）</span></div><div><div class="amt" data-pr="${d.id}"></div><span class="chg" data-chg="${d.id}"></span></div></div>
   <div id="chart"></div><p class="mut">直近のチャート（点線は期間の最初の値）。株価はサーバーで動いていて、全員に同じ値が見えます。ページを閉じている間も動き続けます。</p>
   <div id="hinfo"></div>
   <label class="lab" for="qty">株数</label><input id="qty" type="number" inputmode="numeric" min="1" step="1" value="1" oninput="qtyPrev()">
