@@ -19,6 +19,7 @@ body{min-height:100dvh;background:linear-gradient(180deg,var(--cover) 0,var(--co
 button,input,select{font:inherit}
 .cover{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .logo{font-family:var(--mj);font-weight:800;font-size:clamp(22px,6vw,30px);line-height:1.15;background:linear-gradient(#f6e27a,#d4af37 60%,#8a6a12);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hr{display:flex;align-items:center;gap:8px}.fsel{font:inherit;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid var(--gold2);background:rgba(0,0,0,.25);color:inherit;max-width:44vw}.fsel[hidden]{display:none}.fsel option{color:#222}
 .brand small{display:block;letter-spacing:.42em;color:var(--gold2);font-size:11px;margin-top:2px}
 .net{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin:18px 0 10px;flex-wrap:wrap}
 .net .lab{display:block;color:#a9b8d0;font-size:13px}
@@ -157,7 +158,14 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 <div id="app">
   <header class="cover">
     <div class="brand"><div class="logo">2−1 情報処理銀行</div><small>JOHO BANK</small></div>
-    <a class="btn s gold" href="./">カジノへ</a>
+    <div class="hr">
+      <select id="fmtsel" class="fsel" hidden onchange="setFmt(this.value)" aria-label="数字の表示形式">
+        <option value="c">1,234,567（コンマ）</option>
+        <option value="j">100京1600兆（日本語）</option>
+        <option value="e">1T300B（英語）</option>
+      </select>
+      <a class="btn s gold" href="./">カジノへ</a>
+    </div>
   </header>
   <section class="net">
     <div><span class="lab">純資産（手持ち＋預金＋投資＋定期−借入）</span><b id="net">0</b></div>
@@ -194,7 +202,21 @@ const KEY='cj_bank_v1', WK='cj_wallet', AK='cj_bank_auth', UK='cj_bank_ui';   //
 const $=s=>document.querySelector(s);
 /* 金額まわり：大きくなる金額（預金・株数・定期など）は BigInt で扱い、サーバーとは文字列でやり取りする */
 const BI=v=>{try{if(typeof v=='bigint')return v;if(typeof v=='number')return BigInt(Math.round(v));return BigInt(String(v).split('.')[0]||'0')}catch(e){return 0n}};
-const fmt=n=>{try{return BI(n).toLocaleString('ja-JP')}catch(e){return String(n)}};
+/* 数字の表示形式：コンマ／日本語の単位／英語の単位（銀行レベル1000万以上の人だけ選べる）。単位表記は大きいほうから2つの単位だけ見せ、それより小さい桁は隠す */
+const JPU=['','万','億','兆','京','垓','秭','穣','溝','澗','正','載','極','恒河沙','阿僧祇','那由他','不可思議','無量大数'],
+      ENU=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid','Sxd','Spd','Ocd','Nod','Vg'];
+function fmtUnit(b,size,units){   // b：0以上のBigInt。単位が足りない巨大な数は null（コンマ表記にもどす）
+  const s=b.toString(),g=[];
+  for(let e=s.length;e>0;e-=size)g.push(s.slice(Math.max(0,e-size),e));   // g[0]が一番小さい桁
+  if(g.length>units.length)return null;
+  const top=g.length-1;let out='';
+  for(let i=top;i>=Math.max(0,top-1);i--){const v=g[i].replace(/^0+/,'');if(v)out+=v+units[i]}
+  return out||'0'}
+const FMT_LV=1e7;   // 表示形式を選べる銀行レベル（1000万）
+function fmtOk(){try{const l=lvN();if(l>=FMT_LV)return true;if(LV&&LV.level!=null)return false;return Number(localStorage.getItem('cj_bank_lv'))>=FMT_LV}catch(e){return false}}
+const fmt=n=>{try{const b=BI(n),m=fmtOk()?(ui.fmt||'c'):'c';
+  if(m!='c'){const neg=b<0n,a=neg?-b:b,r=m=='j'?fmtUnit(a,4,JPU):fmtUnit(a,3,ENU);if(r!=null)return(neg?'-':'')+r}
+  return b.toLocaleString('ja-JP')}catch(e){return String(n)}};
 const mulP=(q,p)=>BI(q)*BigInt(Math.round(p*100))/100n;   // 株数×株価（株価は小数2桁）
 const J=v=>JSON.stringify(v,(k,x)=>typeof x=='bigint'?x.toString():x);
 const CAP=1e15;   // 手持ち（カジノの財布）の上限：1000兆
@@ -229,7 +251,7 @@ function setWallet(n){memW=Math.min(CAP,Math.floor(n));try{localStorage.setItem(
 
 /* ============ 状態 ============ */
 let A=(()=>{try{const v=JSON.parse(localStorage.getItem(AK));if(v&&v.acct&&v.secret)return v}catch(e){}return null})();   // {acct, secret}
-let ui=(()=>{try{return Object.assign({tab:'acct',sel:''},JSON.parse(localStorage.getItem(UK))||{})}catch(e){return{tab:'acct',sel:''}}})();
+let ui=(()=>{try{return Object.assign({tab:'acct',sel:'',fmt:'c'},JSON.parse(localStorage.getItem(UK))||{})}catch(e){return{tab:'acct',sel:''}}})();
 let S=null;            // サーバーから受け取った口座の状態
 let SYMS=[],LOANS=[];  // 銘柄・融資会社（サーバー定義）
 let MK={};             // 株価 {sym:{p,h:[...]}}
@@ -650,7 +672,13 @@ async function doDonate(){
   if(r.ok){LV=r.r;lvSave();render()}
 }
 function setTab(t){ui.tab=t;saveUi();if(S){render();syncHist();if(t=='inv')pollMk();if(t=='lv')fetchLv();if(t=='msg')fetchMsg();updBadge()}window.scrollTo(0,0)}
+let lvAsk=false;
+function setFmt(v){ui.fmt=(v=='j'||v=='e')?v:'c';saveUi();render();updateLive()}
+function fmtUi(){const e=$('#fmtsel');if(!e)return;
+  if(S&&!LV&&!lvBusy&&!lvAsk){lvAsk=true;fetchLv()}   // レベルがまだ分からないときは1回だけ取得
+  const ok=!!S&&fmtOk();e.hidden=!ok;if(ok&&e.value!=(ui.fmt||'c'))e.value=ui.fmt||'c'}
 function updateLive(){
+  fmtUi();
   const w=wallet();$('#s-w').textContent=fmt(w);
   if(!S){['#s-d','#s-i','#s-f','#s-l','#net'].forEach(s=>$(s).textContent='—');$('#acct').textContent=A?A.acct:'------';$('#link').textContent='口座未開設';return}
   const t=now(),iv=invV(),fv=fixV(),lv=loanV(t),r=wRaw();
