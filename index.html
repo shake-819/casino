@@ -911,7 +911,7 @@ function olClose(){if(ol){const o=ol;ol=null;clearTimeout(o.tm);clearInterval(o.
 const olMyStk=vd=>{const o=ol;if(!o)return 0;const m=o.V&&o.V.ps.find(p=>p.id==HID);return m?m.stk+(vd&&o.V.st=='play'?(m.tot||0):0):(o.paid&&!o.V?o.need:0)};   // vd=1：ハンド無効（ホスト終了）→ 場に出したチップも返す
 function olOut(){const o=ol;if(o){if(o.g=='pk'){const rf=o.host&&o.G.st=='play'?Object.fromEntries(o.G.ps.filter(p=>!p.lv).map(p=>[p.id,p.stk+p.tot])):null;if(o.paid){chips+=olMyStk(o.host);o.paid=0}oSend(o.c,o.host?'close':'leave',{pid:HID,rf})}
   else if(o.g=='bb'){const pl=o.host?o.G.st=='play':!!(o.V&&o.V.st=='play'),oth=o.host?o.G.ps.filter(p=>!p.lv&&p.id!=HID):[];const rf=o.host&&pl&&oth.length?Object.fromEntries(oth.map(p=>[p.id,obPay(o,o.G.ps.length,oth.length)])):null;if(o.paid&&!pl)chips+=o.need;o.paid=0;oSend(o.c,o.host?'close':'leave',{pid:HID,rf})}
-  else if(o.g=='ru'){if(o.paid&&!o.pr&&o.host){chips+=o.need;o.paid=0}else if(o.pr&&!o.pr.fin)oSend(o.c,'quit',{})}}   // 試合中に抜けたら負け
+  else if(o.g=='ru'){if(o.paid&&!o.pr){chips+=o.need;o.paid=0;if(o.host)oSend(o.c,'close',{})}else if(o.pr&&!o.pr.fin)oSend(o.c,'quit',{})}}   // 試合中に抜けたら負け
   olClose();olT++;chk()}
 function olBackVip(){olOut();lv=null;vipRoom()}
 const olTbl=()=>{const o=ol;if(!o||!o.host||!olL)return;const n=o.g=='ru'?(o.guest?2:1):o.G.ps.length,pl=o.g=='ru'?!!o.guest:o.G.st=='play';
@@ -920,7 +920,7 @@ async function olLobby(note){
   if(!vipOk())return vipMenu();
   olClose();const T=++olT;vRe=null;lv=olOut;$('#gt').textContent='オンライン対戦';olV='';
   st(`<div class="msg" id="m">${note||'接続中…'}</div>`);
-  try{await oLoad();if(T!=olT)return;olL=await oCh('cj-vip-lobby',{},p=>{olTb=Object.values(p).flat().filter(x=>x&&x.t=='tbl');if(olV=='l'&&T==olT)olRefresh()})}
+  try{await oLoad();if(T!=olT)return;olL=await oCh('cj-vip-lobby',{},p=>{olTb=Object.values(p).flat().filter(x=>x&&x.t=='tbl');if(olV=='l'&&T==olT&&!ol)olRefresh()})}
   catch(e){if(T==olT){lv=null;st(`<div class="msg" id="m">通信できませんでした</div><div class="lab">ネットワークを確認してください（学校などのネットワークでは使えないことがあります）</div>${vBtn('再接続','olLobby()')}`)}return}
   if(T==olT)olList(note)}
 // 賭け額の選択：プリセット／ALL IN／more（好きな金額）。ロシアンルーレット＝賭け額、ポーカー＝BB（バイインはBBの50倍）
@@ -943,7 +943,7 @@ function olSelR(g){const P=OLP[g],b=olAmt(g),mx=olMax(g),all=olSel[g]=='all',cu=
 function olCreate(g){const b=olAmt(g);if(g=='cc'&&b>=OLMIN.cc)return ccMake(b);if(!(b>=OLMIN[g]))return msg(olSel[g]=='all'?(g=='pk'?'ポーカーのALL INはチップ500万から使えます':g=='bb'?'ババ抜きのALL INはチップ100万から使えます':g=='cc'?'チンチロのALL INはチップ10万から使えます':'ロシアンルーレットのALL INはチップ1000万から使えます'):`${OLMIN[g].toLocaleString()}以上の金額を選んでください`);olMake(g,b)}
 // 入力中（名前・金額）はロビーの再描画で入力が消えないよう、あとで描き直す
 function olRefresh(){const a=document.activeElement;if(a&&a.tagName=='INPUT'&&$('#stage').contains(a)){olDirty=1;return}olList()}
-addEventListener('focusout',()=>{if(!olDirty)return;setTimeout(()=>{const a=document.activeElement;if(olDirty&&olV=='l'&&!(a&&a.tagName=='INPUT'))olList()},250)});
+addEventListener('focusout',()=>{if(!olDirty)return;setTimeout(()=>{const a=document.activeElement;if(olDirty&&olV=='l'&&!ol&&!(a&&a.tagName=='INPUT'))olList()},250)});
 function olList(note){olV='l';olDirty=0;
   const need=x=>x.g=='pk'?x.b*50:x.b,rows=olTb.map(x=>`<div class="hand" style="margin:6px 0"><div class="lab">${x.g=='ru'?'🔫 ロシアンルーレット':x.g=='bb'?'🃏 ババ抜き':x.g=='cc'?'🎲 チンチロ':'🃏 ポーカー'}　ホスト：${vEsc(x.nm)}　${x.g!='pk'?'賭け '+x.b.toLocaleString():'BB '+x.b.toLocaleString()+'／バイイン '+need(x).toLocaleString()}　${x.n}/${x.m}人${x.pl?'（進行中）':''}</div><button class="btn s" onclick="${x.g=='cc'?'ccJoin':'olJoin'}('${x.id}')"${x.n>=x.m||(x.pl&&x.g!='pk')?' disabled':''}>参加</button></div>`).join('')||'<div class="lab">開催中のテーブルはありません。作ってみよう</div>';
   st(`<div class="msg" id="m">${note||'👑 オンライン対戦（VIP限定）'}</div><div class="lab">通信料：1プレイにつき、稼いだチップの<b>1％</b>をいただきます</div>
@@ -954,7 +954,7 @@ ${rows}<div class="lab" style="margin-top:14px">🔫 ロシアンルーレット
 const OLH={};
 const olFail=t=>{const o=ol;if(o&&o.paid){if(o.g=='pk')chips+=olMyStk();else if(!o.pr)chips+=o.need;upd()}olLobby(t)};
 async function olMake(g,b){b=Math.floor(b);const need=g=='pk'?b*50:b;if(chips<need)return msg(`チップが足りません（必要 ${need.toLocaleString()}）`);
-  const id=HID.slice(0,6)+Date.now().toString(36),T=olT;chips-=need;upd();
+  const id=HID.slice(0,6)+Date.now().toString(36),T=olT;olV='';chips-=need;upd();
   const o=ol={g,id,b,host:1,need,pc:{},paid:1};
   try{if(g=='pk'){o.G=hNew(b);hAdd(o.G,HID,oName(),need);o.V=hView(o.G)}else if(g=='bb'){o.G=obNew();obAdd(o.G,HID,oName());o.V=obView(o.G)}
     o.c=await oCh('cj-t-'+id,OLH,olPres);if(ol!=o||T!=olT)return oBye(o.c);o.c.track({});o.iv=setInterval(olWatch,3000);olTbl();lv=olOut;
@@ -962,25 +962,25 @@ async function olMake(g,b){b=Math.floor(b);const need=g=='pk'?b*50:b;if(chips<ne
     else if(g=='bb')obSync();else opR()}
   catch(e){olFail('テーブルを作れませんでした')}}
 function olCancel(){olOut();lv=null;olLobby()}
-async function olJoin(id){const x=olTb.find(t=>t.id==id);if(!x||x.n>=x.m)return msg('このテーブルは満席です');
+async function olJoin(id){const x=olTb.find(t=>t.id==id);if(!x||x.n>=x.m)return msg('このテーブルは満席です');if(x.hid==HID)return msg('自分が作ったテーブルには参加できません');
   const need=x.g=='pk'?x.b*50:x.b;if(chips<need)return msg(`チップが足りません（必要 ${need.toLocaleString()}）`);
-  const T=olT;msg('参加しています…');const o=ol={g:x.g,id,b:x.b,host:0,need,hid:x.hid,pc:{},paid:0};
+  const T=olT;olV='';msg('参加しています…');const o=ol={g:x.g,id,b:x.b,host:0,need,hid:x.hid,pc:{},paid:0};
   try{o.c=await oCh('cj-t-'+id,OLH,olPres);if(ol!=o||T!=olT)return oBye(o.c);o.c.track({});
     o.pc[HID]=await oCh('cj-t-'+id+'-'+HID,{hole:d=>{o.hole=d;opR()},hand:d=>{o.hand=d;obR()}});if(ol!=o||T!=olT)return;
     lv=olOut;o.iv=setInterval(olWatch,3000);oSend(o.c,'join',{pid:HID,nm:oName()});
     o.tm=setTimeout(()=>{if(ol==o&&!o.paid)olFail('応答がありません')},7000)}
   catch(e){olFail('参加できませんでした')}}
 OLH.join=async d=>{const o=ol;if(!o||!o.host)return;
-  if(o.g=='ru'){if(o.guest||o.pr)return oSend(o.c,'no',{to:d.pid,r:'満席です'});o.guest={id:d.pid,nm:String(d.nm).slice(0,10)};oSend(o.c,'ok',{to:d.pid});olTbl();setTimeout(()=>{if(ol==o)rqBegin()},1200)}
+  if(o.g=='ru'){if(o.guest||o.pr)return oSend(o.c,'no',{to:d.pid,r:'満席です'});o.guest={id:d.pid,nm:String(d.nm).slice(0,10)};oSend(o.c,'ok',{to:d.pid});olTbl();rqWait()}
   else if(o.g=='bb')obJoin(d);
   else{const G=o.G;if(G.st=='play'||G.ps.length>=6||G.ps.some(p=>p.id==d.pid))return oSend(o.c,'no',{to:d.pid,r:G.st=='play'?'ハンド進行中です。終わってから参加してください':'満席です'});
     hAdd(G,d.pid,String(d.nm).slice(0,10),o.need);
     try{o.pc[d.pid]=await oCh('cj-t-'+o.id+'-'+d.pid,{})}catch(e){G.ps=G.ps.filter(p=>p.id!=d.pid);return oSend(o.c,'no',{to:d.pid,r:'接続に失敗しました'})}
     oSend(o.c,'ok',{to:d.pid});olTbl();opSync()}};
 OLH.ok=d=>{const o=ol;if(!o||o.host||d.to!=HID||o.paid)return;o.paid=1;chips-=o.need;upd();clearTimeout(o.tm);
-  if(o.g!='ru')st(`<div class="msg" id="m">参加しました。ホストの開始を待っています…</div>`);else st(`<div class="msg" id="m">対戦相手が見つかりました</div>`)};
+  st(`<div class="msg" id="m">参加しました。ホストの開始を待っています…</div>`)};
 OLH.no=d=>{if(d.to==HID&&ol&&!ol.host&&!ol.paid){clearTimeout(ol.tm);olLobby(d.r||'参加できませんでした')}};
-OLH.close=d=>{const o=ol;if(!o||o.host||o.out)return;o.out=1;if(o.g=='pk'&&o.paid){chips+=d&&d.rf&&d.rf[HID]!=null?d.rf[HID]:olMyStk(1);o.paid=0}else if(o.g=='bb'&&o.paid){chips+=d&&d.rf&&d.rf[HID]!=null?d.rf[HID]:o.need;o.paid=0}upd();lv=null;if(o.g=='ru'&&o.pr&&!o.pr.fin)return rqEnd(1,'ホストが退出しました。');olLobby('ホストが退出したので終了しました')};
+OLH.close=d=>{const o=ol;if(!o||o.host||o.out)return;o.out=1;if(o.g=='pk'&&o.paid){chips+=d&&d.rf&&d.rf[HID]!=null?d.rf[HID]:olMyStk(1);o.paid=0}else if(o.g=='bb'&&o.paid){chips+=d&&d.rf&&d.rf[HID]!=null?d.rf[HID]:o.need;o.paid=0}else if(o.g=='ru'&&o.paid&&!o.pr){chips+=o.need;o.paid=0}upd();lv=null;if(o.g=='ru'&&o.pr&&!o.pr.fin)return rqEnd(1,'ホストが退出しました。');olLobby('ホストが退出したので終了しました')};
 OLH.bust=d=>{if(d.to==HID&&ol&&!ol.host){lv=null;olLobby('チップがなくなったので退席しました')}};
 function olWatch(){const o=ol;if(!o||o.fin)return;const k=o.keys||new Set();
   if(o.g=='ru'){const v=o.pr,oid=o.host?o.guest&&o.guest.id:o.hid;if(!oid||!v||v.fin)return;if(o.host&&o.H)oSend(o.c,'rsync',rqSnap(o.H));if(v.an||v.q.length)return;if(k.has(oid)){o.seen=1;o.miss=0}else if(o.seen&&++o.miss>=2)rqEnd(1,'相手との通信が切れました。')}
@@ -989,6 +989,7 @@ function olWatch(){const o=ol;if(!o||o.fin)return;const k=o.keys||new Set();
 
 // ---- ロシアンルーレット（対人）：ホスト＝席0、参加者＝席1 ----
 function rqLoad(H){const n=R(8)+1,l=1+R(n),m=[...Array(n)].map((_,i)=>i<l?1:0);shuf(m);H.m=m;H.L=l;H.B=n-l;H.n=n}
+function rqWait(){const o=ol;if(!o||!o.host||o.pr)return;st(`<div class="msg" id="m">${vEsc(o.guest?o.guest.nm:'')} が参加しました</div><div class="lab">賭け ${o.b.toLocaleString()}　勝てば ${(o.b*2).toLocaleString()}（通信料：勝ち分の1％）</div><div class="chips"><button class="btn" onclick="rqBegin()">ゲーム開始</button><button class="btn s d" onclick="olCancel()">やめる</button></div>`)}
 function rqBegin(){const o=ol;if(!o||o.pr||!o.guest)return;const H=o.H={t:R(2),busy:0,q:0,h:[5,5],pend:0};rqLoad(H);
   const d={h:[5,5],t:H.t,L:H.L,B:H.B,n:H.n,rem:H.m.length,hn:oName(),gn:o.guest.nm};oSend(o.c,'rs',d);rqInit(d,0);olTbl()}
 OLH.rs=d=>{if(ol&&!ol.host&&!ol.pr&&ol.paid)rqInit(d,1)};
@@ -1145,11 +1146,11 @@ function ccOut(){const o=ol;if(o&&o.g=='cc'){o.out=1;if(o.host)oSend(o.c,'cx',{}
 function ccBack(){ccOut();lv=null;olLobby()}
 // ---- テーブル作成・参加 ----
 async function ccMake(b){b=Math.floor(b);hell=0;if(chips<b)return msg('チップが足りません');
-  const id=HID.slice(0,6)+Date.now().toString(36),T=olT,o=ol={g:'cc',id,b,host:1,in:1,G:ccNew(b)};ccAdd(o.G,HID,oName(),Math.floor(chips));
+  olV='';const id=HID.slice(0,6)+Date.now().toString(36),T=olT,o=ol={g:'cc',id,b,host:1,in:1,G:ccNew(b)};ccAdd(o.G,HID,oName(),Math.floor(chips));
   try{o.c=await oCh('cj-cct-'+id,CCH,olPres);if(ol!=o||T!=olT)return oBye(o.c);o.c.track({});o.iv=setInterval(ccWatch,3000);lv=ccOut;ccTbl();ccSync()}
   catch(e){olLobby('テーブルを作れませんでした')}}
-async function ccJoin(id){const x=olTb.find(t=>t.id==id);if(!x||x.n>=x.m)return msg('このテーブルは満席です');if(x.pl)return msg('ラウンド進行中です。終わってから参加してください');if(chips<x.b)return msg(`チップが足りません（必要 ${x.b.toLocaleString()}）`);
-  const T=olT;msg('参加しています…');const o=ol={g:'cc',id,b:x.b,host:0,hid:x.hid,in:0};
+async function ccJoin(id){const x=olTb.find(t=>t.id==id);if(!x||x.n>=x.m)return msg('このテーブルは満席です');if(x.hid==HID)return msg('自分が作ったテーブルには参加できません');if(x.pl)return msg('ラウンド進行中です。終わってから参加してください');if(chips<x.b)return msg(`チップが足りません（必要 ${x.b.toLocaleString()}）`);
+  const T=olT;olV='';msg('参加しています…');const o=ol={g:'cc',id,b:x.b,host:0,hid:x.hid,in:0};
   try{o.c=await oCh('cj-cct-'+id,CCH,olPres);if(ol!=o||T!=olT)return oBye(o.c);o.c.track({});lv=ccOut;o.iv=setInterval(ccWatch,3000);
     oSend(o.c,'cj',{pid:HID,nm:oName(),c:Math.floor(chips)});o.tm=setTimeout(()=>{if(ol==o&&!o.in)olLobby('応答がありません')},7000)}
   catch(e){olLobby('参加できませんでした')}}
