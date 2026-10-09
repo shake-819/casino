@@ -625,7 +625,7 @@ async function msgSend(){
   catch(x){toast(x.message,'err')}finally{busy=false}
 }
 
-/* ============ レベル ============ 
+/* ============ レベル ============ */
 let LV=null,lvBusy=false;
 const UNIT=1e15;   // 1レベルに必要な寄付額（1000兆）
 function lvSave(){try{localStorage.setItem('cj_bank_lv',String(lvN()))}catch(e){}}   // カジノが通信料の割引に使う
