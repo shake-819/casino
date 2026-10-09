@@ -93,6 +93,15 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 .item:last-child{border-bottom:0}
 .item .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
 .ttl{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:99px;background:var(--gold);color:#241a00;font-size:12px;font-weight:800;letter-spacing:.05em;vertical-align:middle}
+.bdg{position:absolute;top:3px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--shu);color:#fff;font-size:10px;font-style:normal;line-height:16px;font-weight:700;display:none}
+.mw{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto;padding:4px 2px;margin:8px 0}
+.mb{max-width:88%;padding:8px 11px;border-radius:12px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word;background:var(--paper2)}
+.mb.a{align-self:flex-start;background:#fff6d6;border:1px solid #e6c55a;color:#4a3a05}
+.mb.u{align-self:flex-end}
+.mb.n{outline:2px solid var(--shu)}
+.mb b{display:block;margin-bottom:2px}
+.mb small{display:block;color:var(--mut);font-size:11px;margin-top:3px;white-space:normal}
+#mt{width:100%;min-height:84px;padding:10px;font-size:16px;border:1px solid var(--rule);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit;resize:vertical}
 .prog{height:9px;background:var(--paper2);border-radius:99px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--rule)}
 .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2b6cb0,#4aa3ff)}
 .lock{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--cover);color:var(--gold2);font-weight:700}
@@ -132,7 +141,7 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 .acno{font-family:var(--mj);font-size:26px;font-weight:800;letter-spacing:.14em}
 /* nav */
 #tabs{position:fixed;left:0;right:0;bottom:0;background:var(--cover2);border-top:1px solid #ffffff22;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-#tabs div{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+#tabs div{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(7,1fr)}
 #tabs button{background:none;border:0;color:#a9b8d0;padding:9px 2px 8px;min-height:56px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;position:relative}
 #tabs button span{font-size:19px;line-height:1.2}
 #tabs button.on{color:var(--gold2);font-weight:700}
@@ -170,6 +179,7 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
   <button data-t="tx" onclick="setTab('tx')"><span>✉️</span>振込</button>
   <button data-t="loan" onclick="setTab('loan')"><span>🏛️</span>融資</button>
   <button data-t="lv" onclick="setTab('lv')"><span>🏅</span>レベル</button>
+  <button data-t="msg" onclick="setTab('msg')"><span>💬</span>運営<i class="bdg" id="mbdg"></i></button>
 </div></nav>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -557,6 +567,15 @@ lv(){
   ${top.length?`<div class="rk h"><span style="text-align:center">順位</span><span>名前</span><span style="text-align:right">レベル</span><span style="text-align:right">進捗</span></div>`
     +top.map(t=>`<div class="rk${t.me?' me':''}"><span class="r">${['👑','🥈','🥉'][t.rank-1]||t.rank}</span><span class="n">${esc(t.name)}${t.me?'（あなた）':''} <small class="ttl">${esc(lvTitle(Math.max(0,Math.floor(Number(t.lv))||0)))}</small></span><span class="l">Lv.${fmt(t.lv)}</span><span class="p">${t.pct}%</span></div>`).join('')
     :'<p class="mut">まだ誰も寄付していません。最初のランクインを目指しましょう。</p>'}</div>`},
+msg(){
+  if(MSG===null&&!mBusy)fetchMsg();
+  const L=MSG||[];
+  return `<div class="card"><h2>運営とのメッセージ <small>運営だけに届きます</small></h2>
+  <p class="mut">ご意見・不具合・お問い合わせを運営に送れます。運営からのお知らせや返信もここに届きます（ユーザー同士のメッセージはできません）。<b>秘密コードや合言葉は送らないでください。</b></p>
+  ${MSG===null?'<p class="mut">読み込み中…</p>':`<div class="mw" id="mw">${L.length?L.map(m=>`<div class="mb ${m.dir}${mNew.has(m.id)?' n':''}">${m.dir=='a'?`<b>${esc(m.subject||'運営からのお知らせ')}</b>`:''}${esc(m.body)}<small>${m.dir=='a'?'運営':'あなた'} ・ ${fmtDate(m.t)}${mNew.has(m.id)?' ・ 新着':''}</small></div>`).join(''):'<p class="mut">まだメッセージはありません。</p>'}</div>`}
+  <label class="lab" for="mt">運営へのメッセージ（500文字まで）</label>
+  <textarea id="mt" maxlength="500" placeholder="メッセージを入力"></textarea>
+  <div class="btns"><button class="btn" onclick="msgSend()">運営に送信</button><button class="btn alt" onclick="fetchMsg()">更新</button></div></div>`},
 loan(){return `<div class="card"><h2>信用スコア</h2><div class="cs"><b>${S.credit}</b><div class="bar"><i style="width:${S.credit}%"></i></div></div>
   <p class="mut" style="margin-top:8px">期限内の返済で上がり、延滞や否決で下がります。高いほど審査に通りやすくなります。</p></div>
   ${S.loans.length?`<div class="card"><h2>借入中</h2>${S.loans.map(l=>`<div class="row-l"><div><b>${CO(l.co).name}</b> <span class="mut">借入 ${fmt(l.amt)}</span></div><div>返済額 <b class="amt" data-owed="${l.id}"></b></div><div class="due" data-due="${l.id}"></div><button class="btn s" style="justify-self:start" onclick="repay('${l.id}')">全額返済</button></div>`).join('')}</div>`:''}
@@ -568,7 +587,7 @@ function render(){
   if(!S){tabs.style.display='none';v.innerHTML=loginView();updateLive();return}
   tabs.style.display='';
   // 入力途中の値とフォーカスを保つ
-  const keep={};v.querySelectorAll('input,select').forEach(e=>{if(e.id)keep[e.id]=e.value});
+  const keep={};v.querySelectorAll('input,select,textarea').forEach(e=>{if(e.id)keep[e.id]=e.value});const mw0=$('#mw'),ms0=mw0?(mw0.scrollHeight-mw0.scrollTop-mw0.clientHeight<40?-1:mw0.scrollTop):-1;
   const fid=document.activeElement&&v.contains(document.activeElement)?document.activeElement.id:null;
   if(!views[ui.tab])ui.tab='acct';
   v.innerHTML=views[ui.tab]();
@@ -578,9 +597,35 @@ function render(){
   if(ui.tab=='fix')fdPrev();
   if(ui.tab=='loan')LOANS.forEach(c=>lprev(c.id));
   if(ui.tab=='inv'){qtyPrev();mgPrev()}
+  if(ui.tab=='msg'){const w=$('#mw');if(w)w.scrollTop=ms0<0?w.scrollHeight:ms0}
   updateLive();
 }
-/* ============ レベル ============ */
+/* ============ 運営とのメッセージ ============ */
+let MSG=null,mUn=0,mBusy=false,mNew=new Set();
+function updBadge(){const e=$('#mbdg');if(!e)return;e.textContent=mUn>99?'99+':mUn;e.style.display=mUn>0&&ui.tab!='msg'?'inline-block':'none'}
+async function fetchMsg(){
+  if(!A||mBusy)return;mBusy=true;
+  try{
+    const r=await rpc('bank_msg_list',{p_acct:A.acct,p_secret:A.secret}),L=r.items||[];
+    mNew=new Set(L.filter(m=>m.dir=='a'&&!m.read).map(m=>m.id));MSG=L;mUn=mNew.size;
+    if(S&&ui.tab=='msg'){render();if(mNew.size)rpc('bank_msg_read',{p_acct:A.acct,p_secret:A.secret}).then(()=>{mUn=0;updBadge()}).catch(()=>{})}
+    updBadge();
+  }catch(e){if(MSG===null)MSG=[];if(ui.tab=='msg')toast(e.message,'err')}finally{mBusy=false}
+}
+async function pollMsgCount(){   // 他のタブにいる間は、未読の数だけを軽く確認する
+  if(!A||mBusy)return;
+  try{const n=await rpc('bank_msg_unread',{p_acct:A.acct,p_secret:A.secret});mUn=Math.max(0,Math.floor(+n)||0);updBadge()}catch(e){}
+}
+async function msgSend(){
+  const e=$('#mt'),b=e?e.value.trim():'';
+  if(!b)return toast('メッセージを入力してください','err');
+  if(b.length>500)return toast('500文字以内で入力してください','err');
+  if(busy)return;busy=true;
+  try{await rpc('bank_msg_send',{p_acct:A.acct,p_secret:A.secret,p_body:b});e.value='';busy=false;toast('運営に送信しました','ok');await fetchMsg()}
+  catch(x){toast(x.message,'err')}finally{busy=false}
+}
+
+/* ============ レベル ============ 
 let LV=null,lvBusy=false;
 const UNIT=1e15;   // 1レベルに必要な寄付額（1000兆）
 function lvSave(){try{localStorage.setItem('cj_bank_lv',String(lvN()))}catch(e){}}   // カジノが通信料の割引に使う
@@ -604,7 +649,7 @@ async function doDonate(){
   const r=await act('bank_donate',{p_amount:a},r=>r.up>0?`🏅 レベルが${fmt(r.up)}上がりました！ Lv.${fmt(r.level)}`:`寄付しました（Lv.${fmt(r.level)}・進捗${r.pct}%）`);
   if(r.ok){LV=r.r;lvSave();render()}
 }
-function setTab(t){ui.tab=t;saveUi();if(S){render();syncHist();if(t=='inv')pollMk();if(t=='lv')fetchLv()}window.scrollTo(0,0)}
+function setTab(t){ui.tab=t;saveUi();if(S){render();syncHist();if(t=='inv')pollMk();if(t=='lv')fetchLv();if(t=='msg')fetchMsg();updBadge()}window.scrollTo(0,0)}
 function updateLive(){
   const w=wallet();$('#s-w').textContent=fmt(w);
   if(!S){['#s-d','#s-i','#s-f','#s-l','#net'].forEach(s=>$(s).textContent='—');$('#acct').textContent=A?A.acct:'------';$('#link').textContent='口座未開設';return}
@@ -647,12 +692,13 @@ setInterval(()=>{
   const inv=ui.tab=='inv',ev=inv?(S.margin&&S.margin.length?6:9):10,
         st=(due()&&Date.now()-lastFetch>2500)||cnt%ev==0,    // 満期・審査結果・延滞はサーバーが処理
         mk=inv&&cnt%3==0;
+  if(ui.tab=='msg'&&cnt%30==0)fetchMsg();else if(ui.tab!='msg'&&cnt%180==0)pollMsgCount();
   if(st)refresh(mk);else if(mk)pollMk();                     // 同時に来たら1回の通信にまとめる
 },1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S){lastAct=Date.now();idleOn=false;refresh(ui.tab=='inv')}});
 addEventListener('storage',e=>{if(e.key==WK)updateLive()});
 addEventListener('pageshow',()=>{if(S)updateLive()});
 render();
-if(A)refresh();
+if(A){refresh();pollMsgCount()}
 </script>
 </body></html>
