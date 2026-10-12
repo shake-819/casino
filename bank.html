@@ -317,6 +317,7 @@ async function refresh(withMk){
 function normS(s){s.dep=BI(s.dep);for(const k in(s.hold||{})){const h=s.hold[k];h.q=BI(h.q);h.c=BI(h.c)}(s.fixed||[]).forEach(f=>{f.amt=BI(f.amt);f.int=BI(f.int)})}
 function applyState(s){
   const first=!S;normS(s);
+  {const sg=J([s.dep,s.hv,s.fixed&&s.fixed.length,s.hold,s.margin&&s.margin.length]);quietN=sg===lastSg?Math.min(3,quietN+1):0;lastSg=sg}
   skew=s.now-Date.now();
   s.syms=STATIC.syms;s.cos=STATIC.cos;s.mgc=STATIC.mgc;                 // 固定データ
   s.led=HIST.led;s.tx=HIST.tx;s.notices=HIST.notices;                    // 履歴（取得済みのもの）
@@ -707,7 +708,8 @@ let cnt=0;
 function due(){const t=now();return S.fixed.some(f=>t>=f.end)||S.apps.some(a=>t>=a.end)||S.loans.some(l=>!l.od&&t>l.due)}
 /* 更新の頻度：通帳など=10秒ごと／投資タブ=株価3秒ごと＋状態9秒ごと（建玉があれば6秒）。
    2分間さわらなかったら止めて、さわったらすぐ再開する。 */
-const IDLE=120000;let lastAct=Date.now(),idleOn=false;
+let quietN=0,lastSg='',lastMkT=0;
+const IDLE=60000;let lastAct=Date.now(),idleOn=false;
 function onAct(){
   const was=Date.now()-lastAct>IDLE;lastAct=Date.now();
   if(was&&S&&!document.hidden){idleOn=false;refresh(ui.tab=='inv')}
@@ -717,10 +719,12 @@ setInterval(()=>{
   if(document.hidden||!S)return;
   if(Date.now()-lastAct>IDLE){if(!idleOn){idleOn=true;toast('操作がないため更新を止めました。画面にふれると再開します')}return}
   cnt++;updateLive();
-  const inv=ui.tab=='inv',ev=inv?(S.margin&&S.margin.length?6:9):10,
-        st=(due()&&Date.now()-lastFetch>2500)||cnt%ev==0,    // 満期・審査結果・延滞はサーバーが処理
-        mk=inv&&cnt%3==0;
-  if(ui.tab=='msg'&&cnt%30==0)fetchMsg();else if(ui.tab!='msg'&&cnt%180==0)pollMsgCount();
+  // ログ量対策：通信の間隔を長く。状態に変化がないときは最大4倍まで間隔を延ばす（変化があれば元に戻る）
+  const inv=ui.tab=='inv',ev=(inv?(S.margin&&S.margin.length?15:30):45)*1000*(1+quietN),n=Date.now(),
+        st=(due()&&n-lastFetch>5000)||n-lastFetch>=ev,    // 満期・審査結果・延滞はサーバーが処理
+        mk=inv&&n-lastMkT>=12000;
+  if(mk)lastMkT=n;
+  if(ui.tab=='msg'&&cnt%60==0)fetchMsg();else if(ui.tab!='msg'&&cnt%600==0)pollMsgCount();
   if(st)refresh(mk);else if(mk)pollMk();                     // 同時に来たら1回の通信にまとめる
 },1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S){lastAct=Date.now();idleOn=false;refresh(ui.tab=='inv')}});
