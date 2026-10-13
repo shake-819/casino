@@ -1,1 +1,119 @@
-テスト期間中です。勉強しなさい。
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>テスト中です。勉強しなさい</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Yusei+Magic&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --board:       #24382f;   /* 黒板の緑 */
+    --board-dark:  #172720;
+    --chalk:       #f3f1e7;   /* 白チョーク */
+    --chalk-red:   #ff8f80;   /* 赤チョーク */
+    --chalk-dim:   #b9c4bb;
+    --tape-yellow: #f2c200;
+    --tape-black:  #1a1a1a;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html, body{ height:100%; }
+
+body{
+    display:flex;
+    flex-direction:column;
+    color:var(--chalk);
+    font-family:"Yusei Magic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    background:
+        radial-gradient(ellipse at 50% 40%, rgba(255,255,255,.07), transparent 60%),
+        radial-gradient(ellipse at 50% 50%, var(--board) 40%, var(--board-dark) 100%);
+}
+
+/* ===== 工事中テープ(上下) ===== */
+
+.tape{
+    flex:0 0 auto;
+    height:30px;
+    background:repeating-linear-gradient(
+        -45deg,
+        var(--tape-yellow) 0 28px,
+        var(--tape-black) 28px 56px
+    );
+}
+.tape--top{ margin-top:env(safe-area-inset-top, 0px); }
+.tape--bottom{ margin-bottom:env(safe-area-inset-bottom, 0px); }
+
+/* ===== 本体 ===== */
+
+main{
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px 6vw;
+}
+
+h1{
+    font-family:"Dela Gothic One", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    font-weight:400;
+    font-size:clamp(34px, 9vw, 96px);
+    line-height:1.25;
+    letter-spacing:.04em;
+    color:var(--chalk);
+    text-shadow:0 0 1px rgba(243,241,231,.6), 2px 3px 0 rgba(0,0,0,.25);
+}
+
+.scold{
+    display:inline-block;
+    margin-top:clamp(20px, 5vw, 44px);
+    font-size:clamp(40px, 12vw, 128px);
+    line-height:1.2;
+    letter-spacing:.06em;
+    color:var(--chalk-red);
+    transform:rotate(-2.5deg);
+    text-shadow:0 0 2px rgba(255,143,128,.5);
+
+    /* 黒板に書いていくように、左から現れる(読み込み時の1回だけ) */
+    animation:write 1.6s steps(14, end) .5s both;
+}
+
+.small{
+    margin-top:clamp(28px, 6vw, 56px);
+    font-size:clamp(14px, 3.4vw, 20px);
+    line-height:1.9;
+    color:var(--chalk-dim);
+}
+
+@keyframes write{
+    from{ clip-path:inset(0 100% 0 0); }
+    to{   clip-path:inset(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .scold{ animation:none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="tape tape--top" aria-hidden="true"></div>
+
+<main>
+    <h1>テスト中です。</h1>
+    <p class="scold">勉強しなさい</p>
+    <p class="small">ゲームは、テストが終わってから。</p>
+</main>
+
+<div class="tape tape--bottom" aria-hidden="true"></div>
+
+</body>
+</html>
