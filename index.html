@@ -1368,11 +1368,11 @@ async function sRpc(fn,a){const x=vAuth();if(!x)throw new Error('銀行口座が
   const t=await r.text();let j=null;try{j=JSON.parse(t)}catch(e){}if(!r.ok)throw new Error((j&&j.message)||'エラーが発生しました（'+r.status+'）');return t}
 function svMirror(){try{const k='cj_bank_v1',o=JSON.parse(localStorage.getItem(k));if(o){o.dep=svD.toString();localStorage.setItem(k,JSON.stringify(o))}}catch(e){}}
 async function svSync(){const t=await sRpc('bank_state_lite',{p_nsince:null}),m=/"dep"\s*:\s*"?(-?[0-9.eE+\-]+)"?/.exec(t);if(!m)throw new Error('預金を取得できませんでした');svD=sBI(m[1]);svMirror();return svD}   // 数値で返ってきても桁を落とさないよう、生の文字列から取り出す
-async function svTake(a){await sRpc('bank_withdraw',{p_amt:a.toString()});svD-=a;svMirror()}
+async function svTake(a){await sRpc('bank_svip_take',{p_amt:a.toString()});svD-=a;svMirror()}
 const svPendGet=()=>{try{return JSON.parse(localStorage.getItem(SPEND))||[]}catch(e){return[]}},svPendSet=a=>{try{a.length?localStorage.setItem(SPEND,JSON.stringify(a)):localStorage.removeItem(SPEND)}catch(e){}};
-async function svGive(a){if(a<=0n)return true;for(let i=0;i<3;i++){try{await sRpc('bank_deposit',{p_amt:a.toString()});svD+=a;svMirror();return true}catch(e){await new Promise(r=>setTimeout(r,600))}}
+async function svGive(a){if(a<=0n)return true;for(let i=0;i<3;i++){try{await sRpc('bank_svip_give',{p_amt:a.toString()});svD+=a;svMirror();return true}catch(e){await new Promise(r=>setTimeout(r,600))}}
   const p=svPendGet();p.push(a.toString());svPendSet(p);sNote='通信エラーで払い戻しを入金できませんでした。銀行ページ（または次回のSVIPルーム）で入金されます';return false}   // 入金できなかった分は保存しておき、あとで入金する
-async function svFlush(){const p=svPendGet();if(!p.length)return;svPendSet([]);const rest=[];for(const s of p){try{await sRpc('bank_deposit',{p_amt:s})}catch(e){rest.push(s)}}if(rest.length)svPendSet(rest.concat(svPendGet()))}
+async function svFlush(){const p=svPendGet();if(!p.length)return;svPendSet([]);const rest=[];for(const s of p){try{await sRpc('bank_svip_give',{p_amt:s})}catch(e){rest.push(s)}}if(rest.length)svPendSet(rest.concat(svPendGet()))}
 function svLog(g,b,d){try{const o=JSON.parse(localStorage.getItem(SLOG))||{net:'0',n:0,rec:[]};o.net=(sBI(o.net)+d).toString();o.n=(o.n||0)+1;o.rec.unshift({t:Date.now(),g,b:b.toString(),d:d.toString()});o.rec.length=Math.min(o.rec.length,30);localStorage.setItem(SLOG,JSON.stringify(o))}catch(e){}}
 const svEnd=async(b,pay,g,q)=>{if(!q){const d=pay-b;if(d>0n)svFx(1);else if(d<0n)svFx(0)}const ok=await svGive(pay);svLog(g,b,pay-b);const e=$('#sdp');if(e)e.innerHTML=svJ(svD,4);return ok};
 const svPay=(b,m)=>b*BigInt(Math.floor(m*100+1e-6))/100n;
