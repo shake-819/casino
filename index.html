@@ -141,7 +141,7 @@ input.tx{width:min(240px,70vw);padding:10px 12px;font:inherit;font-size:16px;tex
 .hrk div{display:flex;align-items:center;gap:5px;padding:2px 6px;border-radius:8px;background:#0004;min-width:0;white-space:nowrap;overflow:hidden}
 .hrk div b{width:14px;text-align:center;color:var(--g2)}.hrk .gn{width:22px;height:22px;font-size:12px;flex:none}.hrk .me{outline:2px solid var(--g2)}.hrk span:last-child{overflow:hidden;text-overflow:ellipsis}
 .hres .gn{width:24px;height:24px;font-size:13px;flex:none}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+@media(prefers-reduced-motion:reduce){body:not(.svip) *{animation:none!important}}
 /* ===== VIP LUXURY ===== */
 body.vip{background:radial-gradient(ellipse at 50% -10%,#5a1f86,#1d0836 45%,#07020e 85%) fixed}
 body.vip::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle,#fff9 0 1px,transparent 2px) 0 0/90px 90px,radial-gradient(circle,#f6e27aaa 0 1.5px,transparent 2.5px) 45px 30px/130px 130px,radial-gradient(ellipse at 50% 0,#d4af3733,transparent 60%);animation:vtw 3s ease-in-out infinite alternate}
@@ -188,12 +188,70 @@ body.vip .mat{border-color:#f6e27a;box-shadow:0 0 18px #d4af3788}
 @keyframes bsA{from{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1)}to{opacity:0}}
 .vrv{position:fixed;inset:0;pointer-events:none;z-index:98;background:radial-gradient(ellipse at center,transparent 35%,#b00a14aa 100%);animation:vrvA .85s ease-out both}@keyframes vrvA{from{opacity:1}to{opacity:0}}
 .vrw{position:relative;padding-left:46px}.vrammo{position:absolute;left:0;top:8px;width:42px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:#0006;border:1px solid #ffffff33;border-radius:10px}.vrammo small{font-size:10px;line-height:1.3;opacity:.9}.vrammo svg{display:block}.vrammo .sp{opacity:.35}
+/* ===== SVIP：天国と地獄 ===== */
+.svipc{grid-column:1/-1;border-color:#ffe9a0;background:linear-gradient(100deg,#2f5c9a,#8fb8e8 30%,#fff0b8 47%,#ff8a3a 53%,#9a1208 68%,#2a0404);box-shadow:inset 0 0 30px #0007,0 0 22px #ffe9a077,0 6px 26px #ff3b1a77;text-shadow:0 1px 5px #000}.svipc i{font-size:38px}.svipc b{color:#fff}
+body.svip{background:linear-gradient(180deg,#8fbdf0 0%,#dcecff 16%,#fff3c6 30%,#6a4a36 45%,#2e0a0a 57%,#7e1207 82%,#ff5a1f 100%) fixed}
+body.svip::before{background:radial-gradient(ellipse 60% 18% at 20% 8%,#fffc 0,transparent 70%),radial-gradient(ellipse 50% 14% at 78% 16%,#fffb 0,transparent 70%),radial-gradient(ellipse 70% 20% at 50% 100%,#ffb02e99,transparent 70%);animation:none}
+body.svip #vipfx{display:none!important}
+#svfx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;display:none}body.svip #svfx{display:block}
+#svfx .rays{position:absolute;left:-60%;width:220%;top:-90vh;height:140vh;background:repeating-conic-gradient(from 0deg at 50% 100%,#ffffff40 0 4deg,transparent 4deg 13deg);transform-origin:50% 100%;animation:svry 14s ease-in-out infinite alternate;-webkit-mask-image:linear-gradient(#000 30%,transparent 95%);mask-image:linear-gradient(#000 30%,transparent 95%)}
+@keyframes svry{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+#svfx .cl{position:absolute;left:var(--l);width:var(--w);height:auto;opacity:.95;filter:drop-shadow(0 6px 8px #6f9fd8aa);animation:svcl var(--d) ease-in-out infinite alternate;animation-delay:var(--dl)}
+@keyframes svcl{0%{transform:translate(-40px,0) scale(1)}50%{transform:translate(10px,-8px) scale(1.05)}100%{transform:translate(55px,3px) scale(.98)}}
+#svfx .fire{position:absolute;left:-6%;right:-6%;bottom:-24px;height:64vh;filter:url(#svft);animation:svfq 1.9s linear infinite}
+#svfx .fglow{position:absolute;left:0;right:0;bottom:0;height:30vh;background:radial-gradient(ellipse 60% 100% at 50% 100%,#ffd23acc,#ff5a1a99 45%,transparent 78%);animation:svgl 2.3s ease-in-out infinite alternate}
+#svfx .fp{position:absolute;bottom:0;width:calc(var(--s)*.7);height:calc(var(--s)*1.3);margin-left:calc(var(--s)*-.35);border-radius:50% 50% 50% 50%/72% 72% 28% 28%;background:#ffe9a0;mix-blend-mode:screen;transform-origin:50% 100%;will-change:transform,opacity;animation:svfr var(--d) cubic-bezier(.3,.1,.5,1) infinite;animation-delay:var(--dl)}
+@keyframes svfr{0%{transform:translate(0,0) scale(1,.7);background:#fff6c0;opacity:0}8%{opacity:1}30%{background:#ffc02e;transform:translate(calc(var(--dx)*.3),calc(var(--h)*.3)) scale(.85,1.15)}60%{transform:translate(var(--dx),calc(var(--h)*.65)) scale(.5,1.5);background:#ff5a1a;opacity:.85}85%{background:#b3200f;opacity:.4}100%{transform:translate(calc(var(--dx)*-.5),var(--h)) scale(.12,1.6);opacity:0;background:#5a0a08}}
+@keyframes svfq{0%,100%{opacity:1}13%{opacity:.86}27%{opacity:1}41%{opacity:.92}58%{opacity:.82}73%{opacity:1}88%{opacity:.9}}
+@keyframes svgl{from{opacity:.65;transform:scaleY(.85)}to{opacity:1;transform:scaleY(1.12)}}
+#svfx .em{position:absolute;bottom:4vh;width:5px;height:5px;border-radius:50%;background:radial-gradient(#fff6b0,#ff7a1f 60%,transparent 70%);animation:svem var(--d) ease-out infinite;animation-delay:var(--dl)}
+@keyframes svem{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(24px,-48vh);opacity:0}}
+body.svip.vip.svtop .table{background:linear-gradient(180deg,#22365e55 0,#1a214544 36%,#2c0d1466 62%,#3d0a0899 100%);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px)}
+body.svip.svtop .svdep,body.svip.svtop .vcd{background:#000a}
+body.svip .svst{min-width:0;width:auto;border-radius:11px;padding:0 4px;font-size:9px;white-space:nowrap}
+body.svip.vip .hud{background:#000b;border-radius:14px;padding:6px 10px;box-shadow:0 0 14px #ffe9a066}
+body.svip.vip #gt,body.svip.vip #s2 .sign{background:linear-gradient(90deg,#fff,#ffe9a0 40%,#ff8a3a 60%,#ff3b1a) 0 0/100% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:none;filter:drop-shadow(0 0 8px #000)}
+body.svip.vip .table{background:linear-gradient(180deg,#22365e 0,#1a2145 38%,#2c0d14 64%,#3d0a08 100%);border:10px solid transparent;border-image:linear-gradient(180deg,#fff7c8,#ffd76a 46%,#b3200f 54%,#ff5a1f) 1;box-shadow:0 -12px 60px #fff6c0aa,0 12px 60px #ff3b1acc,inset 0 0 90px #000c}
+body.svip.vip .table::before{content:'☁ 天 国 ✦ 地 獄 🔥';letter-spacing:.4em;background:linear-gradient(90deg,#fff,#ffe9a0 42%,#ff8a3a 62%,#ff3b1a);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+body.svip.vip .msg{color:#fff;text-shadow:0 0 8px #ffd76a,0 2px 10px #000}
+body.svip.vip .lab{color:#f3ecff}
+body.svip.vip .bank{background:linear-gradient(90deg,#1c2c52,#3a0d0d);border-color:#ffe9a0;box-shadow:0 0 14px #ffe9a0aa,inset 0 0 8px #ff5a1f55}
+body.svip.vip .btn:not(.d){background:linear-gradient(#fff,#fff0b0 45%,#e8b84a 62%,#fff6c8);border-color:#fff;color:#5a3a00;box-shadow:0 4px 0 #9a7a20,0 0 24px #fff0b0cc}
+body.svip.vip .btn:not(.d):not(:disabled)::after{background:linear-gradient(100deg,transparent,#fff,transparent)}
+body.svip.vip .btn.d{background:linear-gradient(#8a1010,#2a0404);color:#ffc9a0;border-color:#ff5a1f;box-shadow:0 4px 0 #1a0202,0 0 20px #ff3b1a99}
+body.svip.vip .gc{background:linear-gradient(160deg,#2f5c9a,#1a2145 55%,#2a0a30);border-color:#ffe9a0;box-shadow:inset 0 0 30px #000a,0 0 18px #ffe9a077}
+body.svip.vip .grid .gc:nth-child(even){background:linear-gradient(160deg,#7a1208,#2c0606 55%,#14020a);border-color:#ff7a3a;box-shadow:inset 0 0 30px #000a,0 0 18px #ff3b1a99}
+body.svip.vip .gc b{color:#fff}body.svip.vip .gc:hover{box-shadow:0 0 30px #fff0b0,0 0 60px #ff5a1faa}
+body.svip.vip .ch{border-color:#ffe9a0}body.svip.vip .ch.on{box-shadow:0 0 18px #fff,0 0 30px #ff8a3a,inset 0 0 0 3px var(--c)}
+body.svip.vip .hand{background:#0006;border-color:#ffe9a088;box-shadow:inset 0 0 14px #ff5a1f22}body.svip.vip .hand.w{box-shadow:0 0 22px #fff6c0,inset 0 0 14px #ffe9a055;border-color:#fff}
+body.svip.vip .vcd{background:#0009}
+body.svip.svh::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:97;background:radial-gradient(circle at 50% 28%,#fffbe8,#ffe9a0aa 40%,transparent 72%);animation:svhf 2.6s ease-out both}
+body.svip.svx::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:97;background:radial-gradient(circle at 50% 100%,#ff5a1f,#9a1208cc 45%,transparent 78%);animation:svxf 2.6s ease-out both}
+body.svip.svx #s2{animation:svsh .5s 2}
+@keyframes svhf{0%{opacity:0}15%{opacity:1}100%{opacity:0}}@keyframes svxf{0%{opacity:0}15%{opacity:1}100%{opacity:0}}@keyframes svsh{0%,100%{transform:none}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.svban{position:fixed;left:0;right:0;top:34%;text-align:center;font-weight:900;font-size:clamp(40px,13vw,96px);letter-spacing:.12em;pointer-events:none;z-index:100;animation:svbn 2.5s ease-out both}
+.svban.h{color:#fff;text-shadow:0 0 20px #ffd76a,0 0 50px #fff6c0,0 2px 0 #b98a20}.svban.x{color:#ffd0a0;text-shadow:0 0 20px #ff3b1a,0 0 50px #ff5a1f,0 3px 0 #300}
+@keyframes svbn{0%{transform:scale(.4);opacity:0}15%{transform:scale(1.1);opacity:1}30%{transform:scale(1)}85%{opacity:1}100%{transform:scale(1.15);opacity:0}}
+.svpt{position:fixed;pointer-events:none;z-index:99}.svpt.h{top:-50px;animation:svfa 3.2s ease-in both}.svpt.x{bottom:-50px;animation:svri 3s ease-out both}
+@keyframes svfa{to{transform:translateY(115vh) translateX(40px) rotate(40deg)}}@keyframes svri{to{transform:translateY(-115vh) translateX(-30px) rotate(-25deg)}}
+.svbig{font-size:clamp(44px,14vw,84px);font-weight:900;margin:6px 0;color:#fff;text-shadow:0 0 18px #ffd76a,0 0 40px #ff5a1f66;font-variant-numeric:tabular-nums}.svbig.r{color:#ff4d5e}.svbig.k{color:#c9c9d1}.svbig.g{color:#3fe08a}
+.svdep{margin:8px 0;padding:10px;border-radius:12px;background:#0008;border:1px solid #ffe9a099}.svdep b{display:block;font-size:clamp(22px,6vw,34px);color:#fff;word-break:break-all}
+.svc{display:block;font-size:11px;opacity:.7;word-break:break-all;font-weight:600;margin-top:2px}.svj{word-break:break-all}.svw{display:block;color:#ffb08a;font-weight:700}
+.svbet{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:8px 0}
+.svbet input{width:min(120px,30vw);padding:10px;font-size:20px;font-weight:800;text-align:center;border-radius:10px;border:2px solid #ffe9a0;background:#000a;color:#fff}
+.svbet select{font:inherit;font-weight:700;padding:10px 8px;border-radius:10px;border:2px solid #ffe9a0;background:#000a;color:#fff;max-width:56vw}
+.svg5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:min(340px,92%);margin:10px auto}
+.svt{font:inherit;font-size:clamp(22px,7vw,34px);aspect-ratio:1;border-radius:12px;border:2px solid #ffe9a0;background:linear-gradient(160deg,#3a5a94,#1a2145);color:#fff;cursor:pointer;padding:0}.svt:disabled{cursor:default}.svt.ok{background:linear-gradient(160deg,#fff6c8,#e8c060);box-shadow:0 0 16px #fff0b0}.svt.bomb{background:linear-gradient(160deg,#9a1208,#2a0404);border-color:#ff5a1f;box-shadow:0 0 16px #ff3b1a}
+.svnum{display:grid;grid-template-columns:repeat(13,1fr);gap:3px;width:min(520px,96%);margin:8px auto}
+.svn{font:inherit;font-weight:800;font-size:12px;padding:6px 0;border-radius:6px;border:1px solid #e5e4e2aa;color:#fff;cursor:pointer}.svn.r{background:#9b1426}.svn.k{background:#15151a}.svn.g{background:#0f6a3a}.svn.on{outline:3px solid #fff;box-shadow:0 0 12px #fff}
+body.svip.vip.svtop .gc{background:linear-gradient(160deg,#2f5c9acc,#1a2145cc 55%,#2a0a30cc)}
+body.svip.vip.svtop .grid .gc:nth-child(even){background:linear-gradient(160deg,#7a1208cc,#2c0606cc 55%,#14020acc)}
 </style></head><body>
 <div class="scr on" id="s0"><span class="suit" style="left:8%;top:12%">♠</span><span class="suit" style="right:10%;top:20%;color:#c0242b">♥</span><span class="suit" style="left:14%;bottom:12%;color:#c0242b">♦</span><span class="suit" style="right:8%;bottom:10%">♣</span>
 <div class="box"><div class="sign">2−1 情報処理科ジノ</div><small>CASINO</small></div>
 <button class="btn" onclick="show('s1')">入店</button></div>
 <div class="scr" id="s1"><div class="hud"><span class="sign" style="font-size:22px">2−1 情報処理科ジノ</span><span class="bank"></span></div><p>ゲームを選んでください</p>
-<div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>サイコロゲーム</b><span>チンチロ・ヨット</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="play('sl')"><i>🎰</i><b>スロット</b><span>ジャグラー風・目押し</span></button><button class="gc" onclick="play('hr')"><i>🏇</i><b>競馬</b><span>育成・みんなでダービー</span></button><button class="gc" onclick="play('bc')"><i>🎴</i><b>バカラ</b><span>プレイヤー/バンカー/タイ</span></button><button class="gc" onclick="play('hl')"><i>↕️</i><b>ハイ&amp;ロー</b><span>次のカードは高い？低い？</span></button><button class="gc" onclick="play('cr')"><i>⚄⚁</i><b>クラップス</b><span>パスライン・フィールド</span></button><button class="gc" onclick="play('sb')"><i style="font-size:34px;line-height:1.7">⚀⚁⚂</i><b>シックボー</b><span>ダイス3個・大小/出目/合計</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button><button class="gc vip" onclick="play('vp')"><i>👑</i><b>VIPルーム</b><span>ハイリスク・ハイリターン ・ 会員制</span></button></div></div>
+<div class="grid"><button class="gc" onclick="play('bj')"><i>♠</i><b>ブラックジャック</b><span>ディーラーと勝負</span></button><button class="gc" onclick="play('pk')"><i>🃏</i><b>ポーカー</b><span>テキサスホールデム</span></button><button class="gc" onclick="play('ch')"><i>🎲</i><b>サイコロゲーム</b><span>チンチロ・ヨット</span></button><button class="gc" onclick="play('ru')"><i>🎡</i><b>ルーレット</b><span>ヨーロピアン</span></button><button class="gc" onclick="play('sl')"><i>🎰</i><b>スロット</b><span>ジャグラー風・目押し</span></button><button class="gc" onclick="play('hr')"><i>🏇</i><b>競馬</b><span>育成・みんなでダービー</span></button><button class="gc" onclick="play('bc')"><i>🎴</i><b>バカラ</b><span>プレイヤー/バンカー/タイ</span></button><button class="gc" onclick="play('hl')"><i>↕️</i><b>ハイ&amp;ロー</b><span>次のカードは高い？低い？</span></button><button class="gc" onclick="play('cr')"><i>⚄⚁</i><b>クラップス</b><span>パスライン・フィールド</span></button><button class="gc" onclick="play('sb')"><i style="font-size:34px;line-height:1.7">⚀⚁⚂</i><b>シックボー</b><span>ダイス3個・大小/出目/合計</span></button><button class="gc" onclick="location.href='bank.html'"><i>🏦</i><b>銀行</b><span>投資・定期・融資</span></button><button class="gc vip" onclick="play('vp')"><i>👑</i><b>VIPルーム</b><span>ハイリスク・ハイリターン ・ 会員制</span></button><button class="gc svipc" onclick="play('sv')"><i>💎</i><b>SVIPルーム</b><span>預金で賭ける・無量大数の桁まで ・ VIP会員の上位</span></button></div></div>
 <div class="scr" id="s2"><div class="hud"><button class="btn s d" onclick="back()">← ロビー</button><b id="gt"></b><span class="bank"></span></div><div class="table" id="stage"></div></div>
 <div id="over"><div><h2>破産…</h2><p id="ovp">チップがなくなりました</p><button class="btn" id="ovb">🏦 銀行へ行く</button></div></div>
 <script>
@@ -220,7 +278,7 @@ const betRow=()=>`<div class="chips">${STD.map(v=>`<button class="ch${v==bet?' o
 function setBet(v){bet=v;const c=!STD.includes(bet);document.querySelectorAll('.ch').forEach(b=>{if(b.classList.contains('more')){b.classList.toggle('on',c);b.innerHTML=c?`<small>more</small>${bet.toLocaleString()}`:'more'}else b.classList.toggle('on',+b.textContent==bet)});if(betHook)betHook()}
 function moreOpen(){const r=$('#mrow'),i=$('#mb');if(!r)return;const o=r.style.display=='none';r.style.display=o?'flex':'none';if(o){i.value=STD.includes(bet)?'':bet;i.focus()}}
 function moreSet(){const i=$('#mb');if(!i)return;let n=Math.floor(+i.value);if(!(n>=1))return msg('1以上の数字を入力してください');if(chips<1)return msg('チップがありません');let t='';if(n>chips){n=chips;t=`所持チップ(${chips.toLocaleString()})が上限です。`}setBet(n);$('#mrow').style.display='none';msg(t+`ベット額 ${n.toLocaleString()}`)}
-const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['サイコロゲーム',()=>dcMenu()],ru:['ルーレット',()=>ruPre()],sl:['スロット',()=>slPre()],hr:['競馬',()=>hmMenu()],bc:['バカラ',()=>bcPre()],hl:['ハイ&ロー',()=>hlPre()],cr:['クラップス',()=>crPre()],sb:['シックボー',()=>sbPre()],vp:['VIPルーム',()=>vipMenu()]};
+const G={bj:['ブラックジャック',()=>bjPre()],pk:['ポーカー',()=>pkPre()],ch:['サイコロゲーム',()=>dcMenu()],ru:['ルーレット',()=>ruPre()],sl:['スロット',()=>slPre()],hr:['競馬',()=>hmMenu()],bc:['バカラ',()=>bcPre()],hl:['ハイ&ロー',()=>hlPre()],cr:['クラップス',()=>crPre()],sb:['シックボー',()=>sbPre()],vp:['VIPルーム',()=>vipMenu()],sv:['SVIPルーム',()=>svipMenu()]};
 function play(k){pkT++;betHook=null;show('s2');$('#gt').textContent=G[k][0];G[k][1]()}
 function back(){if(JG&&(JG.ph=='spin'||JG.ph=='pull'))return;slHalt();pkT++;hrAbort();if(lv){const f=lv;lv=null;f()}ruClr();show('s1')}
 function bankAssets(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1'));if(!b)return 0;let a=Math.max(0,Number(b.dep)||0);(b.fixed||[]).forEach(f=>a+=Number(f.amt)||0);for(const k in(b.hold||{})){const q=Number(b.hold[k].q)||0,p=b.mk&&b.mk.s&&b.mk.s[k]?b.mk.s[k].p:0;a+=q*p}a+=Math.max(0,b.mg||0);return Math.floor(a)}catch(e){return 0}}
@@ -1271,4 +1329,214 @@ function ccR(V){const o=ol;if(!o||o.g!='cc')return;const me=V.ps.findIndex(p=>p.
   if(an>=0){const p=V.ps[an];o.an=1;rollFx(()=>{if(ol!=o)return;o.an=0;const pv=o.pend;o.pend=null;if(pv)return ccGo(pv);const a=$('#ab');if(a)a.removeAttribute('style');const m=$('#m');if(m)m.textContent=p.done?`${p.nm}：${p.y?p.y.n:'—'}！`:`${p.nm}：役なし… 振り直し`})}}
 
 VT.add('オンライン対戦');
+/* ===== SVIPルーム（VIPの上位）：天国と地獄／預金で賭ける・金額はすべてBigInt／サーバーとは文字列でやり取り =====
+   入会：VIP会員／入会金 1穣（預金から）／総資産 100穣／銀行レベル1000万。会費 1000億／日（手持ちから・毎日 UTC 9:00＝日本時間 18:00）
+   賭け金＝（1〜9999）×（京〜無量大数）。最低 1京・最大 9999無量大数。賭けは預金から引き落とし（bank_withdraw）、払い戻しは預金へ入金（bank_deposit） */
+const SK='cj_svip',SLOG='cj_svip_log',SPEND='cj_svip_pend',SFEE=10n**28n,SDUE=1e11,SSYM=1000000n,SNET=1e30,SLV=1e7,SMIN=10n**16n,SMAX=9999n*10n**68n;
+const SJP=['','万','億','兆','京','垓','秭','穣','溝','澗','正','載','極','恒河沙','阿僧祇','那由他','不可思議','無量大数'];
+const sBI=v=>{try{if(typeof v=='bigint')return v;if(typeof v=='number')return BigInt(Math.round(v));const s=String(v).trim();if(/e/i.test(s))return BigInt(Math.round(Number(s)));return BigInt(s.split('.')[0]||'0')}catch(e){return 0n}};
+function svJ(b,n){b=sBI(b);if(b<0n)return'-'+svJ(-b,n);if(b==0n)return'0';const s=b.toString(),g=[];for(let e=s.length;e>0;e-=4)g.push(s.slice(Math.max(0,e-4),e));
+  let o='',k=0,cut=0;for(let i=g.length-1;i>=0;i--){const v=g[i].replace(/^0+/,'');if(!v)continue;if(n&&k>=n){cut=1;break}o+=v+(SJP[i]!==undefined?SJP[i]:'×10^'+4*i);k++}return(o||'0')+(cut?'…':'')}
+const svC=b=>sBI(b).toLocaleString('ja-JP');
+const svOk=()=>{try{const v=JSON.parse(localStorage.getItem(SK));return!!(v&&v.m===1)}catch(e){return false}};
+let svD=0n,svBusy=0,sNote='';
+/* ---- 入会・会費 ---- */
+function svHold(){try{const b=JSON.parse(localStorage.getItem('cj_bank_v1')),h=(b&&b.hold)||{};return{ok:VIPS.every(x=>h[x]&&sBI(h[x].q)>=SSYM),list:VIPS.map(x=>({id:x,q:sBI(h[x]&&h[x].q)}))}}catch(e){return{ok:false,list:[]}}}
+const svLv=()=>{try{return Math.max(0,Math.floor(Number(localStorage.getItem('cj_bank_lv'))||0))}catch(e){return 0}};   // 銀行ページが保存する銀行レベル
+const svMirDep=()=>{try{return sBI(JSON.parse(localStorage.getItem('cj_bank_v1')).dep)}catch(e){return 0n}};
+function svChk(){const as=chips+bankAssets(),v=vipOk(),lv=svLv(),dp=svMirDep(),f=dp>=SFEE,lo=lv>=SLV;return{as,vip:v,lv,dp,fee:f,net:as>=SNET,lok:lo,all:v&&f&&as>=SNET&&lo}}
+function svipMenu(){if(svOk())return svipRoom();svipGate()}
+function svipGate(t){const c=svChk(),r=(ok,l,d)=>`<div class="vcd"><em>${ok?'✅':'❌'}</em><span>${l}</span><small>${d}</small></div>`,fin=n=>Number.isFinite(n)?svJ(BigInt(Math.floor(n)),3):'—';
+  vRe=null;lv=null;$('#gt').textContent='SVIPルーム';
+  st(`<div class="msg" id="m">${t||'☁ 天国か、地獄か。SVIPルーム'}</div><div class="lab" style="text-align:left">入会には、次の条件をすべて満たす必要があります。</div>${r(c.vip,'VIP会員であること',c.vip?'会員':'未入会')}${r(c.fee,'入会金 '+svJ(SFEE)+'チップ（預金から支払い）','預金 '+svJ(c.dp,3))}${r(c.net,'総資産 '+svJ(10n**30n)+'チップ以上','現在 '+fin(c.as))}${r(c.lok,'銀行レベル '+svJ(BigInt(SLV))+' 以上','現在 Lv.'+svJ(BigInt(c.lv),3))}<div class="lab">総資産＝手持ち＋預金＋定期＋株の評価額。銀行の預金・レベルは、銀行ページを開いたときに更新されます。入会金は<b>預金</b>から支払います。入会後は<b>会費 ${svJ(BigInt(SDUE))}チップ／日</b>（毎日 UTC 9:00＝日本時間 18:00 に手持ちから差し引き）がかかります。<br>SVIPのゲームは<b>手持ちではなく銀行の預金</b>で賭け、1回の賭けは <b>1京〜9999無量大数</b> です。</div><div class="chips"><button class="btn" onclick="svipJoin()"${c.all?'':' disabled'}>入会する（${svJ(SFEE)}）</button></div>`)}
+async function svipJoin(){if(svOk())return svipRoom();if(svBusy)return;const c=svChk();if(!c.all)return svipGate('条件を満たしていません');
+  if(!confirm(`入会金 ${svJ(SFEE)} チップを預金から支払って、SVIPルームに入会します。\n以後、毎日 UTC 9:00（日本時間 18:00）に会費 ${svJ(BigInt(SDUE))} チップが手持ちから引かれます。足りないと手持ちがマイナスになります。\nSVIPのゲームは預金で賭けます。よろしいですか？`))return;
+  svBusy=1;msg('預金から入会金を支払っています…');
+  try{await svSync();if(svD<SFEE){svBusy=0;return svipGate('預金が足りません（入会金 '+svJ(SFEE)+'）')}await svTake(SFEE)}catch(e){svBusy=0;return svipGate(e.message)}
+  svBusy=0;try{localStorage.setItem(SK,JSON.stringify({m:1,t:Date.now(),c:Date.now()}))}catch(e){}svipRoom('入会しました。天国と地獄の世界へようこそ')}
+const sNext=()=>Math.floor((Date.now()-VH)/VD+1)*VD+VH;
+function svipDue(quiet){let v;try{v=JSON.parse(localStorage.getItem(SK))}catch(e){return}if(!v||v.m!==1)return;const n=Date.now();
+  if(!Number.isFinite(v.c)){v.c=n;try{localStorage.setItem(SK,JSON.stringify(v))}catch(e){}return}
+  const k=Math.floor((n-VH)/VD)-Math.floor((v.c-VH)/VD);if(k<=0)return;v.c=Math.floor((n-VH)/VD)*VD+VH;try{localStorage.setItem(SK,JSON.stringify(v))}catch(e){return}
+  chips-=SDUE*k;sNote=`SVIP会費 ${svJ(BigInt(SDUE*k))}チップ（${k}日分）を手持ちから差し引きました`+(chips<0?`。手持ちが${chips.toLocaleString()}のマイナスです`:'');if(quiet){upd()}else chk()}
+function svipLeave(){if(!confirm(`SVIP会員を退会します。\n・入会金は返金されません\n・再入会には、条件を満たして、もう一度入会金 ${svJ(SFEE)} チップを預金から支払う必要があります\n・退会後は会費はかかりません\nよろしいですか？`))return;
+  try{localStorage.removeItem(SK)}catch(e){}sNote='';svipGate('SVIPを退会しました')}
+svipDue();setInterval(()=>svipDue(1),30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)svipDue()});addEventListener('pageshow',()=>svipDue());
+/* ---- 預金の出し入れ（文字列でサーバーと通信） ---- */
+async function sRpc(fn,a){const x=vAuth();if(!x)throw new Error('銀行口座が見つかりません。先に銀行で口座を開いてください');
+  let r;try{r=await fetch(SUPA.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPA.key,Authorization:'Bearer '+SUPA.key},body:JSON.stringify(Object.assign({p_acct:x.acct,p_secret:x.secret},a||{}))})}catch(e){throw new Error('通信に失敗しました')}
+  const t=await r.text();let j=null;try{j=JSON.parse(t)}catch(e){}if(!r.ok)throw new Error((j&&j.message)||'エラーが発生しました（'+r.status+'）');return t}
+function svMirror(){try{const k='cj_bank_v1',o=JSON.parse(localStorage.getItem(k));if(o){o.dep=svD.toString();localStorage.setItem(k,JSON.stringify(o))}}catch(e){}}
+async function svSync(){const t=await sRpc('bank_state_lite',{p_nsince:null}),m=/"dep"\s*:\s*"?(-?[0-9.eE+\-]+)"?/.exec(t);if(!m)throw new Error('預金を取得できませんでした');svD=sBI(m[1]);svMirror();return svD}   // 数値で返ってきても桁を落とさないよう、生の文字列から取り出す
+async function svTake(a){await sRpc('bank_withdraw',{p_amt:a.toString()});svD-=a;svMirror()}
+const svPendGet=()=>{try{return JSON.parse(localStorage.getItem(SPEND))||[]}catch(e){return[]}},svPendSet=a=>{try{a.length?localStorage.setItem(SPEND,JSON.stringify(a)):localStorage.removeItem(SPEND)}catch(e){}};
+async function svGive(a){if(a<=0n)return true;for(let i=0;i<3;i++){try{await sRpc('bank_deposit',{p_amt:a.toString()});svD+=a;svMirror();return true}catch(e){await new Promise(r=>setTimeout(r,600))}}
+  const p=svPendGet();p.push(a.toString());svPendSet(p);sNote='通信エラーで払い戻しを入金できませんでした。銀行ページ（または次回のSVIPルーム）で入金されます';return false}   // 入金できなかった分は保存しておき、あとで入金する
+async function svFlush(){const p=svPendGet();if(!p.length)return;svPendSet([]);const rest=[];for(const s of p){try{await sRpc('bank_deposit',{p_amt:s})}catch(e){rest.push(s)}}if(rest.length)svPendSet(rest.concat(svPendGet()))}
+function svLog(g,b,d){try{const o=JSON.parse(localStorage.getItem(SLOG))||{net:'0',n:0,rec:[]};o.net=(sBI(o.net)+d).toString();o.n=(o.n||0)+1;o.rec.unshift({t:Date.now(),g,b:b.toString(),d:d.toString()});o.rec.length=Math.min(o.rec.length,30);localStorage.setItem(SLOG,JSON.stringify(o))}catch(e){}}
+const svEnd=async(b,pay,g,q)=>{if(!q){const d=pay-b;if(d>0n)svFx(1);else if(d<0n)svFx(0)}const ok=await svGive(pay);svLog(g,b,pay-b);const e=$('#sdp');if(e)e.innerHTML=svJ(svD,4);return ok};
+const svPay=(b,m)=>b*BigInt(Math.floor(m*100+1e-6))/100n;
+/* ---- 賭け金の入力：（1〜9999）×（京〜無量大数）。最低1京。ALL INは預金の全額（上限あり） ---- */
+const sb={n:1,e:16,all:0};
+const SUN=[...Array(14).keys()].map(i=>({e:16+4*i,l:SJP[4+i]}));
+function svStake(){return sb.all?svD:BigInt(Math.min(9999,Math.max(0,Math.floor(sb.n)||0)))*10n**BigInt(sb.e)}
+const svEff=()=>{let b=svStake();if(b>SMAX)b=SMAX;if(b>svD)b=svD;return b};
+function svBetInner(){return`<div class="lab">預金 <b id="sdp">${svJ(svD,4)}</b></div><div class="svbet"><input type="number" id="svn" inputmode="numeric" min="1" max="9999" step="1" value="${sb.n}" oninput="svN(this.value)" aria-label="賭け金（1〜9999）"><select id="svu" onchange="svU(+this.value)" aria-label="桁数">${SUN.map(u=>`<option value="${u.e}"${u.e==sb.e?' selected':''}>${u.l}（10^${u.e}）</option>`).join('')}</select><button class="ch more${sb.all?' on':''}" style="--c:#111" onclick="svAll()">ALL IN</button></div><div class="lab">1〜9999 と桁数（京〜無量大数）を選びます。最低 1京</div><div class="lab" id="svpv"></div>`}
+const svBetHtml=()=>`<div id="sbp">${svBetInner()}</div>`;
+function svBP(){const e=$('#sbp');if(e)e.innerHTML=svBetInner();svPrev()}
+function svPrev(){const b=svEff(),raw=svStake(),p=$('#svpv');if(!p)return;
+  p.innerHTML=`ベット <b class="svj">${svJ(b)}</b><small class="svc">${svC(b)}</small>${b<SMIN?'<small class="svw">最低ベットは 1京 です</small>':raw>svD?'<small class="svw">預金が足りないため、預金の全額に丸めます</small>':raw>SMAX?'<small class="svw">上限（9999無量大数）に丸めます</small>':''}`}
+function svN(v){let n=Math.floor(+v);if(!(n>=1))n=0;if(n>9999){n=9999;const t=$('#svn');if(t)t.value=9999}sb.n=n;sb.all=0;const a=document.querySelector('#sbp .more');if(a)a.classList.remove('on');svPrev()}
+function svU(e){sb.e=e;sb.all=0;const a=document.querySelector('#sbp .more');if(a)a.classList.remove('on');svPrev()}
+function svAll(){sb.all=1;svBP()}
+async function svStart(){try{await svSync()}catch(e){msg(e.message);return 0n}const b=svEff();if(b<SMIN){msg(svD<SMIN?'預金が足りません（最低ベットは 1京）':'最低ベットは 1京 です。1以上の数字を入れてください');return 0n}try{await svTake(b)}catch(e){msg(e.message);return 0n}return b}
+/* ---- SVIPルーム ---- */
+function svStop(){if(svcS&&!svcS.done){const o=svcS;o.done=1;clearInterval(o.iv);svEnd(o.b,0n,'クラッシュ（離脱）',1)}svcS=null;if(sm&&!sm.done){const o=sm;o.done=1;svEnd(o.b,0n,'マインズ（離脱）',1)}sm=null;svBusy=0}
+async function svipRoom(t){svStop();svoClose();svoT++;if(!svOk())return svipGate(t);vRe=null;lv=null;t=t||sNote;sNote='';$('#gt').textContent='SVIPルーム';
+  st(`<div class="msg" id="m">${t||'☁ 天国か、地獄か 🔥'}</div><div class="svdep"><span class="lab">銀行の預金（SVIPの賭けはここから）</span><b id="sdp">確認中…</b><small class="svc" id="sdc"></small></div><div class="grid">
+<button class="gc" onclick="svcPre()"><i>🕳️</i><b>ブラックホール・クラッシュ</b><span>倍率が上がる・吸い込まれる前に回収（最大×1000）</span></button>
+<button class="gc" onclick="svmPre()"><i>😇</i><b>ダイヤモンド・マインズ</b><span>5×5のタイル・😇か👹か（天国と地獄）</span></button>
+<button class="gc" onclick="svrPre()"><i>🎡</i><b>プラチナ・ルーレット</b><span>ヨーロピアン・マットをタップして賭ける（数字×36）</span></button>
+<button class="gc" onclick="svoLobby()"><i>🌐</i><b>SVIPオンライン</b><span>ショーダウン（最大6人）・SVIP限定・通信料1％</span></button></div>
+<div class="lab" style="margin-top:12px">賭けは預金から引き落とされ、払い戻しは預金に入金されます。1回の賭けは 1京〜9999無量大数。<br>会費 ${svJ(BigInt(SDUE))}チップ／日（毎日 UTC 9:00＝日本時間 18:00 に手持ちから差し引き）　次回 ${new Date(sNext()).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+<div class="chips"><button class="btn s" onclick="svipLeave()">SVIP会員を退会する</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`);
+  try{await svFlush();await svSync()}catch(e){const m=$('#m');if(m&&$('#gt').textContent=='SVIPルーム')m.textContent=e.message}
+  const d=$('#sdp');if(d&&$('#gt').textContent=='SVIPルーム'){d.textContent=svJ(svD,5);const c=$('#sdc');if(c)c.textContent=svC(svD)}}
+/* ---- ブラックホール・クラッシュ ---- */
+let svcS=null;
+const svM=o=>{const t=(performance.now()-o.t0)/1000;return Math.exp(.12*t+.004*t*t)};
+function svcPre(t,x){svStop();vRe=null;$('#gt').textContent='ブラックホール・クラッシュ';lv=svStop;
+  st(`<div class="msg" id="m">${t||'倍率が上がっていく。ブラックホールに吸い込まれる前に回収しよう'}</div><div class="svbig" id="svx">${x||'×1.00'}</div><div class="lab" id="svp">　</div>${svBetHtml()}<div class="chips"><span class="lab">自動回収 ×</span><input type="number" id="svau" min="1.01" step="0.01" placeholder="なし"></div><div class="chips"><button class="btn" id="svb" onclick="svcGo()">発射！</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`);svBP()}
+async function svcGo(){if(svBusy||(svcS&&!svcS.done))return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
+  const r=(R(1e9)+1)/1e9,cp=Math.max(1,Math.min(1000,Math.floor(99/r)/100)),au=parseFloat(($('#svau')||{}).value)||0,o=svcS={b,cp,au,t0:performance.now(),done:0};
+  const bt=$('#svb');if(bt){bt.textContent='回収！';bt.onclick=()=>svcCash(o)}const p=$('#sbp');if(p)p.style.display='none';msg('上昇中…回収ボタンで確定！');o.iv=setInterval(()=>svcTick(o),50)}
+function svcTick(o){if(o.done)return;const m=svM(o);if(o.au>=1.01&&o.au<=o.cp&&m>=o.au)return svcCash(o,o.au);if(m>=o.cp)return svcCrash(o);
+  const x=$('#svx');if(x){x.textContent='×'+m.toFixed(2);const p=$('#svp');if(p)p.innerHTML='いま回収すると '+svJ(svPay(o.b,m),3)}}
+async function svcCrash(o){if(o.done)return;o.done=1;clearInterval(o.iv);const x='×'+o.cp.toFixed(2);svcPre(`💥 ×${o.cp.toFixed(2)}で吸い込まれた… -${svJ(o.b,3)}`,x);await svEnd(o.b,0n,'クラッシュ')}
+async function svcCash(o,mm){if(o.done)return;const m=mm||svM(o);if(m>=o.cp)return svcCrash(o);o.done=1;clearInterval(o.iv);const pay=svPay(o.b,m);
+  svcPre(`🎉 ×${m.toFixed(2)}で回収！ +${svJ(pay-o.b,3)}（クラッシュ点 ×${o.cp.toFixed(2)}）`,'×'+m.toFixed(2));await svEnd(o.b,pay,'クラッシュ')}
+/* ---- ダイヤモンド・マインズ ---- */
+let sm=null,smN=3;
+const SMX=(m,k)=>{let p=.99;for(let i=0;i<k;i++)p*=(25-i)/(25-m-i);return p};
+function svmPre(t){svStop();vRe=null;$('#gt').textContent='ダイヤモンド・マインズ';lv=svStop;
+  st(`<div class="msg" id="m">${t||'😇を開くたびに倍率アップ。👹を踏んだら全損 — 天国か、地獄か'}</div><div class="chips">${[3,5,10].map(n=>`<button class="ch${smN==n?' on':''}" style="--c:#7a1630" onclick="smN=${n};svmPre()">👹×${n}</button>`).join('')}</div>${svBetHtml()}<div class="chips"><button class="btn" onclick="svmGo()">開始</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`);svBP()}
+async function svmGo(){if(svBusy)return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;const ix=shuf([...Array(25).keys()]);sm={b,m:smN,mines:new Set(ix.slice(0,smN)),open:new Set(),done:0};svmR()}
+function svmR(rv,t){const o=sm,k=o.open.size,m=SMX(o.m,k),nx=k<25-o.m?SMX(o.m,k+1):0;$('#gt').textContent='ダイヤモンド・マインズ';
+  st(`<div class="msg" id="m">${t||'タイルを選ぼう'}</div><div class="svbig">×${m.toFixed(2)}</div><div class="lab">回収額 ${svJ(svPay(o.b,m),3)}${nx?` ／ 次 ×${nx.toFixed(2)}`:''}　（賭け ${svJ(o.b,3)}）</div><div class="svg5">${[...Array(25)].map((_,i)=>{const op=o.open.has(i),mi=o.mines.has(i);return`<button class="svt${op?' ok':''}${rv&&mi?' bomb':''}"${o.done||op?' disabled':''} onclick="svmPick(${i})">${op?'😇':rv&&mi?'👹':'？'}</button>`}).join('')}</div><div class="chips">${o.done?`<button class="btn" onclick="svmPre()">もう一度</button>`:`<button class="btn"${k?'':' disabled'} onclick="svmCash()">回収する</button>`}<button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`)}
+function svmPick(i){const o=sm;if(!o||o.done||o.open.has(i))return;if(o.mines.has(i)){o.done=1;svmR(1,`🔥 👹を踏んだ… 地獄行き -${svJ(o.b,3)}`);return void svEnd(o.b,0n,'マインズ')}o.open.add(i);if(o.open.size==25-o.m)return svmCash();svmR()}
+async function svmCash(){const o=sm;if(!o||o.done||!o.open.size)return;o.done=1;const m=SMX(o.m,o.open.size),pay=svPay(o.b,m);svmR(1,`🎉 ×${m.toFixed(2)}で回収！ +${svJ(pay-o.b,3)}`);await svEnd(o.b,pay,'マインズ')}
+/* ---- プラチナ・ルーレット（既存のルーレットと同じ盤面・マット。マットをタップして賭け金を置く） ---- */
+let sbets={},svRot=0,srBusy=0;
+const svTot=()=>Object.values(sbets).reduce((a,b)=>a+b,0n);
+function svrMk(){document.querySelectorAll('.mat [data-k]').forEach(e=>{const v=sbets[e.dataset.k];let q=e.querySelector('.st');if(v){if(!q){q=document.createElement('span');q.className='st svst';e.append(q)}q.textContent=svJ(v,1)}else if(q)q.remove()});const t=$('#svtt');if(t)t.textContent=svTot()?'置いた合計 '+svJ(svTot(),3):'　'}
+function svrPre(t,n){vRe=null;svStop();$('#gt').textContent='プラチナ・ルーレット';lv=()=>{sbets={}};
+  const sg=360/37,lb=ORDER.map((x,i)=>`<span class="wn" style="transform:rotate(${(i+.5)*sg}deg)">${x}</span>`).join(''),g=ORDER.map((x,i)=>`${x==0?'#0d6b42':RED.includes(x)?'#c0242b':'#111'} ${i*sg}deg ${(i+1)*sg}deg`).join(',');
+  let h='<div class="mat"><div data-k="n0" class="gr" style="grid-area:1/1/4/2" onclick="svrB(this)">0</div>';
+  for(let k=1;k<=36;k++)h+=`<div data-k="n${k}" class="${RED.includes(k)?'rd':'bl'}" style="grid-area:${3-(k-1)%3}/${Math.ceil(k/3)+1}" onclick="svrB(this)">${k}</div>`;
+  [[1,'c0'],[2,'c2'],[3,'c1']].forEach(([r,k])=>h+=`<div data-k="${k}" class="gr" style="grid-area:${r}/14" onclick="svrB(this)">2:1</div>`);
+  [['d0','1st 12'],['d1','2nd 12'],['d2','3rd 12']].forEach(([k,x],i)=>h+=`<div data-k="${k}" class="gr" style="grid-area:4/${2+i*4}/5/${6+i*4}" onclick="svrB(this)">${x}</div>`);
+  [['lo','1-18','gr'],['ev','EVEN','gr'],['rd','赤','rd'],['bk','黒','bl'],['od','ODD','gr'],['hi','19-36','gr']].forEach(([k,x,c],i)=>h+=`<div data-k="${k}" class="${c}" style="grid-area:5/${2+i*2}/6/${4+i*2}" onclick="svrB(this)">${x}</div>`);
+  const c=n==null?'':n==0?'gr':RED.includes(n)?'rd':'bl';
+  st(`<div class="wrap"><div class="wheel" id="wh" style="background:conic-gradient(${g});transform:rotate(${svRot}deg)">${lb}</div><div id="rn" class="${c}">${n==null?'?':n}</div></div><div class="msg" id="m">${t||'賭け金を決めて、マットをタップして置こう'}</div><div class="lab" id="svtt">　</div><div style="overflow-x:auto;padding:4px 0">${h}</div>${svBetHtml()}<div class="lab">マットを1回タップするごとに、上の「ベット」の額を置きます</div><div class="chips"><button class="btn s d" onclick="svrClr()">クリア</button><button class="btn" id="spn" onclick="svrSpin()">スピン</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`);svBP();svrMk()}
+function svrB(e){if(srBusy||svBusy)return;const b=svEff();if(b<SMIN)return msg(svD<SMIN?'預金が足りません（最低ベットは 1京）':'最低ベットは 1京 です');if(svTot()+b>svD)return msg('預金が足りません（置いた合計が預金を超えます）');const k=e.dataset.k;sbets[k]=(sbets[k]||0n)+b;svrMk()}
+function svrClr(){if(srBusy||svBusy)return;sbets={};svrMk()}
+async function svrSpin(){if(srBusy||svBusy)return;const t=svTot();if(!t)return msg('マットをタップして賭け金を置いてください');svBusy=1;msg('預金から引き落とし中…');
+  try{await svSync();if(svD<t){svBusy=0;return msg('預金が足りません')}await svTake(t)}catch(e){svBusy=0;return msg(e.message)}svBusy=0;srBusy=1;
+  const bets=sbets,n=R(37),i=ORDER.indexOf(n);svRot=(Math.floor(svRot/360)+6)*360-(i+.5)*360/37;const w=$('#wh');if(w)w.style.transform=`rotate(${svRot}deg)`;msg('回転中…');const sp=$('#spn');if(sp)sp.disabled=1;
+  setTimeout(async()=>{let pay=0n;for(const k in bets)pay+=bets[k]*BigInt(win(k,n)||0);sbets={};srBusy=0;const col=n==0?'緑':RED.includes(n)?'赤':'黒',d=pay-t;
+    const txt=`${n} ${col}！ ${d>0n?'当たり！ +'+svJ(d,3):d==0n?'±0':(pay>0n?'一部的中 -':'ハズレ… -')+svJ(-d,3)}`;
+    if($('#wh'))svrPre(txt,n);await svEnd(t,pay,'ルーレット')},4300)}
+/* ---- SVIPオンライン：ショーダウン（ホスト進行型・預金で賭ける） ----
+   全員が賭け金を預金から出して参加。各自に1枚配り、15秒以内に「勝負」か「降り（賭けの半分を失う）」を選ぶ。
+   勝負した人の中で一番強いカード（A最強・同じ数字は♠♥♦♣の順）が全員の賭けを総取り。稼いだ分の1％が通信料 */
+let svL=null,svTb=[],sol=null,svoT=0;
+const svoClose=()=>{if(sol){const o=sol;sol=null;clearTimeout(o.tm);clearTimeout(o.wd);clearInterval(o.cd);oBye(o.c)}if(svL){oBye(svL);svL=null}svTb=[]};
+const svoStr=c=>c.r*4+(3-c.s);
+function svoOut(){const o=sol;if(o&&!o.fin&&!o.settled){
+    if(o.host){oSend(o.c,'sx',{});if(o.paid&&!o.ref){o.ref=1;svGive(o.b)}}
+    else{oSend(o.c,'sl',{pid:HID});if(o.ph=='wait'&&o.paid&&!o.ref){o.ref=1;svGive(o.b)}}}
+  svoClose();svoT++}
+function svoBack(){svoOut();lv=null;svipRoom()}
+const svoTbl=()=>{const o=sol;if(!o||!o.host||!svL)return;try{svL.track({t:'tbl',id:o.id,hid:HID,nm:oName(),b:o.b.toString(),n:o.ps.length,m:6,pl:o.ph=='wait'?0:1})}catch(e){}};
+async function svoLobby(note){if(!svOk())return svipMenu();svoClose();const T=++svoT;vRe=null;lv=svoOut;$('#gt').textContent='SVIPオンライン';
+  st(`<div class="msg" id="m">${note||'接続中…'}</div>`);
+  try{await oLoad();if(T!=svoT)return;svL=await oCh('cj-svip-lobby',{},p=>{svTb=Object.values(p).flat().filter(x=>x&&x.t=='tbl');if(!sol&&T==svoT)svoRefresh()})}
+  catch(e){if(T==svoT){lv=null;st(`<div class="msg" id="m">通信できませんでした</div><div class="lab">ネットワークを確認してください</div><div class="chips"><button class="btn" onclick="svoLobby()">再接続</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`)}return}
+  if(T==svoT){try{await svFlush();await svSync()}catch(e){}svoList(note)}}
+function svoRefresh(){const a=document.activeElement;if(a&&a.tagName=='INPUT'&&$('#stage').contains(a)){svoDirty=1;return}svoList()}
+let svoDirty=0;addEventListener('focusout',()=>{if(!svoDirty)return;setTimeout(()=>{const a=document.activeElement;if(svoDirty&&!sol&&svL&&!(a&&a.tagName=='INPUT'))svoList()},250)});
+function svoList(note){svoDirty=0;const rows=svTb.map(x=>`<div class="hand" style="margin:6px 0"><div class="lab">🃏 ショーダウン　ホスト：${vEsc(x.nm)}　賭け <b>${svJ(x.b,3)}</b>　${x.n}/${x.m}人${x.pl?'（進行中）':''}</div><button class="btn s" onclick="svoJoin('${vEsc(x.id)}')"${x.n>=x.m||x.pl?' disabled':''}>参加（賭けを預金から引き落とし）</button></div>`).join('')||'<div class="lab">開催中のテーブルはありません。作ってみよう</div>';
+  st(`<div class="msg" id="m">${note||'💎 SVIPオンライン（SVIP限定）'}</div><div class="lab">ショーダウン：1人1枚配って「勝負／降り」。勝負した中で一番強いカードが総取り。降りると賭けの半分を失う。通信料：稼いだ分の<b>1％</b></div>
+<div class="lab">名前 <input type="text" id="pn" maxlength="10" value="${vEsc(oName())}" onchange="oSetName(this.value)" style="width:min(140px,40vw);padding:8px 10px;font-size:16px;text-align:center;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);color:#fff"></div>${rows}<div class="lab" style="margin-top:14px">テーブルを作る（賭け額）</div>${svBetHtml()}<div class="chips"><button class="btn" onclick="svoMake()">テーブルを作る</button><button class="btn s d" onclick="svoBack()">← SVIPルーム</button></div>`);svBP()}
+async function svoMake(){if(svBusy)return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
+  const id=HID.slice(0,6)+Date.now().toString(36),T=svoT,o=sol={host:1,id,b,ps:[{id:HID,nm:oName(),card:null,dec:null}],ph:'wait',q:0,paid:1,fin:0};
+  try{o.c=await oCh('cj-svt-'+id,SVH);if(sol!=o||T!=svoT){oBye(o.c);if(!o.ref){o.ref=1;svGive(b)}return}o.c.track({});lv=svoOut;svoTbl();svoSync()}
+  catch(e){if(sol==o)sol=null;if(!o.ref){o.ref=1;svGive(b)}svoLobby('テーブルを作れませんでした（賭けは返却されました）')}}
+async function svoJoin(id){if(svBusy)return;const x=svTb.find(t=>t.id==id);if(!x||x.n>=x.m||x.pl)return msg('参加できません');if(x.hid==HID)return msg('自分が作ったテーブルです');
+  svBusy=1;msg('預金から引き落とし中…');const b=sBI(x.b);
+  try{await svSync();if(svD<b){svBusy=0;return msg('預金が足りません（必要 '+svJ(b,3)+'）')}await svTake(b)}catch(e){svBusy=0;return msg(e.message)}svBusy=0;
+  const T=svoT,o=sol={host:0,id,b,ph:'wait',paid:1,fin:0,in:0};
+  try{o.c=await oCh('cj-svt-'+id,SVH);if(sol!=o||T!=svoT){oBye(o.c);if(!o.ref){o.ref=1;svGive(b)}return}o.c.track({});lv=svoOut;oSend(o.c,'sj',{pid:HID,nm:oName()});
+    o.tm=setTimeout(()=>{if(sol==o&&!o.in)svoFail(o,'応答がありません')},7000);st(`<div class="msg" id="m">参加しています…</div>`)}
+  catch(e){svoFail(o,'参加できませんでした')}}
+function svoFail(o,t){if(o.paid&&!o.ref){o.ref=1;svGive(o.b)}if(sol==o)svoClose();svoT++;svoLobby(t+'（賭けは返却されました）')}
+const svoPs=o=>o.host?o.ps:(o.V?o.V.ps:[]);
+function svoSync(){const o=sol;if(!o||!o.host)return;o.q++;oSend(o.c,'ss',{q:o.q,ps:o.ps.map(p=>({id:p.id,nm:p.nm}))});svoWait()}
+function svoWait(){const o=sol;if(!o||o.ph!='wait')return;const ps=svoPs(o);
+  st(`<div class="msg" id="m">${o.host?'参加者を待っています（2人から開始できます）':'ホストの開始を待っています…'}</div><div class="lab">賭け <b class="svj">${svJ(o.b,4)}</b><small class="svc">${svC(o.b)}</small></div><div class="row" style="gap:10px">${ps.map(p=>`<div class="hand" style="padding:10px 14px">${vEsc(p.nm)}${p.id==HID?'（あなた）':''}</div>`).join('')}</div><div class="chips">${o.host?`<button class="btn"${ps.length<2?' disabled':''} onclick="svoStart()">開始</button>`:''}<button class="btn s d" onclick="svoBack()">やめる（賭けは返却）</button></div>`)}
+function svoStart(){const o=sol;if(!o||!o.host||o.ph!='wait'||o.ps.length<2)return;o.ph='play';o.fin=0;const d=deck();
+  o.ps.forEach(p=>{const c=d.pop();p.card={r:c.r,s:c.s};p.dec=null;if(p.id!=HID)oSend(o.c,'sc',{to:p.id,r:p.card.r,s:p.card.s});else o.card=p.card});
+  oSend(o.c,'sst',{ms:15000,ps:o.ps.map(p=>({id:p.id,nm:p.nm}))});o.dl=Date.now()+15000;o.tm=setTimeout(()=>svoResolve(o),15500);svoTbl();svoPlay(o)}
+function svoPlay(o){if(!o||sol!=o||o.fin)return;const ps=svoPs(o),me=o.card,dec=o.mine;
+  st(`<div class="msg" id="m">${dec?(dec=='in'?'勝負！ 結果を待っています…':'降りました。結果を待っています…'):'あなたのカード。勝負する？ 降りる？'}</div><div class="row">${ps.map(p=>p.id==HID&&me?cd({r:me.r,s:me.s}):cd({r:2,s:0,d:1},1)).join('')}</div><div class="row" style="gap:10px">${ps.map(p=>`<div class="lab">${vEsc(p.nm)}${p.id==HID?'（あなた）':''}</div>`).join('')}</div><div class="lab" id="svtm"></div><div class="chips"><button class="btn" id="svin"${dec?' disabled':''} onclick="svoDec('in')">勝負</button><button class="btn s d" id="svfo"${dec?' disabled':''} onclick="svoDec('fold')">降りる（賭けの半分を失う）</button></div>`);
+  clearInterval(o.cd);o.cd=setInterval(()=>{const e=$('#svtm');if(e)e.textContent=sol==o&&!o.fin?'残り '+Math.max(0,Math.ceil((o.dl-Date.now())/1000))+'秒':''},300)}
+function svoDec(a){const o=sol;if(!o||o.ph!='play'||o.fin||o.mine)return;o.mine=a;if(o.host){const p=o.ps.find(x=>x.id==HID);if(p&&!p.dec)p.dec=a=='in'?'in':'fold';svoPlay(o);svoCheck(o)}else{oSend(o.c,'sd',{pid:HID,a});svoPlay(o)}}
+function svoCheck(o){if(o.host&&!o.fin&&o.ps.every(p=>p.dec))svoResolve(o)}
+function svoResolve(o){if(!o.host||o.fin||sol!=o)return;o.fin=1;clearTimeout(o.tm);const P=o.ps,b=o.b;P.forEach(p=>{if(!p.dec)p.dec='fold'});
+  const act=P.filter(p=>p.dec=='in'),fol=P.filter(p=>p.dec!='in'),half=b/2n,pay={};let win=null,fee=0n;
+  if(!act.length)P.forEach(p=>pay[p.id]=b);
+  else{let pot=b*BigInt(act.length);fol.forEach(p=>{pay[p.id]=b-half;pot+=half});win=act.reduce((a,p)=>svoStr(p.card)>svoStr(a.card)?p:a);act.forEach(p=>pay[p.id]=0n);
+    const pr=pot-b;fee=pr>0n?pr/100n:0n;pay[win.id]=pot-fee}
+  const res={win:win?win.id:null,fee:fee.toString(),ps:P.map(p=>({id:p.id,nm:p.nm,dec:p.dec,r:p.card.r,s:p.card.s,pay:String(pay[p.id]||0n)}))};
+  oSend(o.c,'sr',res);svoTbl();svoApply(o,res)}
+async function svoApply(o,res){if(!o||sol!=o||o.settled)return;o.settled=1;o.fin=1;clearTimeout(o.tm);clearTimeout(o.wd);clearInterval(o.cd);
+  const me=res.ps.find(p=>p.id==HID),pay=sBI(me?me.pay:'0');lv=null;
+  st(`<div class="msg" id="m">${res.win?(res.win==HID?`🏆 勝利！ +${svJ(pay-o.b,3)}`:`💀 敗北… ${pay>0n?'賭けの半分が戻りました':'-'+svJ(o.b,3)}`):'全員降りたので、賭けは返却されました'}</div><div class="row" style="gap:12px">${res.ps.map(p=>`<div class="hand${p.id==res.win?' w':''}" style="padding:8px 10px">${cd({r:p.r,s:p.s})}<div class="lab">${vEsc(p.nm)}${p.id==HID?'（あなた）':''}<br>${p.dec=='in'?'勝負':'降り'}</div></div>`).join('')}</div><div class="lab">${res.win?`通信料 ${svJ(sBI(res.fee),3)}（稼いだ分の1％）を引きました`:''}</div><div class="chips"><button class="btn" onclick="svoBack2()">ロビーへ</button><button class="btn s d" onclick="svoBack()">← SVIPルーム</button></div>`);
+  if(res.win)svFx(res.win==HID);await svGive(pay);if(res.win)svLog('ショーダウン',o.b,pay-o.b);const e=$('#sdp');if(e)e.innerHTML=svJ(svD,4)}
+function svoBack2(){svoOut();svoLobby()}
+const SVH={
+  sj:d=>{const o=sol;if(!o||!o.host)return;if(o.ps.some(p=>p.id==d.pid)){oSend(o.c,'sok',{to:d.pid});return svoSync()}
+    if(o.ph!='wait'||o.ps.length>=6)return oSend(o.c,'sno',{to:d.pid,r:o.ph!='wait'?'ゲーム進行中です':'満席です'});
+    o.ps.push({id:String(d.pid),nm:String(d.nm).slice(0,10),card:null,dec:null});oSend(o.c,'sok',{to:d.pid});svoSync();svoTbl()},
+  sok:d=>{const o=sol;if(!o||o.host||d.to!=HID)return;o.in=1;clearTimeout(o.tm)},
+  sno:d=>{const o=sol;if(!o||o.host||d.to!=HID||o.in)return;clearTimeout(o.tm);svoFail(o,d.r||'参加できませんでした')},
+  ss:d=>{const o=sol;if(!o||o.host||o.settled||d.q<=(o.rq||0))return;o.rq=d.q;o.in=1;clearTimeout(o.tm);o.V=d;if(o.ph=='wait')svoWait()},
+  sl:d=>{const o=sol;if(!o||!o.host)return;const i=o.ps.findIndex(p=>p.id==d.pid);if(i<0)return;if(o.ph=='wait'){o.ps.splice(i,1);svoSync();svoTbl()}else{if(!o.ps[i].dec)o.ps[i].dec='fold';svoCheck(o)}},
+  sx:d=>{const o=sol;if(!o||o.host||o.settled||o.ref)return;if(o.paid){o.ref=1;svGive(o.b)}svoClose();svoT++;lv=null;svoLobby('ホストが退出したのでテーブルは解散しました（賭けは返却されました）')},
+  sc:d=>{const o=sol;if(!o||o.host||d.to!=HID)return;o.card={r:+d.r,s:+d.s}},
+  sst:d=>{const o=sol;if(!o||o.host||o.settled||o.ph=='play')return;o.ph='play';o.V=Object.assign({},o.V,{ps:d.ps});o.mine=null;o.dl=Date.now()+d.ms;svoPlay(o);
+    o.wd=setTimeout(()=>{if(sol==o&&!o.settled&&!o.ref){o.ref=1;if(o.paid)svGive(o.b);svoClose();svoT++;lv=null;svoLobby('ホストから結果が届かなかったため、賭けを返却しました')}},45000)},
+  sd:d=>{const o=sol;if(!o||!o.host||o.ph!='play'||o.fin)return;const p=o.ps.find(x=>x.id==d.pid);if(!p||p.dec)return;p.dec=d.a=='in'?'in':'fold';svoCheck(o)},
+  sr:d=>{const o=sol;if(!o||o.host||o.settled||o.ref)return;svoApply(o,d)}
+};
+const SVT=new Set(['SVIPルーム','ブラックホール・クラッシュ','ダイヤモンド・マインズ','プラチナ・ルーレット','SVIPオンライン']);
+SVT.forEach(x=>VT.add(x));
+setTimeout(()=>{const g=$('#gt');if(!g)return;const f=()=>{const s2=$('#s2');const on=SVT.has(g.textContent)&&!!s2&&s2.classList.contains('on');document.body.classList.toggle('svip',on);document.body.classList.toggle('svtop',on&&g.textContent=='SVIPルーム')};new MutationObserver(f).observe(g,{childList:true,characterData:true,subtree:true});if($('#s2'))new MutationObserver(f).observe($('#s2'),{attributes:true,attributeFilter:['class']});f()},0);
+
+/* ---- 天国と地獄の演出 ---- */
+function svFx(win){if(win==null||!document.body.classList.contains('svip'))return;const b=document.body;b.classList.remove('svh','svx');void b.offsetWidth;b.classList.add(win?'svh':'svx');
+  const ban=document.createElement('div');ban.className='svban '+(win?'h':'x');ban.textContent=win?'☁ 天 国 ☁':'🔥 地 獄 🔥';document.body.appendChild(ban);setTimeout(()=>ban.remove(),2600);
+  const A=win?['😇','👼','✨','🪽','☁️','🕊️']:['🔥','👹','💀','😈','🔥','⛓️'];
+  for(let i=0;i<30;i++){const e=document.createElement('span');e.className='svpt '+(win?'h':'x');e.textContent=A[R(A.length)];e.style.cssText=`left:${R(100)}vw;animation-delay:${R(900)}ms;font-size:${20+R(26)}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3700)}
+  setTimeout(()=>b.classList.remove('svh','svx'),2800)}
+function svfxBuild(){if($('#svfx'))return;const d=document.createElement('div');d.id='svfx';let h='<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="svcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#f4f9ff"/><stop offset="1" stop-color="#c9dcf3"/></linearGradient><linearGradient id="svfg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff6b0"/><stop offset=".3" stop-color="#ffb02e"/><stop offset=".65" stop-color="#ff5a1f"/><stop offset="1" stop-color="#b3200f"/></linearGradient><linearGradient id="svfh" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffd23a"/><stop offset=".5" stop-color="#ff3b1a"/><stop offset="1" stop-color="#6a0a08"/></linearGradient><filter id="svft" x="-10%" y="-40%" width="120%" height="150%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.007 0.02" numOctaves="2" seed="7" result="n"><animate attributeName="baseFrequency" dur="5s" values="0.007 0.02;0.011 0.03;0.006 0.024;0.007 0.02" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="n" scale="48" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation="2.4"/></filter></defs></svg><div class="rays"></div>';
+  [[-4,8,32,22,0],[27,22,24,26,-8],[56,6,34,30,-4],[80,26,24,19,-12],[8,40,20,36,-6]].forEach(([l,t,w,du,dl],i)=>{const V=i%2?'<circle cx="38" cy="74" r="26"/><circle cx="70" cy="52" r="32"/><circle cx="112" cy="40" r="38"/><circle cx="152" cy="56" r="30"/><circle cx="182" cy="76" r="24"/>':'<circle cx="34" cy="76" r="22"/><circle cx="62" cy="58" r="28"/><circle cx="96" cy="44" r="30"/><circle cx="134" cy="36" r="34"/><circle cx="168" cy="58" r="28"/><circle cx="190" cy="78" r="20"/>';h+=`<svg class="cl" viewBox="0 0 220 110" style="--l:${l}%;--w:${w}vw;--d:${du}s;--dl:${dl}s;top:${t/2}%"><g fill="url(#svcg)"><rect x="26" y="68" width="168" height="34" rx="17"/>${V}</g></svg>`});
+  /* 炎：粒をたくさん立ちのぼらせて、色を黄→橙→赤→暗赤へ変えながら小さく消す。重ねてぼかすと本物の炎のように揺らぐ */
+  h+='<div class="fire"><div class="fglow"></div>';const C=[6,17,28,39,50,61,72,83,94];
+  for(let i=0;i<120;i++){const c=C[R(C.length)],g=(R(100)+R(100)+R(100)-150)/150,l=Math.max(-4,Math.min(104,c+g*13)),hh=14+R(30)+(R(100)<12?18:0),sz=34+R(64),du=(1.1+R(160)/100).toFixed(2),dx=R(90)-45;
+    h+=`<i class="fp" style="left:${l.toFixed(1)}%;--s:${sz}px;--h:-${hh}vh;--dx:${dx}px;--d:${du}s;--dl:-${(R(300)/100).toFixed(2)}s"></i>`}
+  h+='</div>';
+  for(let i=0;i<14;i++)h+=`<b class="em" style="left:${R(98)}%;--d:${(2.4+R(30)/10).toFixed(1)}s;--dl:-${(R(40)/10).toFixed(1)}s"></b>`;
+  d.innerHTML=h;document.body.appendChild(d)}
+setTimeout(()=>{const f=()=>{if(document.body.classList.contains('svip'))svfxBuild()};new MutationObserver(f).observe(document.body,{attributes:true,attributeFilter:['class']});f()},0);
 </script></body></html>
