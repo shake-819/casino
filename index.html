@@ -1433,7 +1433,7 @@ async function svmCash(){const o=sm;if(!o||o.done||!o.open.size)return;o.done=1;
 /* ---- 堕天のラダー（実力勝負：階段の向きを見て←→/A・Dで登る。向きの間違い・マグマに追いつかれる・動く階段でタイミングがズレると全損） ---- */
 const SVL=(()=>{
 const W=360,H=460,SW=76,SH=46,CAP=1000;let S=null,raf=0;
-const mf=k=>Math.min(CAP,Math.pow(1.04,k)),dm=m=>Math.floor(m*100+1e-6)/100;   // 登るほど1段あたりの上がり幅も増える（最大×1000）
+const mf=k=>Math.min(CAP,.5*Math.pow(1.065,k-20)),dm=m=>Math.floor(m*100+1e-6)/100;   // 登るほど1段あたりの上がり幅も増える（最大×1000）
 const off=(o,i,ts)=>o.mv[i]?Math.sin(ts/1000*o.mv[i].w+o.mv[i].p)*SW*.85:0;   // 動く階段の横ずれ（30段目以降にときどき出る）
 function ens(o,k){while(o.dirs.length<k){const d=R(2)?1:-1;o.dirs.push(d);o.cols.push(o.cols[o.cols.length-1]+d);const i=o.cols.length-1;o.mv[i]=i>=30&&R(100)<22?{p:R(628)/100,w:3.4+R(160)/100}:null}}
 function stop(){cancelAnimationFrame(raf);const o=S;S=null;if(o&&!o.done){o.done=1;svEnd(o.b,0n,'ラダー（離脱）',1)}}
@@ -1442,11 +1442,11 @@ function pre(t){stop();vRe=null;$('#gt').textContent='堕天のラダー';lv=svS
   const cv=$('#svlc');if(cv)draw({cols:[0,1,0],dirs:[1,-1],mv:[],n:0,pI:0,pC:0,cam:0,camC:0,lava:-4,hop:0,shake:0,done:0},cv,0)}
 async function go(){if(svBusy||(S&&!S.done))return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
   if(!$('#svlc')){svEnd(b,b,'ラダー（取消）',1);return}
-  const o=S={b,done:0,dirs:[],cols:[0],mv:[],n:0,lava:-4,t:0,cam:0,camC:0,pI:0,pC:0,hop:0,shake:0,m:1,last:performance.now()};ens(o,40);
+  const o=S={b,done:0,dirs:[],cols:[0],mv:[],n:0,lava:-2,t:0,cam:0,camC:0,pI:0,pC:0,hop:0,shake:0,m:mf(0),last:performance.now()};ens(o,40);
   ['#sbp','#svls'].forEach(s=>{const e=$(s);if(e)e.style.display='none'});['#svlk','#svlk2'].forEach(s=>{const e=$(s);if(e)e.style.display='flex'});
   msg('登れ！ マグマが迫ってくる');raf=requestAnimationFrame(loop)}
 function loop(ts){const o=S;if(!o||o.done)return;const cv=$('#svlc');if(!cv)return stop();
-  const dt=Math.min(.05,(ts-o.last)/1000||0);o.last=ts;o.t+=dt;o.lava+=(1.6+.07*o.t)*dt;
+  const dt=Math.min(.05,(ts-o.last)/1000||0);o.last=ts;o.t+=dt;o.lava+=(2.4+.12*o.t)*dt;
   if(o.lava>=o.n)return end(o,0,'マグマに飲まれた…');
   o.pI+=(o.n-o.pI)*Math.min(1,dt*16);o.pC+=(o.cols[o.n]-o.pC)*Math.min(1,dt*16);o.cam=o.pI;o.camC=o.pC;o.hop=Math.max(0,o.hop-dt*5);o.shake=Math.max(0,o.shake-dt);
   draw(o,cv,ts);const p=$('#svlp');if(p)p.innerHTML=`<b>×${dm(o.m).toFixed(2)}</b> ・ ${o.n}段 ・ いま回収すると ${svJ(svPay(o.b,o.m),3)}`;
