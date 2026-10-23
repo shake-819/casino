@@ -246,6 +246,9 @@ body.svip.svx #s2{animation:svsh .5s 2}
 .svn{font:inherit;font-weight:800;font-size:12px;padding:6px 0;border-radius:6px;border:1px solid #e5e4e2aa;color:#fff;cursor:pointer}.svn.r{background:#9b1426}.svn.k{background:#15151a}.svn.g{background:#0f6a3a}.svn.on{outline:3px solid #fff;box-shadow:0 0 12px #fff}
 body.svip.vip.svtop .gc{background:linear-gradient(160deg,#2f5c9acc,#1a2145cc 55%,#2a0a30cc)}
 body.svip.vip.svtop .grid .gc:nth-child(even){background:linear-gradient(160deg,#7a1208cc,#2c0606cc 55%,#14020acc)}
+.svg2{display:flex;flex-direction:column;align-items:center}.svg2 .sd{display:contents}.svg2 .msg{order:-1}
+.svcv{display:block;width:100%;max-width:360px;margin:6px auto;border-radius:12px;background:#000}
+@media(min-width:820px){.svg2{display:grid;grid-template-columns:auto minmax(270px,1fr);gap:20px;justify-content:center;align-items:start}.svg2 .sd{display:block}.svg2 .msg{order:0;margin-top:0}.svcv{height:max(340px,calc(100dvh - 215px));max-height:780px;width:auto;max-width:100%;margin:0}}
 </style></head><body>
 <div class="scr on" id="s0"><span class="suit" style="left:8%;top:12%">♠</span><span class="suit" style="right:10%;top:20%;color:#c0242b">♥</span><span class="suit" style="left:14%;bottom:12%;color:#c0242b">♦</span><span class="suit" style="right:8%;bottom:10%">♣</span>
 <div class="box"><div class="sign">2−1 情報処理科ジノ</div><small>CASINO</small></div>
@@ -1391,12 +1394,13 @@ function svU(e){sb.e=e;sb.all=0;const a=document.querySelector('#sbp .more');if(
 function svAll(){sb.all=1;svBP()}
 async function svStart(){try{await svSync()}catch(e){msg(e.message);return 0n}const b=svEff();if(b<SMIN){msg(svD<SMIN?'預金が足りません（最低ベットは 1京）':'最低ベットは 1京 です。1以上の数字を入れてください');return 0n}try{await svTake(b)}catch(e){msg(e.message);return 0n}return b}
 /* ---- SVIPルーム ---- */
-function svStop(){SVL.stop();if(svcS&&!svcS.done){const o=svcS;o.done=1;clearInterval(o.iv);svEnd(o.b,0n,'クラッシュ（離脱）',1)}svcS=null;if(sm&&!sm.done){const o=sm;o.done=1;svEnd(o.b,0n,'マインズ（離脱）',1)}sm=null;svBusy=0}
+function svStop(){SVL.stop();SVP.stop();if(svcS&&!svcS.done){const o=svcS;o.done=1;clearInterval(o.iv);svEnd(o.b,0n,'クラッシュ（離脱）',1)}svcS=null;if(sm&&!sm.done){const o=sm;o.done=1;svEnd(o.b,0n,'マインズ（離脱）',1)}sm=null;svBusy=0}
 async function svipRoom(t){svStop();svoClose();svoT++;if(!svOk())return svipGate(t);vRe=null;lv=null;t=t||sNote;sNote='';$('#gt').textContent='SVIPルーム';
   st(`<div class="msg" id="m">${t||'☁ 天国か、地獄か 🔥'}</div><div class="svdep"><span class="lab">銀行の預金（SVIPの賭けはここから）</span><b id="sdp">確認中…</b><small class="svc" id="sdc"></small></div><div class="grid">
 <button class="gc" onclick="svcPre()"><i>🕳️</i><b>ブラックホール・クラッシュ</b><span>倍率が上がる・吸い込まれる前に回収（最大×1000）</span></button>
 <button class="gc" onclick="svmPre()"><i>😇</i><b>ダイヤモンド・マインズ</b><span>5×5のタイル・😇か👹か（天国と地獄）</span></button>
 <button class="gc" onclick="SVL.pre()"><i>🧗</i><b>堕天のラダー</b><span>実力勝負・左右の階段を登れ・迫るマグマ（最大×1000）</span></button>
+<button class="gc" onclick="SVP.pre()"><i>🎰</i><b>ゴールデン・パチンコ</b><span>1発ずつ発射・穴に入れば配当・風車と開閉扉（最大×120）</span></button>
 <button class="gc" onclick="svrPre()"><i>🎡</i><b>プラチナ・ルーレット</b><span>ヨーロピアン・マットをタップして賭ける（数字×36）</span></button>
 <button class="gc" onclick="svoLobby()"><i>🌐</i><b>SVIPオンライン</b><span>ショーダウン（最大6人）・SVIP限定・通信料1％</span></button></div>
 <div class="lab" style="margin-top:12px">賭けは預金から引き落とされ、払い戻しは預金に入金されます。1回の賭けは 1京〜9999無量大数。<br>会費 ${svJ(BigInt(SDUE))}チップ／日（毎日 UTC 9:00＝日本時間 18:00 に手持ちから差し引き）　次回 ${new Date(sNext()).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
@@ -1434,7 +1438,7 @@ const off=(o,i,ts)=>o.mv[i]?Math.sin(ts/1000*o.mv[i].w+o.mv[i].p)*SW*.85:0;   //
 function ens(o,k){while(o.dirs.length<k){const d=R(2)?1:-1;o.dirs.push(d);o.cols.push(o.cols[o.cols.length-1]+d);const i=o.cols.length-1;o.mv[i]=i>=30&&R(100)<22?{p:R(628)/100,w:3.4+R(160)/100}:null}}
 function stop(){cancelAnimationFrame(raf);const o=S;S=null;if(o&&!o.done){o.done=1;svEnd(o.b,0n,'ラダー（離脱）',1)}}
 function pre(t){stop();vRe=null;$('#gt').textContent='堕天のラダー';lv=svStop;
-  st(`<div class="msg" id="m">${t||'階段の向きを見て登ろう。左に階段なら ← / A、右なら → / D。マグマに飲まれる前に回収！'}</div><canvas id="svlc" width="${W}" height="${H}" style="width:100%;max-width:${W}px;border-radius:12px;display:block;margin:6px auto"></canvas><div class="lab" id="svlp">間違えたら全損。30段を超えると、ときどき揺れる青い階段が出ます（点線の位置に重なって緑になったときに登る）</div>${svBetHtml()}<div class="chips" id="svls"><button class="btn" onclick="SVL.go()">スタート</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div><div class="chips" id="svlk" style="display:none"><button class="btn" onpointerdown="SVL.press(-1)">◀</button><button class="btn" onpointerdown="SVL.press(1)">▶</button></div><div class="chips" id="svlk2" style="display:none"><button class="btn" onclick="SVL.cash()">💰 回収</button></div>`);svBP();
+  st(`<div class="svg2"><canvas id="svlc" class="svcv" width="${W}" height="${H}"></canvas><div class="sd"><div class="msg" id="m">${t||'階段の向きを見て登ろう。左に階段なら ← / A、右なら → / D。マグマに飲まれる前に回収！'}</div><div class="lab" id="svlp">間違えたら全損。30段を超えると、ときどき揺れる青い階段が出ます（点線の位置に重なって緑になったときに登る）</div>${svBetHtml()}<div class="chips" id="svls"><button class="btn" onclick="SVL.go()">スタート</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div><div class="chips" id="svlk" style="display:none"><button class="btn" onpointerdown="SVL.press(-1)">◀</button><button class="btn" onpointerdown="SVL.press(1)">▶</button></div><div class="chips" id="svlk2" style="display:none"><button class="btn" onclick="SVL.cash()">💰 回収</button></div></div></div>`);svBP();
   const cv=$('#svlc');if(cv)draw({cols:[0,1,0],dirs:[1,-1],mv:[],n:0,pI:0,pC:0,cam:0,camC:0,lava:-4,hop:0,shake:0,done:0},cv,0)}
 async function go(){if(svBusy||(S&&!S.done))return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
   if(!$('#svlc')){svEnd(b,b,'ラダー（取消）',1);return}
@@ -1480,6 +1484,90 @@ function draw(o,cv,ts){const c=cv.getContext('2d'),X=i=>W/2+(o.cols[i]-o.camC)*S
 addEventListener('keydown',e=>{const o=S;if(!o||o.done||/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName))return;const k=e.code;
   if(k=='ArrowLeft'||k=='KeyA'){e.preventDefault();press(-1)}else if(k=='ArrowRight'||k=='KeyD'){e.preventDefault();press(1)}else if(k=='Space'||k=='Enter'){e.preventDefault();if(!e.repeat)cash()}});
 return{pre,go,press,cash,stop}})();
+/* ---- ゴールデン・パチンコ（1発ずつ発射→結果。入賞は先にR()で決め、玉はその穴へ向かう。確率は画面に出さない） ---- */
+const SVP=(()=>{
+const W=360,H=520,RB=5,RP=3,G=700,RL=W-26,AR=78;let run=null,raf=0,kk=0,kak=0,T=0,fx=[],fl=0,last=0;
+const HOLES=[{x:70,y:150,g:12,m:1.2,L:0},{x:250,y:165,g:12,m:1.2,L:0},{x:160,y:215,g:11,m:1.5,L:1},{x:75,y:290,g:10,m:1.8,L:2},{x:245,y:305,g:10,m:1.8,L:2},{x:160,y:335,g:10,m:3,L:2},{x:265,y:392,g:11,m:10,L:3},{x:160,y:428,g:10.5,m:30,L:4,d:1}];
+const HW=[657,657,671,478,478,391,119,71];   // 各穴の入賞の重み（1万分率・確変中は×1.4）
+const WIND=[{x:110,y:245,L:18,w:2.2,a:0},{x:215,y:250,L:18,w:-2.6,a:1},{x:55,y:365,L:16,w:2.4,a:2}];
+const PP=[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100],PX=[283,262,243,218,189,162,149,135,121,107,95,85,72,65,53,46,37,27,18,12];   // 発射の強さ→盤面に落ちる位置
+const pFor=x=>{if(x>=PX[0])return PP[0];for(let i=0;i<PX.length-1;i++)if(x<=PX[i]&&x>=PX[i+1])return PP[i]+(PX[i]-x)/(PX[i]-PX[i+1])*5;return 100};
+const ge=h=>h.g+kk*4,dOpen=()=>{const p=T%3.6;return p>=1.5?0:p<.2?p/.2:p>1.3?(1.5-p)/.2:1};
+const pins=[],addP=(x,y)=>{if(x>12&&x<RL-10&&y>96&&y<H-30)pins.push({x,y,h:0})};
+for(const h of HOLES){const g=h.g;addP(h.x-g,h.y-4);Object.assign(pins[pins.length-1],{o:h,s:-1});addP(h.x+g,h.y-4);Object.assign(pins[pins.length-1],{o:h,s:1});
+ for(let j=1;j<=h.L;j++){const o=g+14+17*(j-1),dy=h.y-8+(j%2)*10;addP(h.x-o,dy);addP(h.x+o,dy)}
+ for(let k=0;k<h.L;k++)addP(h.x+(k-(h.L-1)/2)*17,h.y-30)}
+for(let r=0;r<10;r++)for(let x=(r%2?20:36);x<RL-12;x+=32){const y=112+r*33;
+ if(!pins.some(p=>Math.hypot(p.x-x,p.y-y)<18)&&!HOLES.some(h=>Math.abs(x-h.x)<h.g+8&&y>h.y-10&&y<h.y+34)&&!WIND.some(q=>Math.hypot(q.x-x,q.y-y)<q.L+14))addP(x,y)}
+function decide(bo){const hw=HW.map(v=>Math.round(v*bo));let r=R(10000);for(let i=0;i<hw.length;i++){if(r<hw[i])return i;r-=hw[i]}return -1}
+function launchShot(b,bo){const i=decide(bo),th=i>=0?HOLES[i]:null;let fin=0;
+ if(th){fin=th.m;if(th.m>=3){const r=R(100);fin=Math.round(th.m*(r<55?.5:r<80?1:r<95?2:4)*100)/100}}
+ const p=Math.max(0,Math.min(100,th?pFor(th.x)+(R(100)-50)/80:8+R(88)));
+ return run={b,th,fin,boost:bo,state:'fly',t:0,done:0,age:0,hit:null,ball:{x:W-13,y:H-12,vx:0,vy:-(820+p*.42*5.2),ch:true}}}
+function rescue(o){const b=o.ball,th=o.th;o.age=10;b.x=th.x;b.y=th.y-120;b.vx=0;b.vy=0;b.ch=false}   // 万一玉が外れたら目標の穴の少し上から落とし直す
+function capture(o,h){o.hit=h;o.ball.hide=1;fx.push({x:h.x,y:h.y,t:0,s:h.m>=3?'':'\u00d7'+h.m,w:h.m>=5});if(h.m>=5)fl=.5;if(h.m>=3){o.state='roll';o.t=0}else o.state='fin'}
+function phys(o,dt){const b=o.ball,th=o.th;o.age+=dt;if(o.age>16){if(th)rescue(o);else{o.state='out';return}}
+ b.vy+=G*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;
+ if(b.x<RB){b.x=RB;b.vx=Math.abs(b.vx)*.5}if(b.x>W-RB){b.x=W-RB;b.vx=-Math.abs(b.vx)*.5}if(b.y<RB){b.y=RB;b.vy=Math.abs(b.vy)*.3}
+ const ax=b.x-(W-AR),ay=b.y-AR;if(ax>0&&ay<0){const d=Math.hypot(ax,ay);if(d>AR-RB){const nx=ax/d,ny=ay/d,vn=b.vx*nx+b.vy*ny;b.x=W-AR+nx*(AR-RB);b.y=AR+ny*(AR-RB);if(vn>0){b.vx-=1.15*vn*nx;b.vy-=1.15*vn*ny}}}
+ if(b.y>86){if(b.ch){if(b.x<RL+RB){b.x=RL+RB;b.vx=Math.abs(b.vx)*.3}}else if(b.x>RL-RB){b.x=RL-RB;b.vx=-Math.abs(b.vx)*.5}}else if(b.y<80)b.ch=false;
+ if(b.ch)return;
+ b.sl=Math.hypot(b.vx,b.vy)<30&&!(th&&th.d&&b.y>th.y-30&&dOpen()<.6)?(b.sl||0)+dt:0;if(b.sl>.45){b.sl=0;b.st=(b.st||0)+1;b.vx+=(th?(th.x>b.x?1:-1):(R(2)?1:-1))*(110+R(60));b.vy-=40;if(b.st%2===0)b.gho=.5}   // 2回続けて止まったら0.5秒だけピンをすり抜けて抜け出す   // 玉がピンの上で止まったら揺らす
+ if(b.y>(b.my||0)+2){b.my=b.y;b.mt=0}else if(!(th&&th.d&&b.y>th.y-30&&dOpen()<.6)){b.mt=(b.mt||0)+dt;if(b.mt>1.2){b.mt=0;b.gho=.6;b.vy+=80}}   // 1.2秒以上下に進めていなければ、すり抜けて抜け出す
+ if(b.gho>0)b.gho-=dt;const gh=b.gho>0||(th&&Math.abs(b.x-th.x)<40&&b.y>th.y-70&&b.y<th.y+12);   // 目標の穴の手前ではピン・風車に邪魔されない
+ if(th&&b.y>96&&b.y<th.y+8){const w=Math.min(1,(b.y-96)/Math.max(20,th.y-30-96));let ax=th.x,k=2+38*w*w;
+  for(const h of HOLES)if(h!==th&&b.y>h.y-70&&b.y<h.y+16&&Math.abs(h.x-th.x)<ge(h)+16){ax=h.x+(b.x>=h.x?1:-1)*(ge(h)+20);k=Math.max(k,30);b.gho=Math.max(b.gho||0,.05)}   // 目標の真上にある別の穴はよけて通る
+  b.x+=(ax-b.x)*Math.min(1,k*dt);b.vx*=1-Math.min(1,w*8*dt)}   // 盤面に入ったら、穴に近づくほど位置を寄せていく   // 目標の穴へ誘導
+ if(!gh&&b.y>90&&b.y<H-20)for(const p of pins){if(Math.abs(p.y-b.y)>10)continue;const dx=b.x-p.x,dy=b.y-p.y,d=Math.hypot(dx,dy),m=RB+RP;
+  if(d<m&&d>0){const nx=dx/d,ny=dy/d;b.x=p.x+nx*m;b.y=p.y+ny*m;const vn=b.vx*nx+b.vy*ny;if(vn<0){b.vx-=1.55*vn*nx;b.vy-=1.55*vn*ny;b.vx+=(Math.random()-.5)*26}p.h=.18}}
+ if(!gh)for(const q of WIND)for(let k=0;k<4;k++){const an=q.a+k*Math.PI/2,sx=Math.cos(an)*q.L,sy=Math.sin(an)*q.L;let u=((b.x-q.x)*sx+(b.y-q.y)*sy)/(q.L*q.L);u=Math.max(0,Math.min(1,u));
+  const px=q.x+sx*u,py=q.y+sy*u,dx=b.x-px,dy=b.y-py,d=Math.hypot(dx,dy),m=RB+1.5;
+  if(d<m&&d>0){const nx=dx/d,ny=dy/d,vn=(b.vx+q.w*(py-q.y))*nx+(b.vy-q.w*(px-q.x))*ny;b.x=px+nx*m;b.y=py+ny*m;if(vn<0){b.vx-=1.6*vn*nx;b.vy-=1.6*vn*ny}}}
+ for(const h of HOLES){
+  if(h.d&&dOpen()<.6&&b.vy>0&&Math.abs(b.x-h.x)<ge(h)+3&&b.y>h.y-14-RB&&b.y<h.y-10){b.y=h.y-14-RB;b.vy=-Math.abs(b.vy)*.35}
+  if(h!==th&&b.vy>0&&Math.abs(b.x-h.x)<ge(h)+5&&b.y>h.y-24&&b.y<h.y+6){const s=b.x<h.x?-1:1;b.vx=s*Math.max(140,Math.abs(b.vx));b.vy*=.6;b.x+=s*60*dt}}   // 狙っていない穴には入らない
+ if(th&&b.vy>0&&b.y>=th.y&&b.y<th.y+10&&Math.abs(b.x-th.x)<ge(th)){capture(o,th);return}
+ if(b.y>H-10){if(th)rescue(o);else o.state='out'}}
+function stop(){cancelAnimationFrame(raf);const o=run;run=null;if(o&&!o.done){o.done=1;svEnd(o.b,o.fin?svPay(o.b,o.fin):0n,'パチンコ（離脱）',1)}}   // 離脱しても先に決まった結果は反映
+function pre(t){stop();vRe=null;$('#gt').textContent='ゴールデン・パチンコ';lv=svStop;
+ st(`<div class="svg2"><canvas id="svpc" class="svcv" width="${W}" height="${H}"></canvas><div class="sd"><div class="msg" id="m">${t||'発射ボタンで1発だけ打ちます。穴に入れば配当。高倍率の穴は入ってから倍率が回転して決まります'}</div><div class="lab" id="svpp">${kak>0?'★確変中（残り'+kak+'発）':'　'}</div>${svBetHtml()}<div class="chips" id="svps"><button class="btn" onclick="SVP.go()">発射！</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div></div></div>`);svBP();
+ raf=requestAnimationFrame(loop)}
+async function go(){if(svBusy||(run&&!run.done))return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
+ if(!$('#svpc')){svEnd(b,b,'パチンコ（取消）',1);return}
+ const bo=kak>0?1.4:1;if(kak>0)kak--;launchShot(b,bo);
+ ['#sbp','#svps'].forEach(s=>{const e=$(s);if(e)e.style.display='none'});msg(bo>1?'★確変！ 発射！':'発射！')}
+async function fin(o){if(o.done)return;o.done=1;const m=o.fin,pay=m?svPay(o.b,m):0n;if(m>=20)kak=3;
+ const t=m?`🎉 ×${m} 入賞！ +${svJ(pay-o.b,3)}${m>=20?'　★確変突入！（次の3発）':''}`:`💦 ハズレ -${svJ(o.b,3)}`;
+ if($('#m'))msg(t);const pp=$('#svpp');if(pp)pp.textContent=kak>0?'★確変中（残り'+kak+'発）':'　';
+ const k=$('#svps');if(k){k.innerHTML='<button class="btn" onclick="SVP.pre()">もう一度</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button>';k.style.display='flex'}
+ await svEnd(o.b,pay,'パチンコ')}
+function loop(ts){raf=requestAnimationFrame(loop);const cv=$('#svpc');if(!cv){cancelAnimationFrame(raf);return}
+ const dt=Math.min(.033,(ts-last)/1000||0);last=ts;T+=dt;for(const q of WIND)q.a+=q.w*dt;
+ kk+=((kak>0||(run&&!run.done&&run.boost>1)?1:0)-kk)*Math.min(1,dt*5);for(const p of pins){if(p.o)p.x=p.o.x+p.s*ge(p.o);p.h=Math.max(0,p.h-dt)}
+ const o=run;if(o&&!o.done){if(o.state==='fly')for(let i=0;i<6&&o.state==='fly';i++)phys(o,dt/6);
+  if(o.state==='roll'){o.t+=dt;if(o.t>=1.9)fin(o)}else if(o.state!=='fly')fin(o)}
+ for(const f of fx)f.t+=dt;fx=fx.filter(f=>f.t<1.1);fl=Math.max(0,fl-dt);draw(cv,ts)}
+function draw(cv,ts){const c=cv.getContext('2d'),o=run;
+ const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0c0a2a');g.addColorStop(1,'#2a0a2e');c.fillStyle=g;c.fillRect(0,0,W,H);
+ if(fl>0){c.fillStyle=`rgba(255,210,74,${fl*.35})`;c.fillRect(0,0,W,H)}
+ c.strokeStyle='#ffd24a';c.lineWidth=3;c.beginPath();c.arc(W-AR,AR,AR,-Math.PI/2,0);c.stroke();c.beginPath();c.moveTo(RL,H);c.lineTo(RL,86);c.stroke();
+ const og=c.createLinearGradient(0,H-26,0,H);og.addColorStop(0,'#0000');og.addColorStop(1,'#c0202855');c.fillStyle=og;c.fillRect(0,H-26,RL,26);
+ c.fillStyle='#ff8a8a';c.font='bold 10px "Courier New",monospace';c.textAlign='center';c.fillText('OUT  ハズレ',RL/2,H-6);
+ for(const h of HOLES){const col=h.m>=30?'#ff3b3b':h.m>=3?'#ffb020':'#4fd1c5',gg=ge(h);c.fillStyle='#000';c.fillRect(h.x-gg,h.y,gg*2,12);c.strokeStyle=col;c.lineWidth=2;c.strokeRect(h.x-gg,h.y,gg*2,12);
+  if(h.d){const th=dOpen()*1.25,gd=gg+3,dy=h.y-14;c.strokeStyle='#ff7a3b';c.lineWidth=4;c.lineCap='round';c.beginPath();c.moveTo(h.x-gd,dy);c.lineTo(h.x-gd+gd*Math.cos(th),dy-gd*Math.sin(th));c.moveTo(h.x+gd,dy);c.lineTo(h.x+gd-gd*Math.cos(th),dy-gd*Math.sin(th));c.stroke()}
+  c.fillStyle=col;c.font='bold 11px "Courier New",monospace';c.textAlign='center';c.fillText('\u00d7'+h.m,h.x,h.y+24)}
+ for(const q of WIND){c.strokeStyle='#7dd3fc';c.lineWidth=3;c.lineCap='round';c.shadowColor='#38bdf8';c.shadowBlur=8;c.beginPath();for(let k=0;k<4;k++){const an=q.a+k*Math.PI/2;c.moveTo(q.x,q.y);c.lineTo(q.x+Math.cos(an)*q.L,q.y+Math.sin(an)*q.L)}c.stroke();c.fillStyle='#ffd24a';c.beginPath();c.arc(q.x,q.y,3.5,0,7);c.fill();c.shadowBlur=0}
+ for(const p of pins){c.fillStyle=p.h>0?'#fff':'#ffd24a';c.shadowColor='#ffb300';c.shadowBlur=p.h>0?14:4;c.beginPath();c.arc(p.x,p.y,RP,0,7);c.fill()}
+ c.shadowBlur=0;const b=o&&o.ball&&!o.ball.hide&&!o.done?o.ball:null;
+ if(b){c.shadowColor='#fff';c.shadowBlur=8;const q=c.createRadialGradient(b.x-1.5,b.y-1.5,1,b.x,b.y,RB);q.addColorStop(0,'#fff');q.addColorStop(1,'#9aa3b5');c.fillStyle=q;c.beginPath();c.arc(b.x,b.y,RB,0,7);c.fill();c.shadowBlur=0}
+ c.fillStyle='#ffd24a';c.fillRect(W-22,H-8,18,4);
+ for(const f of fx){c.globalAlpha=Math.max(0,1-f.t/1.1);c.fillStyle=f.w?'#ffe27a':'#fff';c.font=(f.w?'bold 26px':'bold 16px')+' "Courier New",monospace';c.textAlign='center';c.fillText(f.s,f.x,f.y-f.t*40)}
+ c.globalAlpha=1;
+ if(kk>.02){c.fillStyle=`rgba(255,0,200,${.1*kk+.06*kk*Math.sin(T*8)})`;c.fillRect(0,0,W,H);c.fillStyle='#ff5ad1';c.font='bold 14px "Courier New",monospace';c.textAlign='center';c.fillText('\u2605 \u78ba\u5909 \u2605',RL/2,18)}
+ if(o&&o.state==='roll'&&!o.done){c.fillStyle='#0007';c.fillRect(0,0,W,H);const h=o.hit,L=[.5,1,2,4].map(f=>f*h.m),done=o.t>=1.5,s=1-Math.pow(1-Math.min(o.t/1.5,1),3),v=done?o.fin:L[(Math.floor(s*40)+(h.x|0))%L.length];
+  c.fillStyle=done?'#ffe27a':'#fff';c.shadowColor=done?'#ffb300':'#7dd3fc';c.shadowBlur=14;c.font='bold 30px "Courier New",monospace';c.textAlign='center';c.fillText('\u00d7'+Number(v.toFixed(1)),Math.max(50,Math.min(RL-50,h.x)),Math.max(50,h.y-70));c.shadowBlur=0}}
+addEventListener('keydown',e=>{if((e.code==='Space'||e.code==='Enter')&&$('#svpc')&&!/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(e.target.tagName)){e.preventDefault();if(!e.repeat&&$('#svps')&&$('#svps').style.display!=='none'&&!run)go()}});
+return{pre,go,stop,_t:{launchShot,phys,run:()=>run,HOLES}}})();
 /* ---- プラチナ・ルーレット（既存のルーレットと同じ盤面・マット。マットをタップして賭け金を置く） ---- */
 let sbets={},svRot=0,srBusy=0;
 const svTot=()=>Object.values(sbets).reduce((a,b)=>a+b,0n);
