@@ -193,6 +193,7 @@ body.vip .mat{border-color:#f6e27a;box-shadow:0 0 18px #d4af3788}
 body.svip{background:linear-gradient(180deg,#8fbdf0 0%,#dcecff 16%,#fff3c6 30%,#6a4a36 45%,#2e0a0a 57%,#7e1207 82%,#ff5a1f 100%) fixed}
 body.svip::before{background:radial-gradient(ellipse 60% 18% at 20% 8%,#fffc 0,transparent 70%),radial-gradient(ellipse 50% 14% at 78% 16%,#fffb 0,transparent 70%),radial-gradient(ellipse 70% 20% at 50% 100%,#ffb02e99,transparent 70%);animation:none}
 body.svip #vipfx{display:none!important}
+body.svoff #svfx,body.svoff .svban,body.svoff .svpt{display:none!important}body.svoff.svh::after,body.svoff.svx::after{display:none!important}body.svoff.svx #s2{animation:none!important}body.svoff.svip .btn::after{animation:none!important;opacity:0!important}
 #svfx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;display:none}body.svip #svfx{display:block}
 #svfx .rays{position:absolute;left:-60%;width:220%;top:-90vh;height:140vh;background:repeating-conic-gradient(from 0deg at 50% 100%,#ffffff40 0 4deg,transparent 4deg 13deg);transform-origin:50% 100%;animation:svry 14s ease-in-out infinite alternate;-webkit-mask-image:linear-gradient(#000 30%,transparent 95%);mask-image:linear-gradient(#000 30%,transparent 95%)}
 @keyframes svry{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
@@ -691,7 +692,7 @@ let pkT=0;const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let pkSes=null;
 function pkStk(bb){let m=40+R(21);const r=R(100);if(r<6)m=8+R(8);else if(r<12)m=120+R(181);return Math.max(1,Math.floor(bb*m))}   // 通常 ×40〜60／6%で金欠 ×8〜15／6%で大金持ち ×120〜300
 function pkPre(){pk=null;lv=null;const ss=pkSes?`<div class="lab">CPUの持ち金：${pkSes.cp.map(c=>`${c.nm.replace('CPU ','')} ${c.out?'脱落':c.stk.toLocaleString()}`).join(' ／ ')}</div>`:'';
-st(`<div class="msg" id="m">テキサスホールデム（ブラインド制）</div><div class="lab">ベット額＝BB（SBはその半分）。CPUの持ち金はBBの約50倍で、CPUごとにばらつきます（たまに金欠・大金持ち）<br>オールインになると手札を見せ合って勝負。持ち金がなくなったCPUは脱落します（ロビーに戻って入り直すと補充）</div>${ss}${betRow()}<button class="btn" onclick="pkGo()">ディール</button>`)}
+st(`<div class="msg" id="m">テキサスホールデム（ブラインド制）</div><div class="lab">考案者：こむ 様</div><div class="lab">ベット額＝BB（SBはその半分）。CPUの持ち金はBBの約50倍で、CPUごとにばらつきます（たまに金欠・大金持ち）<br>オールインになると手札を見せ合って勝負。持ち金がなくなったCPUは脱落します（ロビーに戻って入り直すと補充）</div>${ss}${betRow()}<button class="btn" onclick="pkGo()">ディール</button>`)}
 function pkGo(){if(pk&&!pk.settled)return;const bb=Math.floor(bet);if(!(bb>=1))return msg('1以上のBBを選んでください');if(bb>chips)return msg('チップが足りません');
   if(!pkSes)pkSes={cp:[1,2,3].map(i=>({id:'c'+i,nm:NM[i-1],stk:pkStk(bb),out:0})),dl:null};
   const cps=pkSes.cp.filter(c=>!c.out&&c.stk>0);
@@ -760,7 +761,7 @@ function pkR2(){const p=pk;if(!p)return;const G=p.G,r=G.res,end=G.st=='end',me=G
   if(p.ph=='me'&&G.st=='play'){const need=G.tb-me.bet,mx=me.bet+me.stk,mn=Math.min(G.tb+G.mr,mx);
     ctl=`<div class="chips"><button class="btn s d" onclick="pkAct('f')">フォールド</button>${need<=0?`<button class="btn s" onclick="pkAct('k')">チェック</button>`:`<button class="btn s" onclick="pkAct('c')">コール ${Math.min(need,me.stk).toLocaleString()}</button>`}</div>${mx>G.tb?`<div class="chips"><input type="number" id="rz" inputmode="numeric" min="${mn}" max="${mx}" step="1" value="${mn}" aria-label="レイズ後の合計ベット額"><button class="btn s" onclick="pkAct('r')">${G.tb?'レイズ':'ベット'}（合計）</button></div><div class="chips"><button class="btn s" onclick="opSet(${mn})">最小</button><button class="btn s" onclick="opSet(${G.tb+pot/2})">½ポット</button><button class="btn s" onclick="opSet(${G.tb+pot})">ポット</button><button class="btn s" onclick="opSet(${mx})">ALL IN</button></div>`:''}`}
   else if(p.done)ctl=pkSes.cp.every(c=>c.out)?`<div class="lab">CPUが全員脱落しました。ロビーに戻って入り直すと補充されます</div>`:`<div class="chips"><button class="btn" onclick="pkGo()">次のハンド</button><button class="btn s" onclick="pkPre()">ブラインド変更</button></div>`;
-  st(`<div class="pkt">${seat(1)}${seat(2)}${seat(3)}<div class="ctr"><div class="row">${bd.map((c,j)=>card(c,0,'b|'+j)).join('')}${'<div class="ph"></div>'.repeat(5-bd.length)}</div><div class="lab">ポット ${pot.toLocaleString()} ・ BB ${G.bb.toLocaleString()}</div><div class="msg" id="m">${p.msg}</div></div></div><div class="row">${me.hole.map((c,j)=>card(c,0,'c|me|'+j)).join('')}</div><div class="lab">あなた${mh?' — '+mh:''} ・ 🪙 ${ds(me,0).toLocaleString()}${me.ai&&!me.fold&&!end?' ALL IN':''}${me.fold&&!end?'（フォールド）':''}</div>${ctl}`)}
+  st(`<div class="pkt">${seat(1)}${seat(2)}${seat(3)}<div class="ctr"><div class="row">${bd.map((c,j)=>card(c,0,'b|'+j)).join('')}${'<div class="ph"></div>'.repeat(5-bd.length)}</div><div class="lab">ポット ${pot.toLocaleString()} ・ BB ${G.bb.toLocaleString()}</div><div class="msg" id="m">${p.msg}</div></div></div><div class="row">${me.hole.map((c,j)=>card(c,0,'c|me|'+j)).join('')}</div><div class="lab">あなた${mh?' — '+mh:''} ・ 🪙 ${ds(me,0).toLocaleString()}${me.ai&&!me.fold&&!end?' ALL IN':''}${me.fold&&!end?'（フォールド）':''}</div>${ctl}<div class="lab" style="opacity:.7">考案者：こむ 様</div>`)}
 /* スロット（ジャグラー風）：中段ラインのみ／引き込み4コマ／目押しあり */
 const JN=20,JSPD=26.7,JK='cj_slot';
 const JG_F7=1;   // GOGOランプが消えていても7を目押しで揃えられる引き込み範囲（コマ数）。0にすると実機同様、ランプ点灯中のみ揃う
@@ -1444,7 +1445,7 @@ async function svipRoom(t){svStop();svoClose();svoT++;if(!svOk())return svipGate
 <button class="gc" onclick="svrPre()"><i>🎡</i><b>プラチナ・ルーレット</b><span>ヨーロピアン・マットをタップして賭ける（数字×36）</span></button>
 <button class="gc" onclick="svoLobby()"><i>🌐</i><b>SVIPオンライン</b><span>ショーダウン（最大6人）・SVIP限定・通信料1％</span></button></div>
 <div class="lab" style="margin-top:12px">賭けは預金から引き落とされ、払い戻しは預金に入金されます。1回の賭けは 1京〜9999無量大数。<br>会費 ${svJ(BigInt(SDUE))}チップ／日（毎日 UTC 9:00＝日本時間 18:00 に手持ちから差し引き）　次回 ${new Date(sNext()).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
-<div class="chips"><button class="btn s" onclick="svipLeave()">SVIP会員を退会する</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`);
+<div class="chips"><button class="btn s" id="svft" onclick="svFxTog()">${svOff()?'✨ エフェクト：OFF':'✨ エフェクト：ON'}</button><button class="btn s" onclick="svipLeave()">SVIP会員を退会する</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`);
   try{await svFlush();await svSync()}catch(e){const m=$('#m');if(m&&$('#gt').textContent=='SVIPルーム')m.textContent=e.message}
   const d=$('#sdp');if(d&&$('#gt').textContent=='SVIPルーム'){d.textContent=svJ(svD,5);const c=$('#sdc');if(c)c.textContent=svC(svD)}}
 /* ---- ブラックホール・クラッシュ ---- */
@@ -1480,7 +1481,7 @@ const mf=k=>Math.min(CAP,.2*Math.pow(1.05,k)),dm=m=>Math.floor(m*100+1e-6)/100; 
 const off=(o,i,ts)=>o.mv[i]?Math.sin(ts/1000*o.mv[i].w+o.mv[i].p)*SW*.85:0;   // 動く階段の横ずれ（30段目以降にときどき出る）
 function ens(o,k){while(o.dirs.length<k){const d=R(2)?1:-1;o.dirs.push(d);o.cols.push(o.cols[o.cols.length-1]+d);const i=o.cols.length-1;
   o.mv[i]=i>=30&&R(100)<22?{p:R(628)/100,w:3.4+R(160)/100}:null;
-  o.ky[i]=!o.mv[i]&&i>=5&&R(100)<20?KEYS[R(KEYS.length)]:null}}   // 5段目以降、約20%がキー入力の段（動く階段とは重ならない）
+  o.ky[i]=!o.mv[i]&&i>=5&&R(100)<10?KEYS[R(KEYS.length)]:null}}   // 5段目以降、約10%がキー入力の段（動く階段とは重ならない）
 function stop(){cancelAnimationFrame(raf);const o=S;S=null;if(o&&!o.done){o.done=1;svEnd(o.b,0n,'ラダー（離脱）',1)}}
 function pre(t){stop();vRe=null;$('#gt').textContent='堕天のラダー';lv=svStop;
   if(mob()){st(`<div class="msg" id="m">📵 スマホではプレイできません</div><div class="lab">堕天のラダーはキーボード操作が必要です（←→ / A・D と、画面に表示されるキー）。パソコンで遊んでください</div><div class="chips"><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`);return}
@@ -1723,7 +1724,9 @@ SVT.forEach(x=>VT.add(x));
 setTimeout(()=>{const g=$('#gt');if(!g)return;const f=()=>{const s2=$('#s2');const on=SVT.has(g.textContent)&&!!s2&&s2.classList.contains('on');document.body.classList.toggle('svip',on);document.body.classList.toggle('svtop',on&&g.textContent=='SVIPルーム')};new MutationObserver(f).observe(g,{childList:true,characterData:true,subtree:true});if($('#s2'))new MutationObserver(f).observe($('#s2'),{attributes:true,attributeFilter:['class']});f()},0);
 
 /* ---- 天国と地獄の演出 ---- */
-function svFx(win){if(win==null||!document.body.classList.contains('svip'))return;const b=document.body;b.classList.remove('svh','svx');void b.offsetWidth;b.classList.add(win?'svh':'svx');
+const svOff=()=>{try{return localStorage.getItem('cj_svfx_off')=='1'}catch(e){return false}};
+function svFxTog(){const v=!svOff();try{localStorage.setItem('cj_svfx_off',v?'1':'0')}catch(e){}document.body.classList.toggle('svoff',v);const b=$('#svft');if(b)b.textContent=v?'✨ エフェクト：OFF':'✨ エフェクト：ON'}
+function svFx(win){if(win==null||svOff()||!document.body.classList.contains('svip'))return;const b=document.body;b.classList.remove('svh','svx');void b.offsetWidth;b.classList.add(win?'svh':'svx');
   const ban=document.createElement('div');ban.className='svban '+(win?'h':'x');ban.textContent=win?'☁ 天 国 ☁':'🔥 地 獄 🔥';document.body.appendChild(ban);setTimeout(()=>ban.remove(),2600);
   const A=win?['😇','👼','✨','🪽','☁️','🕊️']:['🔥','👹','💀','😈','🔥','⛓️'];
   for(let i=0;i<30;i++){const e=document.createElement('span');e.className='svpt '+(win?'h':'x');e.textContent=A[R(A.length)];e.style.cssText=`left:${R(100)}vw;animation-delay:${R(900)}ms;font-size:${20+R(26)}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3700)}
@@ -1737,5 +1740,5 @@ function svfxBuild(){if($('#svfx'))return;const d=document.createElement('div');
   h+='</div>';
   for(let i=0;i<14;i++)h+=`<b class="em" style="left:${R(98)}%;--d:${(2.4+R(30)/10).toFixed(1)}s;--dl:-${(R(40)/10).toFixed(1)}s"></b>`;
   d.innerHTML=h;document.body.appendChild(d)}
-setTimeout(()=>{const f=()=>{if(document.body.classList.contains('svip'))svfxBuild()};new MutationObserver(f).observe(document.body,{attributes:true,attributeFilter:['class']});f()},0);
+setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(document.body.classList.contains('svip')&&!svOff())svfxBuild()};new MutationObserver(f).observe(document.body,{attributes:true,attributeFilter:['class']});f()},0);
 </script></body></html>
