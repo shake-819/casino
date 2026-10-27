@@ -1443,8 +1443,8 @@ async function svipRoom(t){svStop();svoClose();svoT++;if(!svOk())return svipGate
 <button class="gc" onclick="SVL.pre()"><i>🧗</i><b>堕天のラダー</b><span>実力勝負・キー入力の段あり・PC専用（最大×100）</span></button>
 <button class="gc" onclick="SVP.pre()"><i>🎰</i><b>ゴールデン・パチンコ</b><span>1発ずつ発射・穴に入れば配当・風車と開閉扉（最大×120）</span></button>
 <button class="gc" onclick="svrPre()"><i>🎡</i><b>プラチナ・ルーレット</b><span>ヨーロピアン・マットをタップして賭ける（数字×36）</span></button>
-<button class="gc" onclick="svkPre()"><i>🔫</i><b>SVIPロシアンルーレット</b><span>HP5の撃ち合い・勝てば×1.9・アイテム5種（注射器・虫眼鏡・リバース・手錠・リロード）</span></button>
-<button class="gc" onclick="svoLobby()"><i>🌐</i><b>SVIPオンライン</b><span>ショーダウン（最大6人）・SVIP限定・通信料1％</span></button></div>
+<button class="gc" onclick="svkPre()"><i>🔫</i><b>SVIPロシアンルーレット</b><span>HP5の撃ち合い・勝てば×1.9・アイテム5種（注射器・虫眼鏡・リバース・スキップ・リロード）</span></button>
+<button class="gc" onclick="svoLobby()"><i>🌐</i><b>SVIPオンライン</b><span>ショーダウン（最大6人）・ロシアンルーレット（1対1）・SVIP限定・通信料1％</span></button></div>
 <div class="lab" style="margin-top:12px">賭けは預金から引き落とされ、払い戻しは預金に入金されます。1回の賭けは 1京〜9999無量大数。<br>会費 ${svJ(BigInt(SDUE))}チップ／日（毎日 UTC 9:00＝日本時間 18:00 に手持ちから差し引き）　次回 ${new Date(sNext()).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
 <div class="chips"><button class="btn s" id="svft" onclick="svFxTog()">${svOff()?'✨ エフェクト：OFF':'✨ エフェクト：ON'}</button><button class="btn s" onclick="svipLeave()">SVIP会員を退会する</button><button class="btn s d" onclick="vipRoom()">← VIPルーム</button></div>`);
   try{await svFlush();await svSync()}catch(e){const m=$('#m');if(m&&$('#gt').textContent=='SVIPルーム')m.textContent=e.message}
@@ -1651,14 +1651,14 @@ async function svrSpin(){if(srBusy||svBusy)return;const t=svTot();if(!t)return m
    全員が賭け金を預金から出して参加。各自に1枚配り、15秒以内に「勝負」か「降り（賭けの半分を失う）」を選ぶ。
    勝負した人の中で一番強いカード（A最強・同じ数字は♠♥♦♣の順）が全員の賭けを総取り。稼いだ分の1％が通信料 */
 let svL=null,svTb=[],sol=null,svoT=0;
-const svoClose=()=>{if(sol){const o=sol;sol=null;clearTimeout(o.tm);clearTimeout(o.wd);clearInterval(o.cd);oBye(o.c)}if(svL){oBye(svL);svL=null}svTb=[]};
+const svoClose=()=>{if(sol){const o=sol;sol=null;clearInterval(o.iv);clearTimeout(o.tm);clearTimeout(o.wd);clearInterval(o.cd);oBye(o.c)}if(svL){oBye(svL);svL=null}svTb=[]};
 const svoStr=c=>c.r*4+(3-c.s);
-function svoOut(){const o=sol;if(o&&!o.fin&&!o.settled){
+function svoOut(){const o=sol;if(o&&o.g=='sk')return skOut();if(o&&!o.fin&&!o.settled){
     if(o.host){oSend(o.c,'sx',{});if(o.paid&&!o.ref){o.ref=1;svGive(o.b)}}
     else{oSend(o.c,'sl',{pid:HID});if(o.ph=='wait'&&o.paid&&!o.ref){o.ref=1;svGive(o.b)}}}
   svoClose();svoT++}
 function svoBack(){svoOut();lv=null;svipRoom()}
-const svoTbl=()=>{const o=sol;if(!o||!o.host||!svL)return;try{svL.track({t:'tbl',id:o.id,hid:HID,nm:oName(),b:o.b.toString(),n:o.ps.length,m:6,pl:o.ph=='wait'?0:1})}catch(e){}};
+const svoTbl=()=>{const o=sol;if(!o||!o.host||!svL)return;try{svL.track({t:'tbl',g:o.g||'sd',id:o.id,hid:HID,nm:oName(),b:o.b.toString(),n:o.g=='sk'?(o.guest?2:1):o.ps.length,m:o.g=='sk'?2:6,pl:o.g=='sk'?(o.K?1:0):(o.ph=='wait'?0:1)})}catch(e){}};
 async function svoLobby(note){if(!svOk())return svipMenu();svoClose();const T=++svoT;vRe=null;lv=svoOut;$('#gt').textContent='SVIPオンライン';
   st(`<div class="msg" id="m">${note||'接続中…'}</div>`);
   try{await oLoad();if(T!=svoT)return;svL=await oCh('cj-svip-lobby',{},p=>{svTb=Object.values(p).flat().filter(x=>x&&x.t=='tbl');if(!sol&&T==svoT)svoRefresh()})}
@@ -1666,9 +1666,10 @@ async function svoLobby(note){if(!svOk())return svipMenu();svoClose();const T=++
   if(T==svoT){try{await svFlush();await svSync()}catch(e){}svoList(note)}}
 function svoRefresh(){const a=document.activeElement;if(a&&a.tagName=='INPUT'&&$('#stage').contains(a)){svoDirty=1;return}svoList()}
 let svoDirty=0;addEventListener('focusout',()=>{if(!svoDirty)return;setTimeout(()=>{const a=document.activeElement;if(svoDirty&&!sol&&svL&&!(a&&a.tagName=='INPUT'))svoList()},250)});
-function svoList(note){svoDirty=0;const rows=svTb.map(x=>`<div class="hand" style="margin:6px 0"><div class="lab">🃏 ショーダウン　ホスト：${vEsc(x.nm)}　賭け <b>${svJ(x.b,3)}</b>　${x.n}/${x.m}人${x.pl?'（進行中）':''}</div><button class="btn s" onclick="svoJoin('${vEsc(x.id)}')"${x.n>=x.m||x.pl?' disabled':''}>参加（賭けを預金から引き落とし）</button></div>`).join('')||'<div class="lab">開催中のテーブルはありません。作ってみよう</div>';
+function svoList(note){svoDirty=0;const rows=svTb.map(x=>x.g=='sk'?`<div class="hand" style="margin:6px 0"><div class="lab">🔫 ロシアンルーレット　ホスト：${vEsc(x.nm)}　賭け <b>${svJ(x.b,3)}</b>　${x.n}/${x.m}人${x.pl?'（進行中）':''}</div><button class="btn s" onclick="svkJoin('${vEsc(x.id)}')"${x.n>=x.m||x.pl?' disabled':''}>参加（賭けを預金から引き落とし）</button></div>`:`<div class="hand" style="margin:6px 0"><div class="lab">🃏 ショーダウン　ホスト：${vEsc(x.nm)}　賭け <b>${svJ(x.b,3)}</b>　${x.n}/${x.m}人${x.pl?'（進行中）':''}</div><button class="btn s" onclick="svoJoin('${vEsc(x.id)}')"${x.n>=x.m||x.pl?' disabled':''}>参加（賭けを預金から引き落とし）</button></div>`).join('')||'<div class="lab">開催中のテーブルはありません。作ってみよう</div>';
   st(`<div class="msg" id="m">${note||'💎 SVIPオンライン（SVIP限定）'}</div><div class="lab">ショーダウン：1人1枚配って「勝負／降り」。勝負した中で一番強いカードが総取り。降りると賭けの半分を失う。通信料：稼いだ分の<b>1％</b></div>
-<div class="lab">名前 <input type="text" id="pn" maxlength="10" value="${vEsc(oName())}" onchange="oSetName(this.value)" style="width:min(140px,40vw);padding:8px 10px;font-size:16px;text-align:center;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);color:#fff"></div>${rows}<div class="lab" style="margin-top:14px">テーブルを作る（賭け額）</div>${svBetHtml()}<div class="chips"><button class="btn" onclick="svoMake()">テーブルを作る</button><button class="btn s d" onclick="svoBack()">← SVIPルーム</button></div>`);svBP()}
+<div class="lab">🔫 ロシアンルーレット：1対1・HP5・アイテム5種（💉注射器・🔍虫眼鏡・🔄リバース・⏭️スキップ・♻️リロード）。勝てば賭けの2倍（通信料：勝ち分の1％）</div>
+<div class="lab">名前 <input type="text" id="pn" maxlength="10" value="${vEsc(oName())}" onchange="oSetName(this.value)" style="width:min(140px,40vw);padding:8px 10px;font-size:16px;text-align:center;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);color:#fff"></div>${rows}<div class="lab" style="margin-top:14px">テーブルを作る（賭け額）</div>${svBetHtml()}<div class="chips"><button class="btn" onclick="svoMake()">🃏 ショーダウンを作る</button><button class="btn" onclick="svkMake()">🔫 ロシアンルーレットを作る</button><button class="btn s d" onclick="svoBack()">← SVIPルーム</button></div>`);svBP()}
 async function svoMake(){if(svBusy)return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
   const id=HID.slice(0,6)+Date.now().toString(36),T=svoT,o=sol={host:1,id,b,ps:[{id:HID,nm:oName(),card:null,dec:null}],ph:'wait',q:0,paid:1,fin:0};
   try{o.c=await oCh('cj-svt-'+id,SVH);if(sol!=o||T!=svoT){oBye(o.c);if(!o.ref){o.ref=1;svGive(b)}return}o.c.track({});lv=svoOut;svoTbl();svoSync()}
@@ -1725,41 +1726,132 @@ SVT.forEach(x=>VT.add(x));
 setTimeout(()=>{const g=$('#gt');if(!g)return;const f=()=>{const s2=$('#s2');const on=SVT.has(g.textContent)&&!!s2&&s2.classList.contains('on');document.body.classList.toggle('svip',on);document.body.classList.toggle('svtop',on&&g.textContent=='SVIPルーム')};new MutationObserver(f).observe(g,{childList:true,characterData:true,subtree:true});if($('#s2'))new MutationObserver(f).observe($('#s2'),{attributes:true,attributeFilter:['class']});f()},0);
 
 /* ---- SVIP限定：アイテム（自分の番が終わるたびに0〜2個。使っても番は終わらない） ---- */
-const SVK_I={syr:['💉','注射器','HPを1回復'],lens:['🔍','虫眼鏡','いまの弾を見る'],rev:['🔄','リバース','もう1回自分の番'],cuff:['⛓️','手錠','相手は次の番アイテム使用不可'],rel:['♻️','リロード','弾を全部抜いて再装填']},SVK_K=Object.keys(SVK_I),SVK_MAX=4;
+const SVK_I={syr:['💉','注射器','HPを1回復'],lens:['🔍','虫眼鏡','いまの弾を見る'],rev:['🔄','リバース','もう1回自分の番'],skip:['⏭️','スキップ','いまの弾を1発飛ばす'],rel:['♻️','リロード','弾を全部抜いて再装填']},SVK_K=Object.keys(SVK_I),SVK_MAX=4;
 function svkTurn(v,w,nx){v.pk=null;if(nx==w)return[nx,''];   // 撃ったあとも自分の番（空砲を自分に撃った）なら何も起きない
   if(v.ex[w]>0){v.ex[w]--;return[w,` ／ 🔄 リバース！ もう一度${w?'CPU':'あなた'}の番`]}
-  v.lk[w]=0;if(w)v.cu=0;   // 手錠は、ロックされた側の番が終わると解ける
+  if(w)v.cu=0;
   const g=[],n=R(3);for(let i=0;i<n&&v.it[w].length<SVK_MAX;i++){const k=SVK_K[R(SVK_K.length)];v.it[w].push(k);g.push(SVK_I[k][0])}
   return[nx,g.length?` ／ 🎁 ${w?'CPU':'あなた'}にアイテム ${g.join('')}`:'']}
 function svkEff(v,s,k){const me=!s,nm=me?'あなた':'CPU';
   if(k=='syr'){v.h[s]=Math.min(5,v.h[s]+1);return`💉 ${nm}のHPが1回復`}
   if(k=='lens'){v.pk=v.m[0]?1:0;return me?`🔍 いまの弾は ${v.pk?'💥 実弾':'💨 空砲'}！`:'🔍 CPUがいまの弾を確認した'}
   if(k=='rev'){v.ex[s]++;return`🔄 ${nm}は、この番のあともう一度自分の番`}
-  if(k=='cuff'){v.lk[1-s]=1;return`⛓️ ${me?'CPU':'あなた'}は次の番、アイテムを使えない`}
+  if(k=='skip'){const lv=v.m.shift();lv?v.L--:v.B--;v.pk=null;let t=`⏭️ ${nm}が弾を1発飛ばした（${lv?'💥 実弾':'💨 空砲'}だった）`;if(!v.m.length){vrLoad();t+=` ／ 再装填：実弾${v.L}・空砲${v.B}`}return t}
   if(k=='rel'){vrLoad();return`♻️ リロード！ 新しい弾倉：実弾${v.L}・空砲${v.B}`}}
 function svkBar(i){const v=vr;if(!v||!v.sv)return'';
-  if(i)return`<div class="lab">🎒 CPUのアイテム：${v.it[1].map(k=>SVK_I[k][0]).join(' ')||'なし'}${v.lk[1]?' ／ ⛓️ ロック中':''}</div>`;
-  const can=!v.t&&!v.bz&&!v.lk[0];
-  return`<div class="lab">🎒 あなたのアイテム（最大${SVK_MAX}）${v.lk[0]?' ／ ⛓️ 手錠でロック中（この番は使えません）':''}${v.pk!=null&&!v.t?` ／ 🔍 いまの弾：${v.pk?'💥 実弾':'💨 空砲'}`:''}</div><div class="chips">${v.it[0].map((k,j)=>`<button class="btn s" title="${SVK_I[k][2]}" onclick="svkUse(${j})"${can&&!(k=='syr'&&v.h[0]>=5)?'':' disabled'}>${SVK_I[k][0]} ${SVK_I[k][1]}</button>`).join('')||'<span class="lab">なし</span>'}</div>`}
-function svkUse(j){const v=vr;if(!v||!v.sv||v.t||v.bz||v.lk[0])return;const k=v.it[0][j];if(!k)return;if(k=='syr'&&v.h[0]>=5)return msg('HPは満タンです');
+  if(i)return`<div class="lab">🎒 CPUのアイテム：${v.it[1].map(k=>SVK_I[k][0]).join(' ')||'なし'}</div>`;
+  const can=!v.t&&!v.bz;
+  return`<div class="lab">🎒 あなたのアイテム（最大${SVK_MAX}）${v.pk!=null&&!v.t?` ／ 🔍 いまの弾：${v.pk?'💥 実弾':'💨 空砲'}`:''}</div><div class="chips">${v.it[0].map((k,j)=>`<button class="btn s" title="${SVK_I[k][2]}" onclick="svkUse(${j})"${can&&!(k=='syr'&&v.h[0]>=5)?'':' disabled'}>${SVK_I[k][0]} ${SVK_I[k][1]}</button>`).join('')||'<span class="lab">なし</span>'}</div>`}
+function svkUse(j){const v=vr;if(!v||!v.sv||v.t||v.bz)return;const k=v.it[0][j];if(!k)return;if(k=='syr'&&v.h[0]>=5)return msg('HPは満タンです');
   v.it[0].splice(j,1);vrR(svkEff(v,0,k))}
-function svkCpuItem(v){if(!v||!v.sv||v.lk[1]||v.cu>=3)return false;const it=v.it[1],has=k=>it.indexOf(k),id=v.id,
+function svkCpuItem(v){if(!v||!v.sv||v.cu>=3)return false;const it=v.it[1],has=k=>it.indexOf(k),id=v.id,
     use=k=>{it.splice(has(k),1);v.cu++;vrR('CPUがアイテムを使った… '+svkEff(v,1,k));setTimeout(()=>{if(vr&&vr.id==id)vrCpu()},1300);return true};
   if(has('syr')>=0&&v.h[1]<5&&(v.h[1]<=3||!R(3)))return use('syr');
-  if(has('cuff')>=0&&v.it[0].length&&R(2))return use('cuff');
   if(has('lens')>=0&&v.pk==null)return use('lens');
   if(has('rel')>=0&&v.pk==null&&v.h[1]<=2&&v.L/v.m.length>=.5)return use('rel');
   if(has('rev')>=0&&v.pk===1)return use('rev');
+  if(has('skip')>=0&&v.pk==null&&v.m.length>1&&v.h[1]<=2&&v.L/v.m.length>=.4&&R(2))return use('skip');
   return false}
 /* ---- SVIPロシアンルーレット：VIPのロシアンルーレット（HP5の撃ち合い）をそのまま使い、賭けと精算だけ預金で行う ---- */
 function svkPre(t){svStop();vRe=null;vr=null;$('#gt').textContent='SVIPロシアンルーレット';lv=svStop;
-  st(`<div class="msg" id="m">${t||'HP5ずつの撃ち合い。弾倉には1〜8発が入っている'}</div><div class="lab">自分に撃つ：空砲ならもう一度撃てる／実弾なら自分のHP-1<br>相手に撃つ：実弾なら相手のHP-1／空砲だと手番交代<br>先にHPが0になったら負け。勝てば賭け金の1.9倍（途中で離れると負け）<br><b>🎒 アイテム</b>：自分の番が終わるたびに0〜2個がスロット（最大4）へ。使っても番は終わりません<br>💉注射器＝HP+1　🔍虫眼鏡＝いまの弾を見る　🔄リバース＝もう1回自分の番　⛓️手錠＝相手は次の番アイテム使用不可　♻️リロード＝弾を全部抜いて再装填</div>${svBetHtml()}<div class="chips"><button class="btn" onclick="svkGo()">開始</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`);svBP()}
+  st(`<div class="msg" id="m">${t||'HP5ずつの撃ち合い。弾倉には1〜8発が入っている'}</div><div class="lab">自分に撃つ：空砲ならもう一度撃てる／実弾なら自分のHP-1<br>相手に撃つ：実弾なら相手のHP-1／空砲だと手番交代<br>先にHPが0になったら負け。勝てば賭け金の1.9倍（途中で離れると負け）<br><b>🎒 アイテム</b>：自分の番が終わるたびに0〜2個がスロット（最大4）へ。使っても番は終わりません<br>💉注射器＝HP+1　🔍虫眼鏡＝いまの弾を見る　🔄リバース＝もう1回自分の番　⏭️スキップ＝いまの弾を1発飛ばす　♻️リロード＝弾を全部抜いて再装填</div>${svBetHtml()}<div class="chips"><button class="btn" onclick="svkGo()">開始</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`);svBP()}
 async function svkGo(){if(svBusy||vr)return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
   if(!$('.svbet')){svEnd(b,b,'ロシアン（取消）',1);return}   // 開始前に画面を離れていたら、賭けを返す
-  vr={id:++vrId,b,h:[5,5],t:0,bz:0,ang:90,a0:90,hit:null,sv:1,it:[[],[]],lk:[0,0],ex:[0,0],cu:0,pk:null};lv=svStop;vrLoad();vrR(`開始！ 弾倉に実弾${vr.L}・空砲${vr.B}。あなたの番です`)}
+  vr={id:++vrId,b,h:[5,5],t:0,bz:0,ang:90,a0:90,hit:null,sv:1,it:[[],[]],ex:[0,0],cu:0,pk:null};lv=svStop;vrLoad();vrR(`開始！ 弾倉に実弾${vr.L}・空砲${vr.B}。あなたの番です`)}
 function svkEnd(win,t){const b=vr.b,pay=win?svPay(b,1.9):0n;vr=null;lv=null;
   st(`<div class="msg" id="m">${win?`🏆 勝利！ +${svJ(pay-b,3)}`:`💀 敗北… -${svJ(b,3)}`}</div><div class="lab">${t}</div><div class="chips"><button class="btn" onclick="svkPre()">もう一度</button><button class="btn s d" onclick="svipRoom()">← SVIPルーム</button></div>`);
   svEnd(b,pay,'ロシアンルーレット')}
+
+/* ---- SVIPオンライン：ロシアンルーレット（1対1・アイテム／ホスト進行型・預金で賭ける） 席0＝ホスト、席1＝参加者 ---- */
+const skLoad=H=>{const n=R(8)+1,l=1+R(n),m=[...Array(n)].map((_,i)=>i<l?1:0);shuf(m);H.m=m;H.L=l;H.B=n-l;H.n=n;H.pk=[null,null]},
+  skSnap=H=>({q:H.q,h:[...H.h],t:H.t,L:H.L,B:H.B,n:H.n,rem:H.m.length,its:H.it.map(x=>[...x])}),
+  skPres=o=>p=>{if(sol==o)o.keys=new Set(Object.keys(p))};
+async function svkMake(){if(svBusy)return;svBusy=1;msg('預金から引き落とし中…');const b=await svStart();svBusy=0;if(!b)return;
+  const id=HID.slice(0,6)+Date.now().toString(36),T=svoT,o=sol={g:'sk',host:1,id,b,paid:1,fin:0,guest:null,keys:new Set()};
+  try{o.c=await oCh('cj-svk-'+id,SVH,skPres(o));if(sol!=o||T!=svoT){oBye(o.c);if(!o.ref){o.ref=1;svGive(b)}return}o.c.track({});lv=svoOut;o.iv=setInterval(skWatch,3000);svoTbl();skWait()}
+  catch(e){if(sol==o)sol=null;if(!o.ref){o.ref=1;svGive(b)}svoLobby('テーブルを作れませんでした（賭けは返却されました）')}}
+async function svkJoin(id){if(svBusy)return;const x=svTb.find(t=>t.id==id);if(!x||x.n>=x.m||x.pl)return msg('参加できません');if(x.hid==HID)return msg('自分が作ったテーブルです');
+  svBusy=1;msg('預金から引き落とし中…');const b=sBI(x.b);
+  try{await svSync();if(svD<b){svBusy=0;return msg('預金が足りません（必要 '+svJ(b,3)+'）')}await svTake(b)}catch(e){svBusy=0;return msg(e.message)}svBusy=0;
+  const T=svoT,o=sol={g:'sk',host:0,id,b,paid:1,fin:0,in:0,hid:x.hid,keys:new Set()};
+  try{o.c=await oCh('cj-svk-'+id,SVH,skPres(o));if(sol!=o||T!=svoT){oBye(o.c);if(!o.ref){o.ref=1;svGive(b)}return}o.c.track({});lv=svoOut;oSend(o.c,'kj',{pid:HID,nm:oName()});
+    o.tm=setTimeout(()=>{if(sol==o&&!o.in)svoFail(o,'応答がありません')},7000);o.iv=setInterval(skWatch,3000);st(`<div class="msg" id="m">参加しています…</div>`)}
+  catch(e){svoFail(o,'参加できませんでした')}}
+function skWait(){const o=sol;if(!o||o.g!='sk'||o.K||o.pr)return;
+  st(`<div class="msg" id="m">${o.host?(o.guest?vEsc(o.guest.nm)+' が参加しました':'対戦相手を待っています…'):'参加しました。ホストの開始を待っています…'}</div><div class="lab">賭け <b class="svj">${svJ(o.b,4)}</b><small class="svc">${svC(o.b)}</small>　勝てば ${svJ(o.b*2n-o.b/100n,3)}（通信料：勝ち分の1％）</div><div class="chips">${o.host&&o.guest?`<button class="btn" onclick="skStart()">ゲーム開始</button>`:''}<button class="btn s d" onclick="svoBack()">やめる（賭けは返却）</button></div>`)}
+function skOut(){const o=sol;if(o&&!o.settled){
+    if(o.pr&&!o.pr.fin){oSend(o.c,'kq',{});o.settled=1;svEnd(o.b,0n,'ロシアンルーレット（途中退出）',1)}   // 試合中に抜けたら負け
+    else if(!o.pr){oSend(o.c,o.host?'kx':'kl',{pid:HID});if(o.paid&&!o.ref){o.ref=1;svGive(o.b)}}}
+  svoClose();svoT++}
+function skStart(){const o=sol;if(!o||!o.host||o.g!='sk'||o.K||!o.guest)return;
+  const H=o.K={t:R(2),h:[5,5],it:[[],[]],ex:[0,0],busy:0,q:0,pend:null,over:0};skLoad(H);
+  const d={h:[5,5],t:H.t,L:H.L,B:H.B,n:H.n,rem:H.m.length,hn:oName(),gn:o.guest.nm};oSend(o.c,'kst',d);skInit(d,0);svoTbl()}
+function skInit(d,me){const o=sol;o.pr={me,on:me?d.hn:d.gn,h:[...d.h],t:d.t,L:d.L,B:d.B,n:d.n,rem:d.rem,it:[[],[]],pk:null,ang:90,a0:90,hit:null,bz:0,sid:0,fin:0,q:[],qh:0,an:0};
+  skR(`開始！ 弾倉に実弾${d.L}・空砲${d.B}。${d.t==me?'あなたの番です':'相手の番です'}`)}
+function skR(t,spin){const o=sol,v=o&&o.pr;if(!v)return;const me=v.me,op=1-me,my=v.t==me&&!v.bz&&!v.an&&!v.fin,hit=v.hit;v.hit=null;
+  const hd=(rel,n)=>{const s=rel?op:me;return`<div class="hand${v.t==s?' w':''}${hit===rel?' hit':''}" data-h="${rel}"><div class="lab">${n}</div><div class="row" style="min-height:0;font-size:28px">${vrHP(v.h[s])}</div></div>`},
+  bar=rel=>rel?`<div class="lab">🎒 ${vEsc(v.on)}のアイテム：${v.it[op].map(k=>SVK_I[k][0]).join(' ')||'なし'}</div>`:`<div class="lab">🎒 あなたのアイテム（最大${SVK_MAX}）${v.pk!=null&&v.t==me?` ／ 🔍 いまの弾：${v.pk?'💥 実弾':'💨 空砲'}`:''}</div><div class="chips">${v.it[me].map((k,j)=>`<button class="btn s" title="${SVK_I[k][2]}" onclick="skUse(${j})"${my&&!(k=='syr'&&v.h[me]>=5)?'':' disabled'}>${SVK_I[k][0]} ${SVK_I[k][1]}</button>`).join('')||'<span class="lab">なし</span>'}</div>`;
+  st(`<div class="vrw">${vrAmmo({L:v.L,B:v.B,n:v.n,m:{length:v.rem}})}${hd(1,vEsc(v.on)+'（相手）')}${bar(1)}${vrGun(spin?v.a0:v.ang)}<div class="msg" id="m">${t}</div><div class="lab">弾倉：実弾 ${v.L} ・ 空砲 ${v.B}（残り ${v.rem} 発）　通信料：勝ち分の1％</div>${hd(0,'あなた')}${bar(0)}<div class="chips"><button class="btn" onclick="skFire('s')"${my?'':' disabled'}>自分に撃つ</button><button class="btn d" onclick="skFire('o')"${my?'':' disabled'}>相手に撃つ</button></div></div>`);
+  if(spin)setTimeout(()=>{const g=$('#gun');if(g&&sol==o&&o.pr==v){g.style.transition='transform 1.1s cubic-bezier(.2,.8,.2,1)';g.style.transform=`rotate(${v.ang}deg)`}},40)}
+function skAct(ty,a){const o=sol,v=o&&o.pr;if(!v||v.fin||v.t!=v.me||v.bz||v.an)return;v.bz=1;document.querySelectorAll('.vrw .btn').forEach(b=>b.disabled=true);
+  if(o.host)skExec(0,ty,a);else{oSend(o.c,ty=='i'?'kuse':'kfire',ty=='i'?{i:a}:{k:a});const q0=v.qh;setTimeout(()=>{if(sol==o&&!v.fin&&v.qh==q0&&!v.an&&!v.q.length&&v.bz){v.bz=0;skR('応答がありませんでした。もう一度選んでください')}},7000)}}
+const skFire=k=>skAct('f',k);
+function skUse(j){const v=sol&&sol.pr;if(!v)return;const k=v.it[v.me][j];if(!k)return;if(k=='syr'&&v.h[v.me]>=5)return msg('HPは満タンです');skAct('i',j)}
+function skExec(w,ty,a){const o=sol,H=o&&o.K;if(!H||H.over||H.t!=w)return;if(H.busy){H.pend=[ty,a];return}H.busy=1;
+  const rel=ms=>setTimeout(()=>{if(sol!=o)return;H.busy=0;if(H.pend){const p=H.pend;H.pend=null;if(H.t==1)skExec(1,p[0],p[1])}},ms);let d;
+  if(ty=='i'){const j=+a,key=H.it[w][j];if(!key||(key=='syr'&&H.h[w]>=5)){H.busy=0;return oSend(o.c,'ksync',skSnap(H))}
+    H.it[w].splice(j,1);let rl=0,lv=null,sk=null;
+    if(key=='syr')H.h[w]=Math.min(5,H.h[w]+1);else if(key=='lens'){H.pk[w]=H.m[0]?1:0;lv=H.pk[w]}else if(key=='rev')H.ex[w]++;else if(key=='rel'){skLoad(H);rl=1}
+    else{const l=H.m.shift();l?H.L--:H.B--;sk=l?1:0;H.pk=[null,null];if(!H.m.length){skLoad(H);rl=1}}
+    d={q:++H.q,ty:'i',w,it:key,h:[...H.h],L:H.L,B:H.B,n:H.n,rem:H.m.length,rl,lv,sk,its:H.it.map(x=>[...x])};rel(900)}
+  else{const k=a,tg=k=='s'?w:1-w,live=H.m.shift(),h=[...H.h];live?H.L--:H.B--;if(live)h[tg]--;H.h=h;H.pk=[null,null];
+    let nx=live?1-w:k=='s'?w:1-w,rl=0,rv=0;const gf=[],over=live&&h[tg]<=0?1-tg:-1;
+    if(over<0){if(!H.m.length){skLoad(H);rl=1}
+      if(nx!=w){if(H.ex[w]>0){H.ex[w]--;nx=w;rv=1}else{const n=R(3);for(let i=0;i<n&&H.it[w].length<SVK_MAX;i++){const q=SVK_K[R(SVK_K.length)];H.it[w].push(q);gf.push(q)}}}}
+    else H.over=1;
+    H.t=nx;d={q:++H.q,ty:'s',w,k,tg,live,h:[...h],L:H.L,B:H.B,n:H.n,rem:H.m.length,nx,rl,rv,gf,its:H.it.map(x=>[...x]),over};rel(live?3500:3900)}
+  oSend(o.c,'kev',d);if(d.over>=0)setTimeout(()=>{if(sol==o)oSend(o.c,'kev',d)},900);skPush(d)}
+function skPush(d){const v=sol&&sol.pr;if(!v||v.fin)return;v.q.push(d);skPump()}
+function skPump(){const v=sol&&sol.pr;if(!v||v.fin||v.an)return;const d=v.q.shift();if(d)d.ty=='i'?skItemFx(d):skShot(d)}
+function skItemFx(d){const o=sol,v=o.pr,T=++v.sid,S=(f,ms)=>setTimeout(()=>{if(sol==o&&v.sid==T)f()},ms),me=d.w==v.me,nm=me?'あなた':vEsc(v.on);
+  v.an=1;v.bz=1;v.h=[...d.h];v.L=d.L;v.B=d.B;v.n=d.n;v.rem=d.rem;v.it=d.its.map(x=>[...x]);let t;
+  if(d.it=='syr')t=`💉 ${nm}のHPが1回復`;
+  else if(d.it=='lens'){if(me)v.pk=d.lv;t=me?`🔍 いまの弾は ${d.lv?'💥 実弾':'💨 空砲'}！`:`🔍 ${nm}がいまの弾を確認した`}
+  else if(d.it=='rev')t=`🔄 ${nm}は、この番のあともう一度自分の番`;
+  else if(d.it=='rel'){v.pk=null;t=`♻️ リロード！ 新しい弾倉：実弾${d.L}・空砲${d.B}`}
+  else{v.pk=null;t=`⏭️ ${nm}が弾を1発飛ばした（${d.sk?'💥 実弾':'💨 空砲'}だった）`+(d.rl?` ／ 再装填：実弾${d.L}・空砲${d.B}`:'')}
+  skR(t);S(()=>{v.an=0;v.bz=0;if(v.q.length)return skPump();skR(t)},700)}
+function skShot(d){const o=sol,v=o.pr,T=++v.sid,rt=d.tg==v.me?0:1,nw=d.w==v.me?'あなた':vEsc(v.on),nt=d.tg==v.me?'あなた':vEsc(v.on),S=(f,ms)=>setTimeout(()=>{if(sol==o&&v.sid==T)f()},ms);
+  v.an=1;v.bz=1;v.a0=v.ang;v.ang=(Math.floor(v.ang/360)+2)*360+(rt?0:180);
+  skR(`${nw}が${d.k=='s'?'自分':nt}に銃口を向けた…`,1);S(()=>{const m=$('#m');if(m)m.textContent='…………'},1300);
+  let t=`${nw}が${d.k=='s'?'自分':nt}を撃った → ${d.live?'💥 実弾！ HP-1':'💨 空砲'}`;if(!d.live&&d.k=='s')t+='（もう一度撃てる）';if(d.rl)t+=` ／ 再装填：実弾${d.L}・空砲${d.B}`;
+  if(d.rv)t+=` ／ 🔄 リバース！ もう一度${nw}の番`;else if(d.gf&&d.gf.length)t+=` ／ 🎁 ${nw}にアイテム ${d.gf.map(k=>SVK_I[k][0]).join('')}`;
+  const cm=()=>{v.h=[...d.h];v.L=d.L;v.B=d.B;v.n=d.n;v.rem=d.rem;v.t=d.nx;v.pk=null;v.it=d.its.map(x=>[...x]);if(d.live)v.hit=rt;skR(t)},
+    rel=ms=>S(()=>{v.an=0;v.bz=0;if(v.q.length)return skPump();skR(t+(v.t==v.me?' ／ あなたの番':' ／ 相手の番…'))},ms);
+  S(()=>{if(d.live){cm();vrFx(1,rt);vrBlood(rt);if(d.over>=0)return S(()=>skEnd(d.over==v.me),1800);rel(1600)}else{vrFx(0,rt);S(()=>{cm();rel(1300)},700)}},2000)}
+async function skEnd(win,why){const o=sol,v=o&&o.pr;if(!v||v.fin||o.settled)return;v.fin=1;o.settled=1;clearInterval(o.iv);lv=null;const b=o.b,f=win?b/100n:0n,pay=win?2n*b-f:0n;
+  st(`<div class="msg" id="m">${win?`🏆 勝利！ +${svJ(b-f,3)}`:`💀 敗北… -${svJ(b,3)}`}</div><div class="lab">${why||''}${win?`通信料 ${svJ(f,3)}（稼いだ分の1％）を引きました`:''}</div><div class="chips"><button class="btn" onclick="svoBack2()">ロビーへ</button><button class="btn s d" onclick="svoBack()">← SVIPルーム</button></div>`);
+  await svEnd(b,pay,'ロシアンルーレット（オンライン）')}
+function skWatch(){const o=sol;if(!o||o.g!='sk'||o.settled)return;const k=o.keys||new Set(),oid=o.host?o.guest&&o.guest.id:o.hid,v=o.pr;if(o.host&&o.K)oSend(o.c,'ksync',skSnap(o.K));if(!oid)return;
+  if(k.has(oid)){o.seen=1;o.miss=0}else if(o.seen&&++o.miss>=2){if(v){if(!v.fin&&!v.an&&!v.q.length)skEnd(true,'相手との通信が切れました。')}
+    else if(o.host){o.guest=null;o.seen=0;o.miss=0;svoTbl();skWait()}
+    else{if(o.paid&&!o.ref){o.ref=1;svGive(o.b)}svoClose();svoT++;lv=null;svoLobby('ホストとの通信が切れたのでテーブルは解散しました（賭けは返却されました）')}}}
+Object.assign(SVH,{
+  kj:d=>{const o=sol;if(!o||!o.host||o.g!='sk')return;if(o.guest&&o.guest.id==d.pid){oSend(o.c,'kok',{to:d.pid,nm:oName()});return skWait()}
+    if(o.guest||o.K)return oSend(o.c,'kno',{to:d.pid,r:o.K?'ゲーム進行中です':'満席です'});
+    o.guest={id:String(d.pid),nm:String(d.nm).slice(0,10)};oSend(o.c,'kok',{to:d.pid,nm:oName()});svoTbl();skWait()},
+  kok:d=>{const o=sol;if(!o||o.host||o.g!='sk'||d.to!=HID)return;o.in=1;clearTimeout(o.tm);skWait()},
+  kno:d=>{const o=sol;if(!o||o.host||o.g!='sk'||d.to!=HID||o.in)return;clearTimeout(o.tm);svoFail(o,d.r||'参加できませんでした')},
+  kl:d=>{const o=sol;if(!o||!o.host||o.g!='sk'||o.K)return;o.guest=null;svoTbl();skWait()},
+  kx:d=>{const o=sol;if(!o||o.host||o.g!='sk'||o.pr||o.settled||o.ref)return;if(o.paid){o.ref=1;svGive(o.b)}svoClose();svoT++;lv=null;svoLobby('ホストが退出したのでテーブルは解散しました（賭けは返却されました）')},
+  kst:d=>{const o=sol;if(o&&!o.host&&o.g=='sk'&&!o.pr&&o.paid){o.in=1;clearTimeout(o.tm);skInit(d,1)}},
+  kq:d=>{const o=sol;if(o&&o.g=='sk'&&o.pr&&!o.pr.fin)skEnd(true,'相手が退出しました。')},
+  kfire:d=>{const o=sol;if(!o||!o.host||o.g!='sk'||!o.K)return;if(o.K.t==1&&(d.k=='s'||d.k=='o'))skExec(1,'f',d.k);else oSend(o.c,'ksync',skSnap(o.K))},
+  kuse:d=>{const o=sol;if(!o||!o.host||o.g!='sk'||!o.K)return;if(o.K.t==1)skExec(1,'i',d.i);else oSend(o.c,'ksync',skSnap(o.K))},
+  kev:d=>{const o=sol,v=o&&!o.host&&o.pr;if(!v||v.fin||!(d.q>v.qh))return;v.qh=d.q;skPush(d)},
+  ksync:d=>{const o=sol,v=o&&!o.host&&o.pr;if(!v||v.fin||v.an||v.q.length||!(d.q>v.qh))return;v.qh=d.q;v.h=[...d.h];v.L=d.L;v.B=d.B;v.n=d.n;v.rem=d.rem;v.t=d.t;v.pk=null;v.it=d.its.map(x=>[...x]);
+    if(d.h[0]<=0||d.h[1]<=0)return skEnd(d.h[v.me]>0,'');v.bz=0;skR('状態を同期しました'+(v.t==v.me?' ／ あなたの番です':' ／ 相手の番…'))}
+});
 /* ---- 天国と地獄の演出 ---- */
 const svOff=()=>{try{return localStorage.getItem('cj_svfx_off')=='1'}catch(e){return false}};
 function svFxTog(){const v=!svOff();try{localStorage.setItem('cj_svfx_off',v?'1':'0')}catch(e){}document.body.classList.toggle('svoff',v);const b=$('#svft');if(b)b.textContent=v?'✨ エフェクト：OFF':'✨ エフェクト：ON'}
