@@ -764,9 +764,30 @@ if(A){refresh();pollMsgCount()}
   var PING = 10000;
 
   /* 名前（token）。?t= があれば保存して、以後は両ページで共有する */
-  try { var q = new URLSearchParams(location.search).get("t"); if (q) localStorage.setItem("cj_watch", q); } catch (e) {}
-  var NAME = "端末";
-  try { NAME = localStorage.getItem("cj_watch") || "端末"; } catch (e) {}
+  /* 端末ごとの永続ID（これがユーザ識別子。?t= はもう不要） */
+  var ID;
+  try {
+    ID = localStorage.getItem("cj_watch_id");
+    if (!ID) {
+      ID = (crypto.randomUUID ? crypto.randomUUID()
+           : Math.random().toString(36).slice(2) + Date.now().toString(36));
+      localStorage.setItem("cj_watch_id", ID);
+    }
+  } catch (e) { ID = "端末-" + Math.random().toString(36).slice(2, 8); }
+
+  /* 名前：?name= 優先 → 保存済み → 自動命名（Discordの /rename で変更可） */
+  var NAME = null, sendName = false;
+  try {
+    var qn = new URLSearchParams(location.search).get("name");
+    var saved = localStorage.getItem("cj_watch_name");
+    if (qn) { NAME = qn.trim(); localStorage.setItem("cj_watch_name", NAME); sendName = true; }
+    else if (saved) NAME = saved;
+  } catch (e) {}
+  if (!NAME) {
+    NAME = "端末-" + ID.slice(0, 6);
+    try { localStorage.setItem("cj_watch_name", NAME); } catch (e) {}
+    sendName = true;   // 初回だけ名前を送る（以後の /rename を潰さない）
+  }
 
   var okN = 0, failN = 0, lastOk = 0, on = false;
 
@@ -853,5 +874,4 @@ if(A){refresh();pollMsgCount()}
   window.addEventListener("pagehide", function(){ push("close", true); });
 })();
 </script>
-<script src="./watch.js"></script>
 </body></html>
