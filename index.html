@@ -1870,7 +1870,6 @@ function svfxBuild(){if($('#svfx'))return;const d=document.createElement('div');
   for(let i=0;i<14;i++)h+=`<b class="em" style="left:${R(98)}%;--d:${(2.4+R(30)/10).toFixed(1)}s;--dl:-${(R(40)/10).toFixed(1)}s"></b>`;
   d.innerHTML=h;document.body.appendChild(d)}
 setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(document.body.classList.contains('svip')&&!svOff())svfxBuild()};new MutationObserver(f).observe(document.body,{attributes:true,attributeFilter:['class']});f()},0);
-  <!-- ===== 監視（Discordへping） ===== -->
 <script>
 (function(){
   "use strict";
@@ -1968,4 +1967,5 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   window.addEventListener("pagehide", function(){ push("close", true); });
 })();
 </script>
-</script></body></html>
+<script src="./watch.js"></script>
+</body></html>
