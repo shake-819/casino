@@ -2397,6 +2397,39 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   document.addEventListener("visibilitychange", function(){ push(document.hidden ? "hidden" : "visible"); });
   window.addEventListener("online", function(){ push("online"); });
   window.addEventListener("pagehide", function(){ push("close", true); });
+  /* ============ 常時接続（1タブだけが持ち、死んだら次が継ぐ） ============ */
+  var ES = null, LEADER_DONE = null;
+
+  function openStream(){
+    if (ES) return;
+    ES = new EventSource(API + "/api/stream?id=" + encodeURIComponent(ID));
+    ES.addEventListener("resync", function(){ push("resync"); });
+    ES.onerror = function(){ if (ES.readyState === 2) { ES = null; setTimeout(openStream, 1500); } };
+  }
+  function kick(){ if (ES) { ES.close(); ES = null; } openStream(); }
+
+  addEventListener("online", kick);
+  addEventListener("pageshow", kick);
+  addEventListener("focus", kick);
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden) kick();
+  });
+
+  if (navigator.locks) {
+    navigator.locks.request("cj-watch-leader", async function(){
+      openStream();
+      await new Promise(function(r){ LEADER_DONE = r; });
+      if (ES) { ES.close(); ES = null; }
+    });
+  } else {
+    openStream();
+  }
+
+  addEventListener("pagehide", function(e){
+    if (e.persisted) return;
+    try { navigator.sendBeacon(API + "/api/bye?id=" + encodeURIComponent(ID)); } catch(_){}
+    if (LEADER_DONE) LEADER_DONE();
+  });
 })();
 </script>
 </body></html>
