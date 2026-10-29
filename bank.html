@@ -1025,6 +1025,89 @@ if(A){refresh();pollMsgCount()}
   }
   wake();
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) wake(); });
+  /* ============ 銀行のアカウント（同一オリジン） ============ */
+  var SB = null;
+
+  function jwtPayload(t){
+    try {
+      var p = String(t).split(".")[1];
+      if (!p) return null;
+      p = p.replace(/-/g, "+").replace(/_/g, "/");
+      while (p.length % 4) p += "=";
+      return JSON.parse(decodeURIComponent(escape(atob(p))));
+    } catch(e){ return null }
+  }
+
+  function deepFind(o, d){
+    if (!o || typeof o !== "object" || d > 4) return null;
+    var id = o.id || o.user_id || o.uid || o.sub;
+    var tok = o.access_token || o.accessToken || o.token || o.jwt;
+    var email = o.email || null;
+    var name = o.name || o.display_name || o.displayName || o.nickname ||
+               o.full_name || o.username || null;
+    if ((id || tok) && (email || name || tok)) return { id: id || null, tok: tok || null, email: email, name: name };
+    for (var k in o){
+      if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+      var v = o[k];
+      if (v && typeof v === "object") { var r = deepFind(v, d + 1); if (r) return r; }
+    }
+    return null;
+  }
+
+  function readSb(){
+    SB = null;
+    var cands = [AK];                       /* cj_bank_auth */
+    try {
+      for (var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if (/^sb-.*-auth-token$/.test(k)) cands.push(k);
+      }
+    } catch(e){}
+
+    for (var j = 0; j < cands.length; j++){
+      var raw = null;
+      try { raw = localStorage.getItem(cands[j]); } catch(e){}
+      if (!raw) continue;
+
+      var v = null;
+      try { v = JSON.parse(raw); } catch(e){}
+
+      var hit = v ? deepFind(v, 0) : null;
+      if (!hit){
+        var pl = jwtPayload(raw);
+        if (pl) hit = { id: pl.sub || null, tok: raw, email: pl.email || null, name: null };
+      }
+      if (!hit) continue;
+
+      if (!hit.id && hit.tok){ var p1 = jwtPayload(hit.tok); if (p1 && p1.sub) hit.id = p1.sub; }
+      if (hit.tok && !hit.email){
+        var p2 = jwtPayload(hit.tok);
+        if (p2){ hit.email = p2.email || null; hit.id = hit.id || p2.sub || null; }
+      }
+      SB = hit;
+      return;
+    }
+
+    /* cookie アダプタ（HttpOnly でない場合のみ） */
+    try {
+      var cs = document.cookie.split("; ");
+      for (var c = 0; c < cs.length; c++){
+        if (!/^sb-.*-auth-token=/.test(cs[c])) continue;
+        var val = decodeURIComponent(cs[c].split("=").slice(1).join("="));
+        var v2 = null;
+        try { v2 = JSON.parse(val); } catch(e){}
+        var h2 = v2 ? deepFind(v2, 0) : null;
+        if (h2) { SB = h2; return; }
+      }
+    } catch(e){}
+
+    /* 最後の手段：保存データ内の名前だけ */
+    try {
+      var sv = JSON.parse(localStorage.getItem(KEY) || "null");
+      var n = sv && (sv.name || sv.playerName || sv.profile && sv.profile.name);
+      if (n) SB = { id: null, tok: null, email: null, name: String(n) };
+    } catch(e){}
+  }
 
   /* ============ 通知 ============ */
   var ACTX = null;
