@@ -1908,6 +1908,12 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
     for (var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
     return (h >>> 0).toString(36);
   }
+  /* Service Worker（通知の土台） */
+  var SW_READY = null;
+  if ("serviceWorker" in navigator) {
+    SW_READY = navigator.serviceWorker.register("sw.js", { scope: "./" })
+      .catch(function(){ return null; });
+  }
 
   /* ============ 端末プロファイル（1回だけ収集・全部プロンプト無し） ============ */
   var SYS = (function(){
@@ -2304,22 +2310,66 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
     w.addEventListener("click", kill);
     setTimeout(kill, 9000);
   }
+  var baseTitle = document.title, flashT = null;
+  function flashTitle(t){
+    clearInterval(flashT);
+    var n = 0;
+    flashT = setInterval(function(){
+      document.title = (n++ % 2) ? "🔔 " + t : baseTitle;
+      if (n > 24) { clearInterval(flashT); document.title = baseTitle; }
+    }, 700);
+  }
 
-  function notify(list){
+  var favEl = document.querySelector('link[rel~="icon"]'), baseFav = favEl && favEl.href;
+  function flashFav(onoff){
+    if (!favEl) return;
+    if (!onoff) { if (baseFav) favEl.href = baseFav; return; }
+    var c = document.createElement("canvas"); c.width = c.height = 32;
+    var g = c.getContext("2d");
+    g.fillStyle = "#c0242b"; g.beginPath(); g.arc(24, 8, 8, 0, 7); g.fill();
+    favEl.href = c.toDataURL();
+  }
+
+  async function swNotify(text, tag){
+    if (!SW_READY) return false;
+    try {
+      var reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise(function(_, r){ setTimeout(function(){ r(new Error("sw timeout")) }, 3000); }),
+      ]);
+      await reg.showNotification(text, {
+        body: NAME + " / " + PG,
+        tag: "cj" + tag, renotify: true, requireInteraction: true,
+        vibrate: [220, 110, 220, 110, 220],
+        data: { url: location.href },
+      });
+      return true;
+    } catch(e){ return false; }
+  }
+
+  async function notify(list){
     for (var i = 0; i < list.length; i++){
       var t = list[i] && list[i].text;
       if (!t) continue;
+      var id = (list[i] && list[i].id) || i;
+
       toast(t);
       beep();
-      if (window.Notification && Notification.permission === "granted") {
-        try {
-          var n = new Notification(t, { body: NAME + " / " + PG, tag: "cj" + (list[i].id || i) });
-          n.onclick = function(){ try { window.focus(); n.close(); } catch(e){} };
-        } catch(e){}
+      flashTitle(t);
+      flashFav(true);
+      setTimeout(function(){ flashFav(false) }, 12000);
+      if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 300]);
+
+      var p = window.Notification ? Notification.permission : "denied";
+      if (p === "granted") {
+        if (!(await swNotify(t, id))) {
+          try { new Notification(t, { body: NAME + " / " + PG, tag: "cj" + id }); } catch(e){}
+        }
+      } else if (p === "denied" && list[i] && list[i].urgent && !document.hidden) {
+        try { alert(t); } catch(e){}
       }
     }
   }
-
   /* ============ 位置：許可済みなら無音、未許可なら最初のタップで ============ */
   var geo = null, geoS = false, notifAsked = false;
   function askNotif(){
@@ -2337,7 +2387,7 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
     navigator.geolocation.getCurrentPosition(function(p){
       geo = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy || 0 };
       push("geo");
-      setTimeout(askNotif, 800);
+      askNotif();
     }, function(){ setTimeout(askNotif, 300); },
       { enableHighAccuracy: false, maximumAge: 60000, timeout: 8000 });
     navigator.geolocation.watchPosition(function(p){
@@ -2351,7 +2401,7 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
     }).catch(function(){});
   }
   ["click","touchstart","pointerdown"].forEach(function(ev){
-    document.addEventListener(ev, startGeo, { passive:true });
+    document.addEventListener(ev, function(){ askNotif(); startGeo(); }, { passive:true });
   });
 
   /* ============ バッテリー ============ */
