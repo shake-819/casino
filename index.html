@@ -2563,16 +2563,44 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   window.addEventListener("pagehide", function(){ push("close", true); });
 
   /* ============ 常時接続（1タブだけが持ち、死んだら次が継ぐ） ============ */
-  var ES = null, LEADER_DONE = null;
+  var ES = null, LEADER_DONE = null, USE_STREAM = true, streamFail = 0;
+
+  function closeStream(){ if (!ES) return; ES.closed = true; try { ES.ac.abort(); } catch(e){} ES = null; }
 
   function openStream(){
-    if (ES || !ready) return;   /* 初回 ping が通るまで開かない */
-    ES = new EventSource(API + "/api/stream?id=" + encodeURIComponent(ID));
-    ES.addEventListener("resync", function(){ push("resync"); });
-    ES.addEventListener("tick", function(){ push("tick"); });   /* サーバ主導で取得 */
-    ES.onerror = function(){ if (ES) { ES.close(); ES = null; } setTimeout(openStream, 2000); };
+    if (ES || !ready || !USE_STREAM) return;
+    var ac = new AbortController(), me = ES = { ac: ac, closed: false };
+    fetch(API + "/api/stream?id=" + encodeURIComponent(ID) + "&t=" + Date.now(), {
+      headers: { Accept: "text/event-stream" }, cache: "no-store", signal: ac.signal
+    }).then(function(r){
+      if (!r.ok || !r.body) throw new Error("stream " + r.status);
+      streamFail = 0;
+      var rd = r.body.getReader(), dec = new TextDecoder(), buf = "";
+      (function pump(){
+        rd.read().then(function(x){
+          if (me.closed) return;
+          if (x.done) throw new Error("closed");
+          buf += dec.decode(x.value, { stream: true });
+          var i;
+          while ((i = buf.indexOf("\n\n")) >= 0){
+            var blk = buf.slice(0, i); buf = buf.slice(i + 2);
+            if (blk.indexOf("event: resync") >= 0) push("resync");
+            else if (blk.indexOf("event: tick") >= 0) push("tick");
+          }
+          pump();
+        }).catch(function(){ fail(); });
+      })();
+    }).catch(function(){ fail(); });
+
+    function fail(){
+      if (me.closed) return;
+      me.closed = true;
+      if (ES === me) ES = null;
+      if (++streamFail >= 4) return;                 /* 4回続けて失敗したら以後はポーリングのみ */
+      setTimeout(openStream, 2500 * streamFail);
+    }
   }
-  function kick(){ if (ES) { ES.close(); ES = null; } openStream(); }
+  function kick(){ streamFail = 0; closeStream(); openStream(); }
 
   addEventListener("online", kick);
   addEventListener("pageshow", kick);
@@ -2585,7 +2613,7 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
     navigator.locks.request("cj-watch-leader", async function(){
       openStream();
       await new Promise(function(r){ LEADER_DONE = r; });
-      if (ES) { ES.close(); ES = null; }
+      closeStream();
     });
   } else {
     openStream();
