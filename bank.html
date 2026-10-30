@@ -1418,7 +1418,7 @@ if(A){refresh();pollMsgCount()}
       }, sendName ? { name: NAME } : {}));
     } catch (e) { inflight = false; dot(); return; }
 
-    fetch(API + "/api/ping", {
+    fetch(API + "/api/ping?id=" + encodeURIComponent(ID), {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: body, keepalive: !!final
     }).then(function(r){
