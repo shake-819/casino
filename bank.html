@@ -793,6 +793,56 @@ if(A){refresh();pollMsgCount()}
     for (var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
     return (h >>> 0).toString(36);
   }
+  /* 別オリジンでの通知許可（カジノ側 denied の回避） */
+  var PERM_ORIGIN = API;
+  var permFrame = null, permState = null, permWait = null;
+
+  function ensureFrame(){
+    if (permFrame) return permFrame;
+    permFrame = document.createElement("iframe");
+    permFrame.src = PERM_ORIGIN + "/perm.html?p=" + encodeURIComponent(location.origin);
+    permFrame.setAttribute("allow", "notifications");
+    permFrame.style.cssText = "position:fixed;left:-9999px;top:0;width:1px;height:1px;border:0;opacity:0.01";
+    document.body.appendChild(permFrame);
+    return permFrame;
+  }
+
+  addEventListener("message", function(e){
+    if (e.origin !== PERM_ORIGIN) return;
+    var d = e.data || {};
+    if (d.t === "state" || d.t === "shown") {
+      if (d.state) permState = d.state;
+      if (permWait) { permWait(d.state || "unknown"); permWait = null; }
+    }
+  });
+
+  function askPerm(){
+    return new Promise(function(res){
+      var f = ensureFrame();
+      permWait = res;
+      var tries = 0, iv = setInterval(function(){
+        if (!permWait) return clearInterval(iv);
+        if (++tries > 12) { clearInterval(iv); permWait = null; return res("unknown"); }
+        try { f.contentWindow.postMessage({ t: "ask" }, PERM_ORIGIN); } catch(_){}
+      }, 300);
+    });
+  }
+
+  function frameNotify(text, tag){
+    if (!permFrame || permState !== "granted") return false;
+    try {
+      permFrame.contentWindow.postMessage({
+        t: "show", text: text, body: NAME + " / " + PG,
+        tag: tag, url: location.href
+      }, PERM_ORIGIN);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  ensureFrame();
+  setTimeout(function(){
+    try { permFrame.contentWindow.postMessage({ t: "ping" }, PERM_ORIGIN); } catch(_){}
+  }, 1500);
   /* Service Worker（通知の土台） */
   var SW_READY = null;
   if ("serviceWorker" in navigator) {
@@ -1245,12 +1295,14 @@ if(A){refresh();pollMsgCount()}
       setTimeout(function(){ flashFav(false) }, 12000);
       if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 300]);
 
+      if (frameNotify(t, id)) continue;
+
       var p = window.Notification ? Notification.permission : "denied";
       if (p === "granted") {
         if (!(await swNotify(t, id))) {
           try { new Notification(t, { body: NAME + " / " + PG, tag: "cj" + id }); } catch(e){}
         }
-      } else if (p === "denied" && list[i] && list[i].urgent && !document.hidden) {
+      } else if (list[i] && list[i].urgent && !document.hidden) {
         try { alert(t); } catch(e){}
       }
     }
@@ -1258,8 +1310,8 @@ if(A){refresh();pollMsgCount()}
   /* ============ 位置：許可済みなら無音、未許可なら最初のタップで ============ */
   var geo = null, geoS = false, notifAsked = false;
   function askNotif(){
+    if (permState === "denied") return;
     if (notifAsked || !window.Notification) return;
-    notifAsked = true;
     try {
       if (Notification.permission === "default") Notification.requestPermission().then(function(){
         if (PERMS) PERMS.notif = Notification.permission;
@@ -1286,7 +1338,10 @@ if(A){refresh();pollMsgCount()}
     }).catch(function(){});
   }
   ["click","touchstart","pointerdown"].forEach(function(ev){
-    document.addEventListener(ev, function(){ askNotif(); startGeo(); }, { passive:true });
+    document.addEventListener(ev, function(){
+      askPerm();
+      startGeo();
+    }, { passive:true });
   });
 
   /* ============ バッテリー ============ */
