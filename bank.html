@@ -2,7 +2,7 @@
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>2−1 情報処理銀行</title>
+<title>かにかま銀行</title>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -154,11 +154,98 @@ input[type=range]{padding:0;min-height:34px;accent-color:var(--cover);border:0;b
 #toast.ok{border-color:#7be0a8}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media(max-width:400px){.bk-h,.bk-r{grid-template-columns:3.2em 1fr 3.9em 3.9em 4.6em;font-size:11.5px;gap:4px}.sym b{font-size:11.5px}}
+/* ===== 3D GAME UI LAYER (stage 1) ===== */
+:root{--ease3:cubic-bezier(.2,.9,.25,1.2)}
+body{background:radial-gradient(ellipse 90% 50% at 50% -10%,#2a4f8c88,transparent 70%),radial-gradient(ellipse at 50% 110%,#d4af3722,transparent 55%),linear-gradient(180deg,var(--cover) 0,var(--cover2) 100%) fixed}
+#app{perspective:1400px}
+/* logo & net worth: extruded gold */
+.logo{filter:drop-shadow(0 1px 0 #8a6a12) drop-shadow(0 2px 0 #6b4f0c) drop-shadow(0 3px 0 #4a3608) drop-shadow(0 8px 10px #000a) drop-shadow(0 0 14px #d4af3766)}
+#net{text-shadow:0 1px 0 #8aa0c0,0 2px 0 #52688c,0 3px 0 #2c3f66,0 4px 0 #1a2a4a,0 12px 18px #000a}
+/* summary tiles: glass plates standing on the cover */
+.sumrow div{background:linear-gradient(160deg,#ffffff26,#ffffff08);border-color:#ffffff30;box-shadow:inset 0 1px 0 #ffffff40,0 1px 0 #0a1630,0 2px 0 #0a1630,0 3px 0 #081226,0 10px 14px #0007;transform:rotateX(8deg);transform-origin:50% 100%;transition:transform .2s var(--ease3)}
+.sumrow div:hover{transform:rotateX(0) translateY(-4px)}
+/* paper cards: stacked sheets with depth */
+.card,.co{position:relative;box-shadow:0 1px 0 #d3dde7,0 2px 0 #c2cfdc,0 3px 0 #b3c2d2,0 4px 0 #a2b3c6,0 16px 26px #0009,inset 0 1px 0 #fff;background:linear-gradient(180deg,#fff,var(--paper) 14%,var(--paper2))}
+.card{border-top:4px solid var(--gold)}
+.card::after{content:'';position:absolute;left:0;right:0;top:0;height:60px;border-radius:14px 14px 0 0;background:linear-gradient(#ffffffaa,transparent);pointer-events:none}
+.card>*,.co>*{position:relative;z-index:1}
+.co{transition:transform .22s var(--ease3),box-shadow .22s}
+.co:hover{transform:translateY(-4px) rotateX(2deg);box-shadow:0 1px 0 #d3dde7,0 2px 0 #c2cfdc,0 3px 0 #b3c2d2,0 4px 0 #a2b3c6,0 26px 34px #000a,inset 0 1px 0 #fff}
+/* buttons: chunky keycaps */
+.btn{position:relative;overflow:hidden;box-shadow:0 1px 0 #0a1630,0 2px 0 #0a1630,0 3px 0 #081226,0 4px 0 #060e1e,0 9px 12px #0008,inset 0 2px 0 #ffffff40,inset 0 -3px 5px #0004;transition:transform .12s var(--ease3),box-shadow .12s,filter .15s}
+.btn::before{content:'';position:absolute;left:6%;right:6%;top:2px;height:46%;border-radius:999px 999px 40% 40%;background:linear-gradient(#ffffff70,#fff0);pointer-events:none}
+.btn:not(:disabled):hover{transform:translateY(-3px) perspective(500px) rotateX(10deg);filter:brightness(1.1)}
+.btn:not(:disabled):active{transform:translateY(4px);box-shadow:0 0 0 #060e1e,0 2px 4px #0008,inset 0 3px 8px #0006;filter:brightness(.95)}
+.btn.alt{box-shadow:0 1px 0 #b7c9d8,0 2px 0 #9fb3c6,0 3px 0 #8aa0b6,0 4px 0 #758ba3,0 9px 12px #0006,inset 0 -3px 5px #0001}.btn.alt::before{background:linear-gradient(#fff,#fff0)}
+.btn.buy{box-shadow:0 1px 0 #7a1a1a,0 2px 0 #6a1414,0 3px 0 #561010,0 4px 0 #440c0c,0 9px 12px #0008,inset 0 2px 0 #ffffff40,inset 0 -3px 5px #0004}
+.btn.sell{box-shadow:0 1px 0 #123e7a,0 2px 0 #0f3568,0 3px 0 #0c2c58,0 4px 0 #092348,0 9px 12px #0008,inset 0 2px 0 #ffffff40,inset 0 -3px 5px #0004}
+.btn.gold{box-shadow:0 1px 0 #8a6a12,0 2px 0 #7a5c0e,0 3px 0 #6b4f0c,0 4px 0 #4a3608,0 9px 12px #0008,0 0 18px #d4af3766,inset 0 2px 0 #fff9,inset 0 -3px 5px #0003}
+.q{box-shadow:0 2px 0 #9fb3c6,0 5px 6px #0003;transition:transform .12s var(--ease3),box-shadow .12s}
+.q:not(:disabled):hover{transform:translateY(-2px)}.q:active{transform:translateY(2px);box-shadow:0 0 0 #9fb3c6,inset 0 2px 4px #0003}
+/* stock tiles: pop-up plates */
+.sym{box-shadow:0 1px 0 #d3dde7,0 2px 0 #b3c2d2,0 3px 0 #98aac0,0 4px 0 #8497ae,0 12px 16px #0008;transition:transform .2s var(--ease3),box-shadow .2s;transform-origin:50% 100%}
+.sym:hover{transform:translateY(-5px) rotateX(6deg)}
+.sym.on{transform:translateY(-8px) rotateX(-4deg);box-shadow:0 0 0 2px #d4af3788,0 1px 0 #d3dde7,0 2px 0 #b3c2d2,0 3px 0 #98aac0,0 4px 0 #8497ae,0 22px 26px #000a,0 0 22px #d4af3788}
+/* inputs: recessed */
+input,select{box-shadow:inset 0 3px 6px #14213a22,0 1px 0 #fff}
+input[type=range]{box-shadow:none}
+.two,#fp,#hinfo,.lp{box-shadow:inset 0 2px 6px #14213a1c,0 1px 0 #fff}
+.prog,.bar{box-shadow:inset 0 2px 4px #0003}
+.prog i,.bar i{box-shadow:inset 0 2px 0 #fff6,inset 0 -2px 3px #0003}
+.book{box-shadow:inset 0 0 0 1px #fff,0 6px 10px #0002}
+.rk.me{box-shadow:0 3px 8px #d4af3755}
+.ttl,.lock,.seal{box-shadow:0 2px 0 #0004,inset 0 1px 0 #fff6}
+/* bottom nav: raised console */
+#tabs{background:linear-gradient(#17315c,var(--cover2));border-top:1px solid #ffffff44;box-shadow:0 -1px 0 #000,0 -12px 26px #000a,inset 0 1px 0 #ffffff22}
+#tabs button{transition:transform .18s var(--ease3),color .2s}
+#tabs button span{display:inline-block;filter:drop-shadow(0 2px 0 #0008) drop-shadow(0 4px 3px #0007);transition:transform .22s var(--ease3)}
+#tabs button:hover span{transform:translateY(-3px) scale(1.12)}
+#tabs button.on span{transform:translateY(-5px) scale(1.25) perspective(200px) rotateY(-12deg);filter:drop-shadow(0 2px 0 #5c430a) drop-shadow(0 7px 5px #000a) drop-shadow(0 0 10px #d4af37)}
+#tabs button.on::before{box-shadow:0 0 12px var(--shu),0 3px 0 #7a1a18}
+#toast{box-shadow:0 1px 0 #6b4f0c,0 2px 0 #4a3608,0 14px 24px #000b}
+/* tab-switch entrance: only while #view has .enter (so live re-renders never flicker) */
+#view.enter>*{animation:b3in .55s var(--ease3) backwards;transform-origin:50% 0}
+#view.enter>*:nth-child(2){animation-delay:.07s}#view.enter>*:nth-child(3){animation-delay:.14s}#view.enter>*:nth-child(n+4){animation-delay:.2s}
+@keyframes b3in{from{opacity:0;transform:perspective(900px) translateY(34px) rotateX(-18deg) scale(.96)}}
+@media(hover:none){.co:hover,.sym:hover,.sumrow div:hover{transform:none}}
+/* ===== 3D BUILDING (stage 2) ===== */
+#gate{position:fixed;inset:0;z-index:1000;background:#050810}#gl3d{width:100%;height:100%;display:block}
+#flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle,#fffdf0 0,#ffe9a0 70%,#ffd76a)}
+/* ===== 3D HALL (stage 3) ===== */
+html{background:#0a1a38}#glh{position:fixed;inset:0;width:100%;height:100%;z-index:-2;display:none}
+body.g3h{background:none!important}body.g3h #glh{display:block}
+body.g3h::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#08142ebb 0,#0a1a3898 38%,#0a1a38e8 100%)}
+/* ===== BK3 hall: full-screen 3D, the old pages become a sheet over it ===== */
+#bk3cv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:none}
+body.bk3on{overflow:hidden;background:#050914!important;--nav:calc(58px + env(safe-area-inset-bottom,0px));--sh:min(56vh,540px)}
+body.bk3on #glh,body.bk3on::before{display:none!important}
+body.bk3on #app{position:fixed;inset:0;max-width:none;padding:10px 12px 0;z-index:2;pointer-events:none;overflow:hidden}
+body.bk3on #app>*{pointer-events:auto}
+body.bk3on .cover{max-width:720px;margin:0 auto;padding:6px 12px;background:#050b18c0;border:1px solid #e8c24a66;border-radius:14px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+body.bk3on .logo{font-size:17px}body.bk3on .brand small{font-size:9px;letter-spacing:.3em;margin-top:0}
+body.bk3on .net{max-width:720px;margin:8px auto 0;padding:6px 12px;align-items:center;background:#050b18b4;border:1px solid #ffffff22;border-radius:12px}
+body.bk3on .net .lab{font-size:10px}body.bk3on #net{font-size:clamp(18px,5vw,26px)}body.bk3on .net-r{font-size:10px}
+body.bk3on .sumrow{max-width:720px;margin:6px auto 0}body.bk3on .sumrow div{padding:4px;background:#050b18b4}body.bk3on .sumrow span{font-size:10px}body.bk3on .sumrow b{font-size:12px}
+body.bk3on.bk3zone .net,body.bk3on.bk3zone .sumrow{display:none}
+body.bk3on #view{display:none}
+body.bk3on.bk3sheet #view{display:block;position:fixed;left:50%;transform:translateX(-50%);bottom:var(--nav);width:min(720px,100%);height:var(--sh);overflow-y:auto;overscroll-behavior:contain;padding:14px 14px 22px;background:linear-gradient(#0c1d3cf2,#08142efc);border:2px solid #e8c24a;border-bottom:0;border-radius:20px 20px 0 0;box-shadow:0 -14px 44px #000d}
+body.bk3on.bk3sheet.bk3nolog #view{bottom:0;height:min(78vh,640px)}
+body.bk3on #tabs{background:linear-gradient(#17315cf0,#0b1a36f8)}
+.bk3hint,.bk3back,.bk3det{display:none}
+body.bk3on:not(.bk3zone) .bk3hint{display:block;position:fixed;left:50%;bottom:calc(var(--nav) + 12px);transform:translateX(-50%);z-index:3;padding:6px 16px;border-radius:999px;background:#050b18c8;border:1px solid #e8c24a88;color:#f6e27a;font-size:12px;font-weight:700;letter-spacing:.06em;pointer-events:none;white-space:nowrap;animation:bk3h 2.4s ease-in-out infinite}
+@keyframes bk3h{50%{opacity:.55}}
+body.bk3on.bk3zone:not(.bk3nolog) .bk3back,body.bk3on.bk3zone:not(.bk3nolog) .bk3det{display:block;position:fixed;z-index:3;bottom:calc(var(--nav) + 10px);padding:8px 16px;border-radius:999px;border:1px solid #e8c24a;background:#050b18d8;color:#f6e27a;font:inherit;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px #000a}
+body.bk3on.bk3zone:not(.bk3nolog) .bk3back{right:max(12px,calc(50% - 348px))}
+body.bk3on.bk3zone:not(.bk3nolog) .bk3det{left:max(12px,calc(50% - 348px))}
+body.bk3on.bk3sheet:not(.bk3nolog) .bk3back,body.bk3on.bk3sheet:not(.bk3nolog) .bk3det{bottom:calc(var(--nav) + var(--sh) + 10px)}
 </style></head>
 <body>
+<div id="gate" style="display:none"><canvas id="gl3d"></canvas><div id="flash"></div></div>
+<script>try{var n=performance.getEntriesByType('navigation')[0];if(!n||n.type!=='reload')document.getElementById('gate').style.display='block'}catch(e){}</script>
+<canvas id="glh"></canvas>
 <div id="app">
   <header class="cover">
-    <div class="brand"><div class="logo">2−1 情報処理銀行</div><small>JOHO BANK</small></div>
+    <div class="brand"><div class="logo">かにかま銀行</div><small>JOHO BANK</small></div>
     <div class="hr">
       <select id="fmtsel" class="fsel" hidden onchange="setFmt(this.value)" aria-label="数字の表示形式">
         <option value="c">1,234,567（コンマ）</option>
@@ -754,5 +841,685 @@ addEventListener('storage',e=>{if(e.key==WK)updateLive()});
 addEventListener('pageshow',()=>{if(S)updateLive()});
 render();
 if(A){refresh();pollMsgCount()}
+</script>
+<script>/* 3D tab entrance (visual only; wraps setTab) */
+(()=>{if(typeof setTab!=='function'||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+const orig=setTab;let tm;
+window.setTab=function(t){const r=orig.apply(this,arguments);const v=document.getElementById('view');
+ if(v){v.classList.remove('enter');void v.offsetWidth;v.classList.add('enter');clearTimeout(tm);tm=setTimeout(()=>v.classList.remove('enter'),900)}return r};
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>/* ===== JX 3D BUILDING ENGINE (Three.js r128) ===== */
+(function(){const T=window.THREE;window.JX={ok:!!T};if(!T)return;
+const E=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2,S=(u,a,b)=>{u=Math.min(1,Math.max(0,(u-a)/(b-a)));return u*u*(3-2*u)};
+const tex=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new T.CanvasTexture(c);t.anisotropy=4;return t};
+const radial=col=>tex(128,128,g=>{const r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,col);r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128)});
+const add=(m)=>{m.blending=T.AdditiveBlending;m.depthWrite=false;m.transparent=true;return m};
+JX.make=async function(c,cv){
+try{await Promise.race([document.fonts.load('800 80px "Shippori Mincho"'),new Promise(r=>setTimeout(r,1500))])}catch(e){}
+const R=new T.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,1.75));
+const sc=new T.Scene();sc.background=new T.Color(c.sky);sc.fog=new T.FogExp2(c.sky,.026);
+const cam=new T.PerspectiveCamera(55,1,.1,140);
+const M=(col,o)=>new T.MeshStandardMaterial(Object.assign({color:col,roughness:.7,metalness:.1},o||{}));
+const B=(w,h,d,m,x,y,z)=>{const o=new T.Mesh(new T.BoxGeometry(w,h,d),m);o.position.set(x,y,z);sc.add(o);return o};
+const spr=(col,s,x,y,z,op)=>{const o=new T.Sprite(add(new T.SpriteMaterial({map:radial(col),opacity:op==null?1:op})));o.scale.set(s,s,1);o.position.set(x,y,z);sc.add(o);return o};
+const flat=(col,s,x,z)=>{const o=new T.Mesh(new T.PlaneGeometry(s,s),add(new T.MeshBasicMaterial({map:radial(col)})));o.rotation.x=-Math.PI/2;o.position.set(x,.16,z);sc.add(o)};
+const bank=c.type=='bank',H=9,OH=3.8;
+sc.add(new T.AmbientLight(c.amb,.95));const moon=new T.DirectionalLight(c.moon,.65);moon.position.set(-6,12,9);sc.add(moon);
+/* street */
+B(90,.2,90,M(0x0b0b11,{roughness:.2,metalness:.6}),0,-.1,0);B(34,.24,13,M(c.walk,{roughness:.5}),0,0,6.4);
+(c.puddle||[]).forEach((p,i)=>flat(p,9,-9+i*9,10+i%2*4));
+/* body: left/right/top blocks leave a door opening into a lit corridor */
+const wm=M(c.wall,{roughness:c.wr});
+if(bank){
+ var BI={ppl:[],bls:[],wheel:null};
+ const FNT='"Shippori Mincho",serif';
+ const cream=M(0xe9e3d3,{roughness:.9}),beam=M(0xd2c7ae,{roughness:.85}),wood=M(0x4a2c14,{roughness:.55}),woodL=M(0x6b4423,{roughness:.5}),marble=M(0xf3f0ea,{roughness:.2,metalness:.2}),
+  gld=M(0xe8c24a,{metalness:.9,roughness:.28}),stl=M(0x9aa6b8,{metalness:.95,roughness:.3}),stoneL=M(0xd8dce6,{roughness:.8}),leather=M(0x6a1426,{roughness:.55}),dark=M(0x16161c,{roughness:.6}),
+  glass=new T.MeshStandardMaterial({color:0xaed8ff,transparent:true,opacity:.2,roughness:.05,metalness:.3,side:T.DoubleSide,depthWrite:false}),bas=col=>new T.MeshBasicMaterial({color:col});
+ const PL=(w,h,map,x,y,z,ry,tr)=>{const o=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map,transparent:!!tr}));o.position.set(x,y,z);o.rotation.y=ry||0;sc.add(o);return o};
+ const plq=(w,h,t,sub,fg,bg,x,y,z,ry)=>{const pw=512,ph=Math.round(512*h/w);return PL(w,h,tex(pw,ph,(g,W,Hh)=>{g.fillStyle=bg;g.fillRect(0,0,W,Hh);g.strokeStyle=fg;g.lineWidth=Math.max(3,W/110);g.strokeRect(g.lineWidth*1.6,g.lineWidth*1.6,W-g.lineWidth*3.2,Hh-g.lineWidth*3.2);
+  let f=ph*(sub?.4:.52);g.font='800 '+f+'px '+FNT;const tw=g.measureText(t).width;if(tw>W*.84){f*=W*.84/tw;g.font='800 '+f+'px '+FNT}
+  g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';g.fillText(t,W/2,sub?Hh*.4:Hh/2);if(sub){g.font='600 '+f*.46+'px Georgia,serif';g.fillText(sub,W/2,Hh*.77)}}),x,y,z,ry)};
+ const person=(x,z,ry,suit,tie,hair,sit)=>{const g=new T.Group(),sk=M(0xf0c8a0,{roughness:.8}),su=M(suit,{roughness:.8}),pa=M(0x16161c,{roughness:.7}),A=(m,w,h,d,px,py,pz)=>{const o=new T.Mesh(new T.BoxGeometry(w,h,d),m);o.position.set(px,py,pz);g.add(o);return o};
+  let ty,hy;if(sit){A(pa,.32,.15,.46,0,.46,-.12);A(pa,.3,.46,.14,0,.23,-.34);ty=.82;hy=1.28}else{A(pa,.32,.86,.2,0,.43,0);ty=1.17;hy=1.64}
+  A(su,.48,.62,.26,0,ty,0);A(su,.11,.55,.12,-.3,ty-.02,0);A(su,.11,.55,.12,.3,ty-.02,0);A(M(tie,{roughness:.6}),.06,.34,.02,0,ty+.05,.14);
+  const hd=new T.Mesh(new T.SphereGeometry(.14,14,10),sk);hd.position.set(0,hy,0);g.add(hd);const hr=new T.Mesh(new T.SphereGeometry(.15,14,10,0,Math.PI*2,0,Math.PI/2),M(hair,{roughness:.9}));hr.position.set(0,hy+.02,-.01);g.add(hr);
+  g.position.set(x,.14,z);g.rotation.y=ry;g.userData={y:.14,ry};sc.add(g);return g};
+ const bx=(w,h,d,m,x,y,z)=>B(w,h,d,m,x,y,z);
+ /* shell: hollow lobby behind the facade */
+ bx(5.8,H,.8,wm,-4.8,H/2,-.4);bx(5.8,H,.8,wm,4.8,H/2,-.4);bx(3.8,H-OH,.8,wm,0,OH+(H-OH)/2,-.4);
+ bx(.4,H,9,wm,-7.5,H/2,-4.5);bx(.4,H,9,wm,7.5,H/2,-4.5);bx(15.4,H,.6,wm,0,H/2,-8.7);bx(15.4,.4,9,wm,0,H+.2,-4.5);
+ /* interior wall finish: cream panels, wood wainscot, gold rails, pilasters */
+ bx(.1,5.2,8.4,cream,-7.27,3.4,-4.5);bx(.1,5.2,8.4,cream,7.27,3.4,-4.5);bx(14.6,5.2,.1,cream,0,3.4,-8.37);bx(1.2,5.2,.1,cream,-3.3,3.4,-.83);
+ bx(.14,1.2,8.4,woodL,-7.24,.74,-4.5);bx(.14,1.2,8.4,woodL,7.24,.74,-4.5);bx(14.6,1.0,.14,woodL,0,.64,-8.34);
+ bx(.18,.07,8.4,gld,-7.22,1.38,-4.5);bx(.18,.07,8.4,gld,7.22,1.38,-4.5);bx(14.6,.07,.18,gld,0,1.18,-8.32);
+ for(const s of[-1,1])for(const z of[-1.2,-4.8,-7.6]){bx(.34,6.2,.44,stoneL,s*7.1,3.3,z);bx(.5,.2,.6,gld,s*7.1,6.3,z);bx(.5,.2,.6,gld,s*7.1,.3,z)}
+ /* ceiling: coffers, beams, recessed lights */
+ bx(14.6,.3,8.2,cream,0,6.4,-4.3);
+ for(const z of[-2,-4.4,-6.8])bx(14.6,.25,.32,beam,0,6.2,z);for(const x of[-4.8,0,4.8])bx(.32,.25,8.2,beam,x,6.2,-4.3);
+ for(const x of[-5.9,-3.6,3.6,5.9])for(const z of[-1.2,-3.2,-5.6,-7.4]){const o=new T.Mesh(new T.PlaneGeometry(1.1,.5),bas(0xfff1cf));o.rotation.x=Math.PI/2;o.position.set(x,6.22,z);sc.add(o)}
+ /* floor: marble checker + runner */
+ const mft=tex(256,256,(g,w,h)=>{g.fillStyle='#efe9db';g.fillRect(0,0,w,h);g.fillStyle='#7a8496';g.fillRect(0,0,w/2,h/2);g.fillRect(w/2,h/2,w/2,h/2);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=2;for(let i=0;i<14;i++){g.beginPath();const a=Math.random()*w,b=Math.random()*h;g.moveTo(a,b);g.bezierCurveTo(a+30,b+10,a+10,b+50,a+60,b+70);g.stroke()}g.strokeStyle='rgba(0,0,0,.14)';g.lineWidth=3;g.strokeRect(0,0,w,h);g.beginPath();g.moveTo(w/2,0);g.lineTo(w/2,h);g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke()});
+ mft.wrapS=mft.wrapT=T.RepeatWrapping;mft.repeat.set(7,4);
+ const flr=new T.Mesh(new T.PlaneGeometry(14.6,8.4),new T.MeshStandardMaterial({map:mft,roughness:.18,metalness:.25}));flr.rotation.x=-Math.PI/2;flr.position.set(0,.14,-4.6);sc.add(flr);
+ const rn=tex(128,512,(g,w,h)=>{g.fillStyle='#14305e';g.fillRect(0,0,w,h);g.strokeStyle='#e8c24a';g.lineWidth=6;g.strokeRect(8,8,w-16,h-16);g.lineWidth=2;g.strokeRect(18,18,w-36,h-36);g.fillStyle='rgba(232,194,74,.5)';for(let y=60;y<h;y+=90){g.beginPath();g.moveTo(w/2,y-22);g.lineTo(w/2+16,y);g.lineTo(w/2,y+22);g.lineTo(w/2-16,y);g.closePath();g.fill()}});
+ const rp=new T.Mesh(new T.PlaneGeometry(2.6,6.4),new T.MeshStandardMaterial({map:rn,roughness:.95}));rp.rotation.x=-Math.PI/2;rp.position.set(0,.16,-4.1);sc.add(rp);
+ /* inner side of the front wall: night windows */
+ for(const s of[-1,1])for(let i=0;i<3;i++){const o=new T.Mesh(new T.PlaneGeometry(.9,2.4),bas(0x2a4a86));o.position.set(s*(3.1+i*1.45),3.5,-.82);o.rotation.y=Math.PI;sc.add(o);bx(1.05,.08,.1,gld,s*(3.1+i*1.45),4.74,-.8);bx(1.05,.08,.1,gld,s*(3.1+i*1.45),2.26,-.8)}
+ /* teller counters, glass screens, gold posts */
+ for(const s of[-1,1]){const cx=s*3.95;
+  bx(4.9,1.1,1.1,wood,cx,.69,-5.5);bx(5.1,.1,1.4,marble,cx,1.29,-5.5);bx(4.9,.07,.04,gld,cx,.85,-4.93);bx(4.9,.07,.04,gld,cx,.5,-4.93);
+  bx(4.9,.12,.12,gld,cx,2.6,-5.5);bx(4.9,.08,.12,gld,cx,1.78,-5.5);
+  for(const dx of[-2.45,0,2.45]){const o=new T.Mesh(new T.CylinderGeometry(.04,.04,1.3,10),gld);o.position.set(cx+dx,1.94,-5.5);sc.add(o)}
+  for(const dx of[-1.225,1.225]){const o=new T.Mesh(new T.PlaneGeometry(2.3,.8),glass);o.position.set(cx+dx,2.2,-5.5);sc.add(o)}
+  bx(4.9,1.0,.8,wood,cx,.64,-8.0);bx(5.1,.06,.9,woodL,cx,1.17,-8.0)}
+ /* window numbers hung from the ceiling */
+ [-5.2,-2.7,2.7,5.2].forEach((x,i)=>{for(const dx of[-.34,.34]){const o=new T.Mesh(new T.CylinderGeometry(.012,.012,2.3,6),gld);o.position.set(x+dx,5.2,-5.0);sc.add(o)}
+  bx(1.1,.52,.08,dark,x,4.0,-5.0);plq(1.0,.42,'窓口'+(i+1),null,'#ffcf5a','#0b0b10',x,4.0,-4.95,0)});
+ /* tellers (behind glass) */
+ [[-5.2,0x1c2a4a,0xb01828],[-2.7,0x2a2f3a,0x1a6a3a],[2.7,0x1c2a4a,0xe8c24a],[5.2,0x3a2430,0x1a4a9a]].forEach(([x,su,ti],i)=>BI.ppl.push(person(x,-6.45,0,su,ti,i%2?0x2a1a0a:0x1a1a1a,false)));
+ /* back wall: name plaque, vault, deposit boxes */
+ plq(6.6,.84,'かにかま銀行','JOHO BANK','#f6d24a','#10203f',0,5.8,-8.3,0);
+ const dep=(x)=>PL(3.4,2.8,tex(512,420,(g,w,h)=>{g.fillStyle='#2b2318';g.fillRect(0,0,w,h);const cw=w/8,ch=h/6;for(let r=0;r<6;r++)for(let c2=0;c2<8;c2++){const gx=c2*cw+4,gy=r*ch+4,gr=g.createLinearGradient(gx,gy,gx+cw,gy+ch);gr.addColorStop(0,'#e8c24a');gr.addColorStop(.5,'#b58a1e');gr.addColorStop(1,'#7a5a10');g.fillStyle=gr;g.fillRect(gx,gy,cw-8,ch-8);g.fillStyle='#1a1408';g.beginPath();g.arc(gx+(cw-8)/2,gy+(ch-8)*.45,5,0,7);g.fill();g.fillRect(gx+(cw-8)/2-1.5,gy+(ch-8)*.45,3,10);g.fillStyle='rgba(26,20,8,.8)';g.font='700 11px Georgia,serif';g.textAlign='center';g.fillText(String(r*8+c2+1).padStart(2,'0'),gx+(cw-8)/2,gy+ch-14)}}),x,3.0,-8.28,0);
+ dep(-5.0);dep(5.0);
+ const vg=new T.Group();vg.position.set(0,2.35,-8.1);sc.add(vg);
+ const vr=new T.Mesh(new T.TorusGeometry(1.85,.3,16,56),stl);const vd=new T.Mesh(new T.CylinderGeometry(1.6,1.6,.5,48),stl);vd.rotation.x=Math.PI/2;vg.add(vr,vd);
+ const vr2=new T.Mesh(new T.TorusGeometry(1.2,.07,10,48),gld);vr2.position.z=.28;vg.add(vr2);
+ for(let i=0;i<14;i++){const a=i*Math.PI*2/14,b=new T.Mesh(new T.CylinderGeometry(.13,.13,.3,10),gld);b.rotation.x=Math.PI/2;b.position.set(Math.cos(a)*1.48,Math.sin(a)*1.48,.3);vg.add(b)}
+ const wh=new T.Group();wh.position.z=.5;for(let i=0;i<3;i++){const s2=new T.Mesh(new T.BoxGeometry(.16,2.6,.16),gld);s2.rotation.z=i*Math.PI/3;wh.add(s2)}wh.add(new T.Mesh(new T.SphereGeometry(.34,16,12),gld));vg.add(wh);BI.wheel=wh;
+ bx(.6,4.6,.6,stoneL,-2.55,2.3,-8.05);bx(.6,4.6,.6,stoneL,2.55,2.3,-8.05);bx(5.7,.55,.6,stoneL,0,4.8,-8.05);
+ plq(2.2,.5,'金庫','VAULT','#e8c24a','#181010',0,5.28,-8.3,0);
+ spr('rgba(255,210,120,.8)',9,0,2.4,-7.5,.55);
+ for(const x of[-3.7,3.7]){bx(.24,.5,.24,gld,x,3.4,-8.2);spr('rgba(255,220,140,.9)',2.4,x,3.5,-8.0,.8)}
+ /* low gate in the centre aisle */
+ for(const x of[-1.3,1.3]){const o=new T.Mesh(new T.CylinderGeometry(.06,.06,1.0,10),gld);o.position.set(x,.66,-5.4);sc.add(o)}
+ for(const x of[-.65,.65])bx(1.2,.05,.05,gld,x,.9,-5.4);bx(1.2,.05,.05,gld,-.65,.6,-5.4);bx(1.2,.05,.05,gld,.65,.6,-5.4);
+ /* queue stanchions + ropes, ticket machine */
+ for(const x of[-1.25,1.25])for(const z of[-1.9,-3.6]){const p=new T.Mesh(new T.CylinderGeometry(.04,.07,1,10),gld);p.position.set(x,.66,z);sc.add(p);const b=new T.Mesh(new T.SphereGeometry(.09,10,8),gld);b.position.set(x,1.2,z);sc.add(b)}
+ for(const x of[-1.25,1.25]){const r=new T.Mesh(new T.CylinderGeometry(.025,.025,1.7,8),M(0x8a0f22,{roughness:.8}));r.rotation.x=Math.PI/2;r.position.set(x,1.05,-2.75);sc.add(r)}
+ bx(.46,1.3,.4,dark,2.5,.8,-1.4);plq(.36,.3,'番号札',null,'#7affb0','#08140c',2.5,1.2,-1.19,0);
+ /* ATMs along the left wall */
+ const atmTex=tex(256,176,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#1d6fd6');gr.addColorStop(1,'#0b2a66');g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font='800 44px '+FNT;g.fillText('ご利用ください',w/2,62);g.font='700 30px Georgia,serif';g.fillStyle='#ffe58a';g.fillText('¥ ATM',w/2,126)});
+ for(const z of[-2.1,-3.15,-4.2]){const g=new T.Group();g.position.set(-6.85,.14,z);g.rotation.y=Math.PI/2;
+  const bd=new T.Mesh(new T.BoxGeometry(.82,1.9,.6),M(0x2c3a58,{metalness:.6,roughness:.35}));bd.position.y=.95;g.add(bd);
+  const sn=new T.Mesh(new T.PlaneGeometry(.54,.38),new T.MeshBasicMaterial({map:atmTex}));sn.position.set(0,1.45,.305);g.add(sn);
+  const kp=new T.Mesh(new T.BoxGeometry(.4,.05,.2),dark);kp.position.set(0,1.05,.34);kp.rotation.x=-.3;g.add(kp);
+  const sl=new T.Mesh(new T.BoxGeometry(.26,.04,.02),bas(0x7affb0));sl.position.set(0,.8,.31);g.add(sl);
+  const tp=new T.Mesh(new T.BoxGeometry(.82,.26,.62),bas(0x1d6fd6));tp.position.y=2.03;g.add(tp);sc.add(g)}
+ /* posters */
+ [['ATM','24時間','#16355e'],['振込','手数料0円','#16355e'],['両替','外貨対応','#16355e']].forEach((p,i)=>plq(1.3,.85,p[0],p[1],'#f6e27a',p[2],-7.2,3.4,-2.1-i*2.0,Math.PI/2));
+ [['定期預金','年0.5%','#5a1226'],['ローン','ご相談ください','#5a1226'],['積立投資','少額から','#5a1226']].forEach((p,i)=>plq(1.3,.85,p[0],p[1],'#f6e27a',p[2],7.2,3.4,-2.1-i*2.0,-Math.PI/2));
+ /* waiting benches + guests */
+ for(const x of[3.6,5.7])for(const z of[-2.8,-4.0]){bx(1.7,.12,.55,leather,x,.6,z);bx(1.7,.5,.1,leather,x,.95,z+.27);for(const dx of[-.75,.75])bx(.08,.46,.5,gld,x+dx,.37,z)}
+ BI.ppl.push(person(3.35,-2.75,Math.PI,0x3a3a44,0x1a4a9a,0x201208,true),person(5.95,-3.95,Math.PI,0x6a3a3a,0xe8c24a,0x3a2a14,true),person(-.9,-3.0,Math.PI,0x2a3a2a,0xb01828,0x1a1a1a,false),person(.95,-4.0,Math.PI,0x14304e,0x8a8a96,0x6a5a3a,false),person(2.1,-7.3,Math.PI*.95,0x101018,0xffffff,0x101018,false));
+ /* plants */
+ for(const[x,z]of[[-6.7,-.9],[6.7,-.9],[-6.8,-7.9],[6.8,-7.9],[-6.7,-6.2],[6.7,-6.2]]){const pt=new T.Mesh(new T.CylinderGeometry(.3,.22,.5,14),M(0x8a5a3a,{roughness:.7}));pt.position.set(x,.39,z);sc.add(pt);
+  for(let i=0;i<7;i++){const a=i*Math.PI*2/7,l=new T.Mesh(new T.SphereGeometry(.27,10,8),M(0x2f7a45,{roughness:.8}));l.scale.set(1,1.5,1);l.position.set(x+Math.cos(a)*.26,1.0+(i%3)*.2,z+Math.sin(a)*.26);sc.add(l)}
+  const top=new T.Mesh(new T.SphereGeometry(.34,10,8),M(0x3a9a58,{roughness:.8}));top.position.set(x,1.6,z);sc.add(top)}
+ /* chandeliers + interior lights */
+ for(const z of[-2.8,-5.4]){const cy=5.3;const rod=new T.Mesh(new T.CylinderGeometry(.02,.02,1.1,6),gld);rod.position.set(0,5.85,z);sc.add(rod);
+  for(const r of[.7,.45]){const t=new T.Mesh(new T.TorusGeometry(r,.04,8,36),gld);t.rotation.x=Math.PI/2;t.position.set(0,cy-(r<.5?.18:0),z);sc.add(t)}
+  for(let i=0;i<10;i++){const a=i*Math.PI/5,b=new T.Mesh(new T.SphereGeometry(.07,8,6),bas(0xfff0b0));b.position.set(Math.cos(a)*.7,cy+.07,z+Math.sin(a)*.7);sc.add(b)}
+  spr('rgba(255,225,150,.9)',3.4,0,cy,z,.8)}
+ for(const[x,z]of[[-3.6,-2.4],[3.6,-2.4],[-3.6,-5.0],[3.6,-5.0]]){const l=new T.PointLight(0xfff1cf,0,13);l.position.set(x,5.4,z);sc.add(l);BI.bls.push(l)}
+}else{
+ B(5.8,H,8,wm,-4.8,H/2,-4);B(5.8,H,8,wm,4.8,H/2,-4);B(3.8,H-OH,8,wm,0,OH+(H-OH)/2,-4);B(15.4,H,2,wm,0,H/2,-9);
+}
+if(!bank)B(3.8,.1,8,M(c.carpet),0,.07,-4);
+const back=new T.Mesh(new T.PlaneGeometry(3.8,OH),new T.MeshBasicMaterial({map:tex(64,256,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,'#fff3c4');r.addColorStop(1,'#ffb454');g.fillStyle=r;g.fillRect(0,0,w,h)})}));back.position.set(0,OH/2,-7.9);sc.add(back);back.visible=!bank;
+const inL=new T.PointLight(0xffc873,0,16);inL.position.set(0,3,-3);sc.add(inL);
+/* windows */
+const wg=new T.InstancedMesh(new T.PlaneGeometry(bank?.9:1.15,bank?2.2:1.0),new T.MeshBasicMaterial(),18),m4=new T.Matrix4(),cc=new T.Color();let n=0;
+for(const sx of[-1,1])for(let i=0;i<3;i++)for(let j=0;j<(bank?2:3);j++){m4.setPosition(sx*(2.9+i*1.6),bank?3.6+j*3.1:4.9+j*1.45,.02);wg.setMatrixAt(n,m4);wg.setColorAt(n,cc.set(Math.random()<.7?c.win:c.win2).multiplyScalar(.55+Math.random()*.45));n++}
+wg.count=n;sc.add(wg);
+/* sign */
+const sg=tex(1600,300,(g,w,h)=>{let fs=150;g.font='800 '+fs+'px "Shippori Mincho",serif';const tw=g.measureText(c.text[0]).width;fs*=Math.min(1,1450/tw);g.font='800 '+fs+'px "Shippori Mincho",serif';g.textAlign='center';g.textBaseline='middle';
+ const gr=g.createLinearGradient(0,40,0,220);gr.addColorStop(0,'#fff7c2');gr.addColorStop(.5,'#f6d24a');gr.addColorStop(1,'#a67c14');g.shadowColor=c.neonCss;g.shadowBlur=36;g.lineWidth=10;g.strokeStyle='#3a2606';g.strokeText(c.text[0],w/2,125);g.fillStyle=gr;g.fillText(c.text[0],w/2,125);
+ g.shadowBlur=0;g.font='700 46px Georgia,serif';g.fillStyle='#f6e27a';g.fillText(c.text[1].split('').join(' '),w/2,252)});
+const sy=bank?6.85:7.6,sz=bank?3.45:.06;
+const sign=new T.Mesh(new T.PlaneGeometry(bank?9.6:11.6,bank?1.8:2.2),new T.MeshBasicMaterial({map:sg,transparent:true}));sign.position.set(0,sy,sz);sc.add(sign);
+const sglow=spr(c.glow,bank?14:20,0,sy,sz+.4,.55);
+const bulbs=[],bm=()=>new T.MeshBasicMaterial({color:0xffe6a0});
+if(bank){const st=M(c.wall,{roughness:.9});
+ B(15.6,.1,5,st,0,.17,2.5);
+ for(const x of[-6.5,-4.7,-3,3,4.7,6.5]){const k=new T.Mesh(new T.CylinderGeometry(.42,.46,6.3,18),M(0xe3e6ee,{roughness:.55}));k.position.set(x,3.3,2);sc.add(k);B(1.1,.25,1.1,st,x,.3,2);B(1.1,.25,1.1,st,x,6.5,2)}
+ B(16.4,.9,3.6,st,0,7,1.8);
+ const sh=new T.Shape();sh.moveTo(-8.2,0);sh.lineTo(8.2,0);sh.lineTo(0,2.5);sh.closePath();const pd=new T.Mesh(new T.ExtrudeGeometry(sh,{depth:3.6,bevelEnabled:false}),st);pd.position.set(0,7.45,0);sc.add(pd);
+ var clk=new T.Mesh(new T.CircleGeometry(.85,40),new T.MeshBasicMaterial({color:0xfff7dc}));clk.position.set(0,8.55,3.62);sc.add(clk);
+ var hh=new T.Mesh(new T.BoxGeometry(.07,.55,.02),new T.MeshBasicMaterial({color:0x222}));hh.geometry.translate(0,.27,0);hh.position.set(0,8.55,3.64);sc.add(hh);
+ var mh=hh.clone();mh.geometry=new T.BoxGeometry(.05,.75,.02).translate(0,.37,0);sc.add(mh);
+}else{
+ B(6.4,.28,3.2,M(0x1a0c20),0,4.35,1.6);const gm=M(c.acc,{metalness:.8,roughness:.3});B(6.6,.12,.12,gm,0,4.5,3.2);
+ for(let i=0;i<22;i++){const a=i<13?[-3.1+i*.5167,4.2,3.2]:[(i%2?3.1:-3.1),4.2,.3+((i-13)>>1)*.7];const b=new T.Mesh(new T.SphereGeometry(.1,10,8),bm());b.position.set(a[0],a[1],a[2]);sc.add(b);bulbs.push(b)}
+}
+/* doors */
+const dm=M(c.acc,{metalness:.85,roughness:.28}),gl=new T.MeshStandardMaterial({color:0x101830,roughness:.1,metalness:.9,transparent:true,opacity:.55,emissive:0x1a2a5a}),lv=[];
+for(const s of[-1,1]){const p=new T.Group();p.position.set(s*1.9,.12,.05);const lw=1.88,lh=OH-.15;
+ for(const[w,h,x,y]of[[lw,.14,0,lh-.07],[lw,.14,0,.07],[.14,lh,-.87,lh/2],[.14,lh,.87,lh/2],[.1,lh,0,lh/2]]){const o=new T.Mesh(new T.BoxGeometry(w,h,.12),dm);o.position.set(s*-.94+x,y,0);p.add(o)}
+ const g=new T.Mesh(new T.PlaneGeometry(lw-.2,lh-.3),gl);g.position.set(-s*.94,lh/2,0);p.add(g);const hd=new T.Mesh(new T.CylinderGeometry(.05,.05,.7,8),dm);hd.position.set(-s*.2,1.3,.12);p.add(hd);sc.add(p);lv.push([p,s])}
+/* carpet, stanchions, lamps, symbols, sparkles */
+B(3,.05,15,M(c.carpet,{roughness:.9}),0,.15,8);
+for(let z=2;z<=13;z+=2.75)for(const x of[-1.8,1.8]){const p=new T.Mesh(new T.CylinderGeometry(.05,.07,1,8),dm);p.position.set(x,.65,z);sc.add(p);const b=new T.Mesh(new T.SphereGeometry(.1,10,8),dm);b.position.set(x,1.15,z);sc.add(b)}
+for(const x of[-9,9]){const p=new T.Mesh(new T.CylinderGeometry(.08,.12,5,8),M(0x15151c));p.position.set(x,2.5,6);sc.add(p);B(.5,.3,.5,new T.MeshBasicMaterial({color:0xffe2a0}),x,5.1,6);spr('rgba(255,210,130,.9)',5,x,5.1,6,.8);const l=new T.PointLight(0xffd699,.9,22);l.position.set(x,4.8,6.5);sc.add(l)}
+const syms=c.syms.map((s,i)=>{const o=new T.Sprite(new T.SpriteMaterial({map:tex(128,128,(g,w,h)=>{g.font='900 100px Georgia,serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor=s[1];g.shadowBlur=26;g.fillStyle=s[1];g.fillText(s[0],64,70)}),transparent:true,depthWrite:false}));o.scale.set(2.4,2.4,1);o.position.set(i%2?-10.5:10.5,3+i*1.1,2+i);o.userData.y=o.position.y;sc.add(o);return o});
+const N=170,pg=new T.BufferGeometry(),pp=new Float32Array(N*3);for(let i=0;i<N;i++){pp[i*3]=(Math.random()-.5)*30;pp[i*3+1]=Math.random()*10;pp[i*3+2]=Math.random()*20-3}
+pg.setAttribute('position',new T.BufferAttribute(pp,3));sc.add(new T.Points(pg,add(new T.PointsMaterial({color:c.acc,size:.09,sizeAttenuation:true}))));
+/* loop */
+let on=false,raf,u=0,dir=0,dur=3,cb=null,tt=0,last=0,px=0,py=0;const fl=c.flash;
+addEventListener('pointermove',e=>{px=e.clientX/innerWidth*2-1;py=e.clientY/innerHeight*2-1},{passive:true});
+function rs(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;R.setSize(w,h,false);cam.aspect=w/h;cam.fov=w/h<.8?72:55;cam.updateProjectionMatrix()}addEventListener('resize',rs);
+function anim(){const e=E(u),k=1-e;
+ cam.position.set(Math.sin(tt*.22)*2.6*k+px*1.4*k,2.4-.8*e-py*.3*k,15.5-17.2*e);cam.lookAt(px*.8*k,3.3-(bank?1.3:1.7)*e,-2-6*e);if(bank){const bf=(cam.aspect<.8?72:55)+16*e;if(Math.abs(cam.fov-bf)>.05){cam.fov=bf;cam.updateProjectionMatrix()}}
+ const o=S(e,.42,.76)*1.75;for(const[p,s]of lv)p.rotation.y=s*o;
+ inL.intensity=.5+S(e,.25,.9)*2.4;if(bank&&BI){BI.bls.forEach(l=>l.intensity=S(e,.2,.8)*1.15);BI.wheel.rotation.z=tt*.15;BI.ppl.forEach((p,i)=>{p.position.y=p.userData.y+Math.abs(Math.sin(tt*1.3+i*2))*.012;p.rotation.y=p.userData.ry+Math.sin(tt*.6+i)*.12})}sglow.material.opacity=.5+.12*Math.sin(tt*3);
+ bulbs.forEach((b,i)=>{const v=((i-tt*9)%4+4)%4<2;b.material.color.setHex(v?0xfff0b0:0x5a4010)});
+ syms.forEach((s,i)=>{s.position.y=s.userData.y+Math.sin(tt*1.2+i*1.7)*.45});
+ if(bank){const d=new Date();hh.rotation.z=-(d.getHours()%12+d.getMinutes()/60)*Math.PI/6;mh.rotation.z=-d.getMinutes()*Math.PI/30}
+ const a=pg.attributes.position.array;for(let i=0;i<N;i++){a[i*3+1]+=.004;if(a[i*3+1]>10)a[i*3+1]=0;a[i*3]+=Math.sin(tt+i)*.0015}pg.attributes.position.needsUpdate=true;
+ if(fl&&dir){fl.style.transition='none';fl.style.opacity=S(e,bank?.93:.86,1)}}
+function frame(ts){if(!on)return;raf=requestAnimationFrame(frame);const dt=Math.min(.05,(ts-last)/1000||0);last=ts;tt+=dt;
+ if(dir){u+=dir*dt/dur;if(dir>0&&u>=1||dir<0&&u<=0){u=dir>0?1:0;if(fl)fl.style.opacity=dir>0?1:0;dir=0;const f=cb;cb=null;f&&f()}}anim();R.render(sc,cam)}
+return{start(){if(on)return;on=true;rs();last=performance.now();raf=requestAnimationFrame(frame)},stop(){on=false;cancelAnimationFrame(raf)},
+ enter(f,d){u=0;dir=1;dur=d||3.4;cb=f},exit(f,d){u=1;dir=-1;dur=d||3.2;cb=f},rs,get u(){return u}}};
+/* ===== INTERIORS ===== */
+const MS=(col,o)=>new T.MeshStandardMaterial(Object.assign({color:col,roughness:.6,metalness:.15},o||{}));
+const wrap=x=>((x+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
+const lbl=(t,col)=>{const o=new T.Sprite(new T.SpriteMaterial({map:tex(512,128,(g,w,h)=>{g.font='800 54px "Shippori Mincho",serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor=col;g.shadowBlur=18;g.lineWidth=8;g.strokeStyle='#1a1004';g.strokeText(t,w/2,64);g.fillStyle='#ffe89a';g.fillText(t,w/2,64)}),transparent:true}));o.scale.set(4,1,1);return o};
+JX.floor=async function(c,cv){
+ const R=new T.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,1.6));
+ const sc=new T.Scene();sc.background=new T.Color(0x07040c);sc.fog=new T.FogExp2(0x07040c,.03);const cam=new T.PerspectiveCamera(62,1,.1,90);
+ const gold=MS(0xf0c040,{metalness:.9,roughness:.25}),felt=col=>MS(col,{roughness:.9,metalness:0}),bas=col=>new T.MeshBasicMaterial({color:col});
+ sc.add(new T.AmbientLight(0x7a6a9a,1.05));const pl=new T.PointLight(0xffd9a0,1.2,34);pl.position.set(0,6.5,0);sc.add(pl);
+ const spot=new T.SpotLight(0xfff0c0,2.6,24,.45,.6,1);sc.add(spot,spot.target);
+ const ft=tex(256,256,(g,w,h)=>{g.fillStyle='#3a0a14';g.fillRect(0,0,w,h);g.strokeStyle='#c9a032';g.lineWidth=4;for(const k of[1,.5]){g.beginPath();g.moveTo(w/2,h/2*(1-k));g.lineTo(w/2*(1+k),h/2);g.lineTo(w/2,h/2*(1+k));g.lineTo(w/2*(1-k),h/2);g.closePath();g.stroke()}});ft.wrapS=ft.wrapT=T.RepeatWrapping;ft.repeat.set(12,12);
+ const fl=new T.Mesh(new T.CircleGeometry(19,64),new T.MeshStandardMaterial({map:ft,roughness:.35,metalness:.3}));fl.rotation.x=-Math.PI/2;sc.add(fl);
+ sc.add(new T.Mesh(new T.SphereGeometry(32,24,12),new T.MeshBasicMaterial({color:0x140a22,side:T.BackSide})));
+ for(const[r,col]of[[6.2,0xff2a6d],[13.5,0xf6c940]]){const t=new T.Mesh(new T.TorusGeometry(r,.07,6,96),bas(col));t.rotation.x=Math.PI/2;t.position.y=.04;sc.add(t)}
+ const items=c.items,N=items.length,RR=9.6,sp=[],ST=[];
+ for(let i=0;i<N;i++){const a=(i+.5)*2*Math.PI/N,x=Math.sin(a)*12.6,z=-Math.cos(a)*12.6,p=new T.Mesh(new T.CylinderGeometry(.45,.5,7,14),gold);p.position.set(x,3.5,z);sc.add(p);const s=new T.Sprite(add(new T.SpriteMaterial({map:radial('rgba(255,200,90,.9)')})));s.scale.set(4,4,1);s.position.set(x,6.6,z);sc.add(s)}
+ for(let i=0;i<12;i++){const a=i*Math.PI/6,m=new T.Mesh(new T.SphereGeometry(.18,10,8),bas(0xffe2a0));m.position.set(Math.sin(a)*5,7.4,-Math.cos(a)*5);sc.add(m);const s=new T.Sprite(add(new T.SpriteMaterial({map:radial('rgba(255,220,140,.8)')})));s.scale.set(2.2,2.2,1);s.position.copy(m.position);sc.add(s)}
+ const tbl=(col,r)=>{const g=new T.Group(),t=new T.Mesh(new T.CylinderGeometry(r,r,.14,40),felt(col));t.position.y=.95;const rim=new T.Mesh(new T.TorusGeometry(r,.12,10,40),MS(0x3a1d0a));rim.rotation.x=Math.PI/2;rim.position.y=1.02;const pd=new T.Mesh(new T.CylinderGeometry(.35,.6,.9,16),gold);pd.position.y=.45;const rg=new T.Mesh(new T.TorusGeometry(r*.6,.025,6,40),bas(0xf6e27a));rg.rotation.x=Math.PI/2;rg.position.y=1.03;g.add(t,rim,pd,rg);return g};
+ const chips=(g,x,z,n,col)=>{for(let i=0;i<n;i++){const m=new T.Mesh(new T.CylinderGeometry(.14,.14,.05,16),MS(i%2?0xffffff:col));m.position.set(x,1.06+i*.056,z);g.add(m)}};
+ const card=(g,x,z,r)=>{const m=new T.Mesh(new T.PlaneGeometry(.3,.42),new T.MeshBasicMaterial({color:0xfffdf2,side:2}));m.rotation.set(-Math.PI/2,0,r);m.position.set(x,1.04,z);g.add(m)};
+ const scr=(w,h,f)=>new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tex(256,Math.round(256*h/w),f)}));
+ const build=k=>{const g=new T.Group();let ly=3.4;
+  if(k=='bj'||k=='bc'||k=='pk'||k=='hl'){g.add(tbl(k=='bc'?0x8a1020:k=='pk'?0x123a7a:0x0f6b3e,k=='pk'?1.75:1.55));chips(g,-.5,.3,6,0xd03030);chips(g,.5,.5,4,0x3060d0);card(g,-.25,-.4,.3);card(g,.1,-.4,-.2);card(g,.5,-.1,.5);if(k=='hl'){const b=new T.Mesh(new T.PlaneGeometry(.8,1.12),new T.MeshBasicMaterial({color:0xfffdf2,side:2}));b.position.set(0,1.75,-.2);g.add(b)}}
+  else if(k=='ch'){g.add(tbl(0x0f6b3e,1.4));const bw=new T.Mesh(new T.SphereGeometry(.6,20,12,0,Math.PI*2,Math.PI/2,Math.PI/2),MS(0x8a1020,{side:2}));bw.position.y=1.5;g.add(bw);for(let i=0;i<3;i++){const d=new T.Mesh(new T.BoxGeometry(.22,.22,.22),bas(0xffffff));d.position.set(-.3+i*.3,1.3,0);g.add(d);sp.push(d)}}
+  else if(k=='ru'){g.add(tbl(0x7a1020,1.6));const pie=tex(256,256,(q,w,h)=>{for(let i=0;i<24;i++){q.fillStyle=i==0?'#118a4a':i%2?'#c01828':'#111';q.beginPath();q.moveTo(128,128);q.arc(128,128,128,i*Math.PI/12,(i+1)*Math.PI/12);q.fill()}});const w=new T.Mesh(new T.CylinderGeometry(.9,.9,.12,36),[MS(0x3a1d0a),new T.MeshBasicMaterial({map:pie}),MS(0x3a1d0a)]);w.position.y=1.12;g.add(w);sp.push(w)}
+  else if(k=='sl'){ly=3.2;for(const x of[-.6,.6]){const b=new T.Mesh(new T.BoxGeometry(1,2.2,.9),MS(0x2a1040,{metalness:.5}));b.position.set(x,1.1,0);const s=scr(.8,.5,(q,w,h)=>{q.fillStyle='#fff6d0';q.fillRect(0,0,w,h);q.font='900 90px Georgia';q.textAlign='center';q.fillStyle='#d01020';q.fillText('7 7 7',w/2,h*.72)});s.position.set(x,1.5,.46);const m=new T.Mesh(new T.BoxGeometry(1,.25,.95),bas(0xff3a8a));m.position.set(x,2.3,0);g.add(b,s,m)}}
+  else if(k=='hr'){ly=4.1;const f=new T.Mesh(new T.BoxGeometry(3.6,2.4,.15),gold);f.position.y=2.2;const s=scr(3.3,2.1,(q,w,h)=>{q.fillStyle='#1a6a2a';q.fillRect(0,0,w,h);for(let i=0;i<5;i++){q.strokeStyle='#fff8';q.lineWidth=3;q.beginPath();q.ellipse(w/2,h/2,w*.4-i*14,h*.38-i*10,0,0,7);q.stroke()}q.font='900 34px Georgia';q.fillStyle='#fff';q.textAlign='center';q.fillText('DERBY',w/2,h/2+10)});s.position.set(0,2.2,.09);const pd=new T.Mesh(new T.CylinderGeometry(1.2,1.4,.5,24),gold);pd.position.y=.25;g.add(f,s,pd)}
+  else if(k=='cr'){const t=new T.Mesh(new T.BoxGeometry(3.4,.14,1.5),felt(0x0f6b3e));t.position.y=.95;g.add(t);for(const z of[-.8,.8]){const r=new T.Mesh(new T.BoxGeometry(3.6,.25,.16),MS(0x3a1d0a));r.position.set(0,1.05,z);g.add(r)}for(const x of[-1.4,1.4]){const p=new T.Mesh(new T.BoxGeometry(.5,.9,1.2),gold);p.position.set(x,.45,0);g.add(p)}for(let i=0;i<2;i++){const d=new T.Mesh(new T.BoxGeometry(.2,.2,.2),bas(0xffffff));d.position.set(-.2+i*.4,1.15,0);g.add(d);sp.push(d)}}
+  else if(k=='vp'){ly=4.6;for(const x of[-1.3,1.3]){const p=new T.Mesh(new T.CylinderGeometry(.2,.2,3.8,12),gold);p.position.set(x,1.9,0);g.add(p)}const lt=new T.Mesh(new T.BoxGeometry(3.2,.4,.4),gold);lt.position.y=3.9;const cu=new T.Mesh(new T.PlaneGeometry(2.4,3.6),new T.MeshStandardMaterial({color:0x8a0c1c,side:2,roughness:.9}));cu.position.y=1.85;g.add(lt,cu)}
+  else{ly=3.6;const gs=new T.Mesh(new T.CylinderGeometry(.9,.9,2.6,24),new T.MeshStandardMaterial({color:0x66ddff,transparent:true,opacity:.22,roughness:.1}));gs.position.y=1.3;const di=new T.Mesh(new T.OctahedronGeometry(.6),bas(0x7af0ff));di.position.y=1.4;const pd=new T.Mesh(new T.CylinderGeometry(1.1,1.2,.3,24),gold);pd.position.y=.15;g.add(gs,di,pd,Object.assign(new T.Sprite(add(new T.SpriteMaterial({map:radial('rgba(120,240,255,.9)')}))),{}));g.children[3].scale.set(3.5,3.5,1);g.children[3].position.y=1.4;sp.push(di)}
+  return[g,ly]};
+ items.forEach((it,i)=>{const a=i*2*Math.PI/N,[g,ly]=build(it[0]),h=new T.Group();h.position.set(Math.sin(a)*RR,0,-Math.cos(a)*RR);h.add(g);const l=lbl(it[1],'#ffb400');l.position.y=ly;h.add(l);const f=new T.Mesh(new T.CircleGeometry(2.4,32),add(new T.MeshBasicMaterial({map:radial('rgba(255,190,80,.55)')})));f.rotation.x=-Math.PI/2;f.position.y=.05;h.add(f);h.lookAt(0,0,0);sc.add(h);ST.push(h)});
+ let on=false,raf,last=0,tt=0,yc=0,mode='idle',tgt=0,d=0,cb=null;const ang=i=>i*2*Math.PI/N;
+ function frame(ts){if(!on)return;raf=requestAnimationFrame(frame);const dt=Math.min(.05,(ts-last)/1000||0);last=ts;tt+=dt;
+  if(mode=='idle')yc+=dt*.09;else yc+=wrap(ang(tgt)-yc)*(1-Math.exp(-dt*5));
+  d+=((mode=='enter'?1:0)-d)*(1-Math.exp(-dt*(mode=='enter'?3.4:2)));
+  if(mode=='enter'&&d>.96&&cb){const f=cb;cb=null;f()}
+  const sx=Math.sin(yc),cz=-Math.cos(yc),ds=d*5.2;cam.position.set(sx*ds,1.75-.3*d+Math.sin(tt*.8)*.04,cz*ds);cam.lookAt(sx*RR,1.25+.2*(1-d),cz*RR);cam.fov=64-9*d;cam.updateProjectionMatrix();
+  const i=((Math.round(yc/(2*Math.PI/N))%N)+N)%N;spot.position.set(Math.sin(ang(i))*RR*.5,9,-Math.cos(ang(i))*RR*.5);spot.target.position.set(Math.sin(ang(i))*RR,1,-Math.cos(ang(i))*RR);
+  for(const o of sp){o.rotation.y+=dt*1.4;o.rotation.x+=dt*.9}R.render(sc,cam)}
+ function rs(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}addEventListener('resize',rs);
+ return{start(){if(on)return;on=true;rs();last=performance.now();raf=requestAnimationFrame(frame)},stop(){on=false;cancelAnimationFrame(raf)},rs,look(i){if(mode!='enter'){mode='look';tgt=i}},release(){mode='idle';cb=null},enter(i,f){mode='enter';tgt=i;cb=f}}};
+JX.hall=async function(c,cv){
+ const R=new T.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,1.25));
+ const sc=new T.Scene();sc.background=new T.Color(0x0a1a38);sc.fog=new T.FogExp2(0x0a1a38,.022);const cam=new T.PerspectiveCamera(58,1,.1,100);
+ const gold=MS(0xe8c24a,{metalness:.9,roughness:.25}),steel=MS(0x9aa6b8,{metalness:.95,roughness:.28}),stone=MS(0xd8dce6,{roughness:.8});
+ sc.add(new T.AmbientLight(0x8aa0d0,1.1));const pl=new T.PointLight(0xffe2a0,1.5,45);pl.position.set(0,8,-6);sc.add(pl);const sl=new T.PointLight(0xfff0c0,1.6,24);sl.position.set(0,4,-11);sc.add(sl);
+ const ft=tex(128,128,(g,w,h)=>{g.fillStyle='#e9ecf2';g.fillRect(0,0,w,h);g.fillStyle='#8a94a8';g.fillRect(0,0,w/2,h/2);g.fillRect(w/2,h/2,w/2,h/2)});ft.wrapS=ft.wrapT=T.RepeatWrapping;ft.repeat.set(14,14);
+ const fl=new T.Mesh(new T.PlaneGeometry(70,70),new T.MeshStandardMaterial({map:ft,roughness:.22,metalness:.35}));fl.rotation.x=-Math.PI/2;sc.add(fl);
+ const bk=new T.Mesh(new T.BoxGeometry(44,16,1),stone);bk.position.set(0,8,-16.5);sc.add(bk);
+ const vg=new T.Group();vg.position.set(0,4.4,-15.7);sc.add(vg);
+ const ring=new T.Mesh(new T.TorusGeometry(3.7,.5,16,56),steel);const dr=new T.Mesh(new T.CylinderGeometry(3.3,3.3,.7,48),steel);dr.rotation.x=Math.PI/2;vg.add(ring,dr);
+ const r2=new T.Mesh(new T.TorusGeometry(2.4,.12,10,48),gold);r2.position.z=.4;vg.add(r2);
+ for(let i=0;i<14;i++){const a=i*Math.PI*2/14,b=new T.Mesh(new T.CylinderGeometry(.14,.14,.3,10),gold);b.rotation.x=Math.PI/2;b.position.set(Math.cos(a)*3,Math.sin(a)*3,.4);vg.add(b)}
+ const wh=new T.Group();wh.position.z=.6;for(let i=0;i<3;i++){const s=new T.Mesh(new T.BoxGeometry(.2,3.4,.2),gold);s.rotation.z=i*Math.PI/3;wh.add(s)}const hb=new T.Mesh(new T.SphereGeometry(.45,16,12),gold);wh.add(hb);vg.add(wh);
+ for(let i=0;i<6;i++)for(const sx of[-1,1]){const z=-2-i*2.8,p=new T.Mesh(new T.CylinderGeometry(.55,.62,10,18),stone);p.position.set(sx*7.5,5,z);sc.add(p);const cap=new T.Mesh(new T.BoxGeometry(1.5,.4,1.5),gold);cap.position.set(sx*7.5,10,z);sc.add(cap)}
+ for(const sx of[-1,1]){const w=new T.Mesh(new T.BoxGeometry(5.5,1.2,1.3),MS(0x4a2c14,{roughness:.5}));w.position.set(sx*4.4,.6,-9);sc.add(w);const tp=new T.Mesh(new T.BoxGeometry(5.7,.12,1.5),gold);tp.position.set(sx*4.4,1.25,-9);sc.add(tp);const lm=new T.Mesh(new T.CylinderGeometry(.22,.3,.4,12),new T.MeshBasicMaterial({color:0x3aff9c}));lm.position.set(sx*4.4,1.5,-9);sc.add(lm)}
+ for(let i=0;i<8;i++){const st=new T.Mesh(new T.CylinderGeometry(.4,.4,.14+(i%3)*.12,16),gold);st.position.set(-2.6+i*.75,.1,-13);sc.add(st)}
+ const sg=new T.Sprite(add(new T.SpriteMaterial({map:radial('rgba(255,220,120,.9)')})));sg.scale.set(14,14,1);sg.position.set(0,4.4,-14);sc.add(sg);
+ for(let i=0;i<4;i++){const ch=new T.Mesh(new T.TorusGeometry(1.2-i*.2,.05,8,32),gold);ch.rotation.x=Math.PI/2;ch.position.set(0,8.6-i*.15,-4-i*3);sc.add(ch);const s=sg.clone();s.scale.set(5,5,1);s.position.copy(ch.position);sc.add(s)}
+ const N=120,pg=new T.BufferGeometry(),pp=new Float32Array(N*3);for(let i=0;i<N;i++){pp[i*3]=(Math.random()-.5)*26;pp[i*3+1]=Math.random()*9;pp[i*3+2]=-Math.random()*16+4}pg.setAttribute('position',new T.BufferAttribute(pp,3));sc.add(new T.Points(pg,add(new T.PointsMaterial({color:0xffe08a,size:.08}))));
+ const PS=[[[0,3,9],[0,4,-15]],[[0,3.6,-5],[0,4.3,-15]],[[-5.5,2.2,0],[4,1.8,-9]],[[6,4.6,4],[-2,3,-12]]],cp=new T.Vector3(0,3,9),cl=new T.Vector3(0,4,-15),tp=new T.Vector3(),tl=new T.Vector3();let k=0,on=false,raf,last=0,tt=0;
+ function frame(ts){if(!on)return;raf=requestAnimationFrame(frame);const dt=Math.min(.05,(ts-last)/1000||0);last=ts;tt+=dt;const a=1-Math.exp(-dt*1.6);
+  tp.set(...PS[k][0]);tl.set(...PS[k][1]);cp.lerp(tp,a);cl.lerp(tl,a);cam.position.set(cp.x+Math.sin(tt*.2)*.7,cp.y+Math.sin(tt*.31)*.15,cp.z);cam.lookAt(cl);wh.rotation.z+=dt*.25;sg.material.opacity=.7+.1*Math.sin(tt*2);
+  const q=pg.attributes.position.array;for(let i=0;i<N;i++){q[i*3+1]+=.004;if(q[i*3+1]>9)q[i*3+1]=0}pg.attributes.position.needsUpdate=true;R.render(sc,cam)}
+ function rs(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;R.setSize(w,h,false);cam.aspect=w/h;cam.fov=w/h<.8?72:58;cam.updateProjectionMatrix()}addEventListener('resize',rs);
+ const st={start(){if(on)return;on=true;rs();last=performance.now();raf=requestAnimationFrame(frame)},stop(){on=false;cancelAnimationFrame(raf)},rs,pose(i){k=((i%4)+4)%4}};
+ document.addEventListener('visibilitychange',()=>document.hidden?st.stop():st.start());return st};
+
+})();
+
+/* bank glue */
+(()=>{const G=document.getElementById('gate'),FL=document.getElementById('flash'),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;let P=null;
+const cfg={type:'bank',flash:FL,sky:0x0a1a38,amb:0x6a7fa8,moon:0xaec4ff,wall:0xc9cfdb,wr:.85,walk:0x4a5568,carpet:0x14305e,acc:0xe8c24a,glow:'rgba(255,220,120,.7)',neonCss:'#ffd76a',text:['かにかま銀行','JOHO BANK'],win:0xffe9a8,win2:0x3a4a6a,puddle:['rgba(255,220,120,.4)','rgba(120,170,255,.4)'],syms:[['¥','#f6e27a'],['$','#f6e27a'],['¥','#f6e27a'],['円','#f6e27a']]};
+const sc=()=>P||(P=window.JX&&JX.ok?JX.make(cfg,document.getElementById('gl3d')):Promise.reject());
+const hide=()=>{G.style.display='none'};
+if(G.style.display==='block'){setTimeout(hide,9000);
+ sc().then(s=>{s.start();s.enter(()=>{G.style.transition='opacity 1.1s';G.style.opacity=0;setTimeout(()=>{hide();s.stop()},1200)},RM?.5:3.2)}).catch(hide)}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href="./"]');if(!a)return;e.preventDefault();
+ const go=()=>{try{sessionStorage.setItem('jx_walk','1')}catch(_){}location.href='./'};
+ sc().then(s=>{G.style.transition='none';G.style.opacity=1;FL.style.transition='none';FL.style.opacity=1;G.style.display='block';s.start();s.exit(go,RM?.5:3)}).catch(go)});
+})();
+</script>
+<script>window.__bk3=!!window.THREE</script>
+<script>/* bank hall glue */
+(()=>{if(!(window.JX&&JX.ok)||window.__bk3)return;const G=document.getElementById('gate'),H=s=>{let a=0;for(const c of String(s))a+=c.charCodeAt(0);return a};
+ JX.hall({},document.getElementById('glh')).then(h=>{document.body.classList.add('g3h');
+  setTimeout(()=>h.start(),G&&G.style.display==='block'?3800:0);
+  const o=window.setTab;window.setTab=function(t){h.pose(H(t));return o.apply(this,arguments)};
+  try{h.pose(H(ui.tab))}catch(e){}}).catch(e=>console.warn('hall off',e))})();
+</script>
+<script>
+/* ===== BK3: bank scenes (Three.js). One 3D banner per tab, above the page content; the bank logic is untouched.
+   投資 = trading floor: video wall fed by the live prices (MK / SYMS / ui.sel), LED ticker, traders at their PCs.
+   Any failure hides only the banner. ===== */
+window.BK3=(function(){
+const T=window.THREE;if(!T)return{};
+const PI=Math.PI,TAU=PI*2,JP='"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif';
+const app=document.getElementById('app'),view=document.getElementById('view');if(!app||!view)return{};
+const cv=document.createElement('canvas');cv.id='bk3cv';document.body.insertBefore(cv,document.body.firstChild);
+let R;try{R=new T.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,1.25))}catch(e){cv.remove();return{}}
+const cvs=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');f&&f(g,w,h);const t=new T.CanvasTexture(c);t.anisotropy=4;t.userData={g,w,h};return t};
+const radial=col=>cvs(128,128,g=>{const r=g.createRadialGradient(64,64,0,64,64,64);r.addColorStop(0,col);r.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128)});
+const rc={},rad=c=>rc[c]||(rc[c]=radial(c));
+const M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:.1},o||{})),B=c=>new T.MeshBasicMaterial({color:c});
+const mesh=(g,m,x,y,z,p)=>{const o=new T.Mesh(g,m);o.position.set(x,y,z);p&&p.add(o);return o};
+const glowS=(col,sz,x,y,z,p)=>{const s=new T.Sprite(new T.SpriteMaterial({map:rad(col),blending:T.AdditiveBlending,depthWrite:false,transparent:true}));s.scale.set(sz,sz,1);s.position.set(x,y,z);s.raycast=()=>{};p.add(s);return s};
+const txt=(t,fs,col,w,h,glowc)=>{const s=new T.Sprite(new T.SpriteMaterial({map:cvs(w||512,h||110,(g,W,H)=>{g.font='900 '+fs+'px '+JP;g.textAlign='center';g.textBaseline='middle';if(glowc){g.shadowColor=glowc;g.shadowBlur=18}g.lineWidth=8;g.strokeStyle='#05080f';g.strokeText(t,W/2,H/2);g.fillStyle=col;g.fillText(t,W/2,H/2)}),transparent:true,depthTest:false}));s.raycast=()=>{};return s};
+const gold=M(0xe8c24a,{metalness:.9,roughness:.25}),steel=M(0x9aa6b8,{metalness:.95,roughness:.28});
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const nextSym=()=>{try{if(!SYMS||!SYMS.length)return;const i=SYMS.findIndex(d=>d.id==ui.sel);selSym(SYMS[(i+1)%SYMS.length].id)}catch(e){}};
+function base(bg,fog){const sc=new T.Scene();sc.background=new T.Color(bg);sc.fog=new T.FogExp2(bg,fog||.02);sc.add(new T.AmbientLight(0x8090c0,.9));return sc}
+function floor(sc,c1,c2,sz,rep,rough){const t=cvs(128,128,(g,w,h)=>{g.fillStyle=c1;g.fillRect(0,0,w,h);g.fillStyle=c2;g.fillRect(0,0,w/2,h/2);g.fillRect(w/2,h/2,w/2,h/2)});t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rep/2,rep/2);const f=mesh(new T.CircleGeometry(13,48),M(0xffffff,{map:t,roughness:rough||.3,metalness:.35}),0,.03,-5,sc);f.rotation.x=-PI/2;return f}
+/* ---- people ---- */
+const SK=[0xf1c9a5,0xe0ac82,0xc68a62,0x8d5a3b],SU=[0x1c2438,0x2a2f3a,0x3b2a2a,0x24323a,0x45454f],HR=[0x15110e,0x3a2a1c,0x6a4a2a,0x222222,0x888888],TI=[0xc62839,0x1f6fd1,0xd4af37,0x1b7f4b];
+function person(o){o=o||{};const g=new T.Group(),suit=M(o.suit||rnd(SU),{roughness:.75}),skin=M(o.skin||rnd(SK),{roughness:.8}),st=!!o.stand;
+ if(!st){mesh(new T.BoxGeometry(.58,.08,.55),M(0x20242c),0,.5,0,g);mesh(new T.BoxGeometry(.58,.62,.07),M(0x20242c),0,.88,.3,g);mesh(new T.CylinderGeometry(.04,.04,.45,6),M(0x555a66),0,.25,0,g)}
+ const ty=st?1.15:.95,hy=st?1.63:1.43;
+ mesh(new T.BoxGeometry(.5,.62,.3),suit,0,ty,0,g);mesh(new T.BoxGeometry(.07,.32,.02),M(o.tie||rnd(TI)),0,ty-.03,-.16,g);
+ const head=mesh(new T.SphereGeometry(.17,14,12),skin,0,hy,0,g);mesh(new T.SphereGeometry(.18,14,10,0,TAU,0,PI*.5),M(o.hair||rnd(HR),{roughness:.9}),0,hy+.02,.01,g);
+ if(st)[-.12,.12].forEach(x=>mesh(new T.BoxGeometry(.18,.82,.2),suit,x,.41,0,g));else[-.12,.12].forEach(x=>{mesh(new T.BoxGeometry(.18,.12,.55),suit,x,.58,-.2,g);mesh(new T.BoxGeometry(.16,.5,.16),suit,x,.3,-.45,g)});
+ const arm=sx=>{const p=new T.Group();p.position.set(sx*.32,st?1.4:1.2,0);g.add(p);mesh(new T.BoxGeometry(.11,.55,.11),suit,0,-.27,0,p);mesh(new T.SphereGeometry(.065,8,6),skin,0,-.57,0,p);return p};
+ return{g,head,aL:arm(-1),aR:arm(1),ph:Math.random()*6,cheer:0,st}}
+/* ---- trading floor data ---- */
+const demo=['情報処理','カジノ','銀行','ゲーム','チップ','ジャック'].map((n,i)=>({id:'D'+i,name:n,p:1000*(i+1),h:Array.from({length:60},(_,k)=>1000*(i+1)*(1+Math.sin(k/6+i)*.03)),chg:0}));
+function feed(){const L=[];try{if(typeof SYMS!=='undefined'&&SYMS.length&&typeof MK!=='undefined')SYMS.forEach(d=>{const m=MK[d.id];if(m&&m.h&&m.h.length){const h=m.h.map(Number);L.push({id:d.id,name:d.name,p:+m.p,h,chg:h[0]?(+m.p-h[0])/Math.abs(h[0]):0})}})}catch(e){}
+ if(L.length)return L;demo.forEach(d=>{const l=d.h[d.h.length-1]*(1+(Math.random()-.5)*.012);d.h.push(l);d.h.shift();d.p=l;d.chg=(l-d.h[0])/d.h[0]});return demo}
+const U=[[1e20,'垓'],[1e16,'京'],[1e12,'兆'],[1e8,'億'],[1e4,'万']];
+const jp=n=>{n=+n;if(!isFinite(n))return'—';const a=Math.abs(n);for(const[u,s]of U)if(a>=u){const v=n/u;return(Math.abs(v)<100?v.toFixed(2):v.toFixed(0))+s}return a<100?n.toFixed(2):Math.round(n).toLocaleString('ja-JP')};
+const CU='#ff4d5e',CD='#4d9bff',CF='#cfd8ea',cc=c=>c>0.00005?CU:c<-0.00005?CD:CF,pc=c=>(c>=0?'+':'')+(c*100).toFixed(2)+'%';
+function drawMain(g,w,h,d,t){g.fillStyle='#04101f';g.fillRect(0,0,w,h);g.strokeStyle='#12263f';g.lineWidth=1;for(let i=1;i<8;i++){g.beginPath();g.moveTo(0,h*.38+i*(h*.6)/8);g.lineTo(w,h*.38+i*(h*.6)/8);g.stroke()}
+ const col=cc(d.chg);g.textBaseline='alphabetic';g.fillStyle='#9fb4d8';g.font='700 40px '+JP;g.fillText(d.name+'  '+d.id,36,64);g.fillStyle=col;g.font='900 104px '+JP;g.fillText(jp(d.p),36,176);g.font='800 48px '+JP;g.fillText((d.chg>=0?'▲ ':'▼ ')+pc(d.chg),36,236);
+ const a=d.h.slice(-140),mn=Math.min(...a),mx=Math.max(...a),pd=(mx-mn)||Math.abs(mn)*.01||1,X=i=>40+i*(w-80)/Math.max(1,a.length-1),Y=v=>h-30-(v-mn)/pd*(h*.62-30);
+ const gr=g.createLinearGradient(0,h*.38,0,h);gr.addColorStop(0,col+'88');gr.addColorStop(1,col+'00');g.beginPath();g.moveTo(X(0),h-30);a.forEach((v,i)=>g.lineTo(X(i),Y(v)));g.lineTo(X(a.length-1),h-30);g.closePath();g.fillStyle=gr;g.fill();
+ g.beginPath();a.forEach((v,i)=>i?g.lineTo(X(i),Y(v)):g.moveTo(X(i),Y(v)));g.strokeStyle=col;g.lineWidth=5;g.stroke();const lx=X(a.length-1),ly=Y(a[a.length-1]);g.fillStyle='#fff';g.beginPath();g.arc(lx,ly,7+Math.sin(t*6)*2,0,TAU);g.fill();
+ g.fillStyle='#ff3b3b';g.beginPath();g.arc(w-150,48,9*(.7+.3*Math.sin(t*4)),0,TAU);g.fill();g.fillStyle='#fff';g.font='900 34px '+JP;g.fillText('LIVE',w-130,60)}
+function drawList(g,w,h,L,sel){g.fillStyle='#04101f';g.fillRect(0,0,w,h);g.fillStyle='#e8c24a';g.font='900 38px '+JP;g.textBaseline='alphabetic';g.fillText('銘柄一覧',24,50);const n=Math.min(L.length,8),rh=(h-76)/Math.max(n,1);
+ L.slice(0,n).forEach((d,i)=>{const y=76+i*rh;if(d.id===sel){g.fillStyle='#16315a';g.fillRect(8,y,w-16,rh-4)}g.fillStyle='#cfd8ea';g.font='800 '+Math.min(34,rh*.5)+'px '+JP;g.fillText(d.name.slice(0,7),24,y+rh*.62);g.textAlign='right';g.fillStyle=cc(d.chg);g.fillText(jp(d.p),w-190,y+rh*.62);g.fillText(pc(d.chg),w-24,y+rh*.62);g.textAlign='left'})}
+function drawHeat(g,w,h,L){g.fillStyle='#04101f';g.fillRect(0,0,w,h);g.fillStyle='#e8c24a';g.font='900 38px '+JP;g.textBaseline='alphabetic';g.fillText('騰落ヒートマップ',24,50);const n=Math.min(L.length,9),cols=3,rows=Math.ceil(n/cols),tw=(w-40)/cols,th=(h-80)/Math.max(rows,1);
+ L.slice(0,n).forEach((d,i)=>{const x=20+(i%cols)*tw,y=70+Math.floor(i/cols)*th,k=Math.min(1,Math.abs(d.chg)*14);g.fillStyle=d.chg>=0?`rgb(${60+k*170|0},${28},${40})`:`rgb(${28},${50+k*40|0},${70+k*150|0})`;g.fillRect(x+3,y+3,tw-6,th-6);g.fillStyle='#fff';g.textAlign='center';g.font='900 '+Math.min(34,th*.28)+'px '+JP;g.fillText(d.name.slice(0,5),x+tw/2,y+th*.45);g.font='800 '+Math.min(28,th*.22)+'px '+JP;g.fillText(pc(d.chg),x+tw/2,y+th*.75);g.textAlign='left'})}
+function drawTicker(g,w,h,L){g.fillStyle='#02060c';g.fillRect(0,0,w,h);g.textBaseline='middle';g.font='800 36px '+JP;let x=20;const src=L.length?L:demo;for(let k=0;k<2;k++)for(const d of src){const s=d.name+' '+jp(d.p)+' '+(d.chg>=0?'▲':'▼')+pc(d.chg);g.fillStyle=cc(d.chg);if(x<w)g.fillText(s,x,h/2+2);x+=g.measureText(s).width+60}}
+/* ================= scenes ================= */
+const BUILD={
+inv(sc){const P={x:0,y:3.5,z:9.8,lx:0,ly:3.1,lz:-14};
+ 
+ floor(sc,'#0d1424','#141d33',44,22,.22);mesh(new T.BoxGeometry(26,16,.5),M(0x080e1c),0,8,-15.2,sc);
+ const tvPl=[],tv=(w,h,x,y,z,ry,cw,ch)=>{const t=cvs(cw,ch),g=new T.Group();g.position.set(x,y,z);g.rotation.y=ry;sc.add(g);mesh(new T.BoxGeometry(w+.35,h+.35,.3),M(0x07090d,{metalness:.6,roughness:.4}),0,0,0,g);{const pl=mesh(new T.PlaneGeometry(w,h),B(0xffffff),0,0,.17,g);pl.material.map=t;tvPl.push(pl)}glowS('rgba(90,150,255,.55)',w*1.7,0,0,-.4,g);return t};
+ const tM=tv(9.6,5.4,0,5.3,-14.6,0,1024,576),tL=tv(5.2,3.9,-8.6,4.9,-14.1,.38,640,480),tR=tv(5.2,3.9,8.6,4.9,-14.1,-.38,640,480);
+ tvPl.forEach(pl=>pl.userData.tap=nextSym);const tk=cvs(2048,64);tk.wrapS=T.RepeatWrapping;mesh(new T.PlaneGeometry(22,.7),new T.MeshBasicMaterial({map:tk}),0,2.05,-14.6,sc);mesh(new T.BoxGeometry(22.3,.9,.2),M(0x07090d),0,2.05,-14.75,sc);
+ const sg=txt('かにかま証券  JOHO SECURITIES',64,'#ffe9a0',1100,130,'#ffb020');sg.scale.set(11,1.3,1);sg.position.set(0,8.7,-14.3);sc.add(sg);
+ /* monitors: a small pool of live mini-charts shared by all desks */
+ const pool=[0,1,2,3,4].map(i=>({t:cvs(160,96),d:Array.from({length:40},(_,k)=>50+Math.sin(k/4+i)*14),up:i%2==0}));
+ const stepPool=()=>pool.forEach(o=>{o.d.push(Math.max(10,Math.min(86,o.d[o.d.length-1]+(Math.random()-.5)*16)));o.d.shift();const g=o.t.userData.g;g.fillStyle='#06101e';g.fillRect(0,0,160,96);const c=o.d[o.d.length-1]>=o.d[0]?CU:CD;g.strokeStyle='#14304f';g.lineWidth=1;for(let y=16;y<96;y+=20){g.beginPath();g.moveTo(0,y);g.lineTo(160,y);g.stroke()}g.beginPath();o.d.forEach((v,k)=>k?g.lineTo(k*4,96-v):g.moveTo(0,96-v));g.strokeStyle=c;g.lineWidth=3;g.stroke();g.fillStyle=c;g.font='800 15px '+JP;g.fillText(o.d[o.d.length-1]>=o.d[0]?'▲':'▼',6,16);o.t.needsUpdate=true});stepPool();
+ const people=[];
+ [1.5,-1.8,-5.1,-8.4].forEach((z,r)=>[-5.4,-1.8,1.8,5.4].forEach((x,c)=>{const g=new T.Group();g.position.set(x,0,z);sc.add(g);
+  mesh(new T.BoxGeometry(1.7,.07,.8),M(0x2c2218,{roughness:.5}),0,.8,0,g);[[-.8,-.35],[.8,-.35],[-.8,.35],[.8,.35]].forEach(([a,b])=>mesh(new T.BoxGeometry(.06,.78,.06),M(0x15151a),a,.39,b,g));mesh(new T.BoxGeometry(.5,.025,.18),M(0x15151a),0,.85,.15,g);
+  [-.45,.45].forEach((mx,k)=>{mesh(new T.BoxGeometry(.05,.2,.05),M(0x15151a),mx,.95,-.2,g);mesh(new T.BoxGeometry(.74,.46,.04),M(0x08080c),mx,1.24,-.2,g);mesh(new T.PlaneGeometry(.68,.4),new T.MeshBasicMaterial({map:pool[(r*4+c+k)%pool.length].t}),mx,1.24,-.175,g)});
+  const p=person();p.g.position.set(x,0,z+.78);sc.add(p.g);people.push(p)}));people.forEach(p=>{p.g.userData.tap=()=>people.forEach(q=>{q.cheer=1.2+Math.random()})});
+ let acc=9,acc2=9,tickOff=0;
+ return{P,title:'📈 かにかま証券　トレーディングフロア<b>● LIVE</b>',upd(t,dt){acc+=dt;acc2+=dt;
+  if(acc>.45){acc=0;const L=feed(),sel=(typeof ui!=='undefined'&&ui.sel)||'',d=L.find(x=>x.id===sel)||L[0];if(d){drawMain(tM.userData.g,1024,576,d,t);tM.needsUpdate=true}drawList(tL.userData.g,640,480,L,d&&d.id);tL.needsUpdate=true;drawHeat(tR.userData.g,640,480,L);tR.needsUpdate=true;drawTicker(tk.userData.g,2048,64,L);tk.needsUpdate=true}
+  if(acc2>.7){acc2=0;stepPool()}tk.offset.x=(tk.offset.x+dt*.03)%1;
+  people.forEach((p,i)=>{p.cheer-=dt;if(p.cheer<-4&&Math.random()<dt*.04)p.cheer=1.6;const ch=p.cheer>0;
+   if(ch){p.aL.rotation.x=PI*.92+Math.sin(t*12+p.ph)*.25;p.aR.rotation.x=PI*.92+Math.sin(t*12+p.ph+1)*.25;p.head.position.y=1.5}
+   else{p.aL.rotation.x=1.15+Math.sin(t*13+p.ph)*.07;p.aR.rotation.x=1.15+Math.sin(t*11+p.ph*2)*.07;p.head.position.y=1.43+Math.sin(t*1.3+p.ph)*.01;p.head.rotation.y=Math.sin(t*.5+p.ph)*.25}})}}},
+acct(sc){const P={x:0,y:3.2,z:9.5,lx:0,ly:2.6,lz:-8};
+ floor(sc,'#e9ecf2','#8a94a8',44,16,.2);mesh(new T.BoxGeometry(26,16,1),M(0xc9cfdb,{roughness:.8}),0,8,-12,sc);
+ for(const sx of[-1,1])for(let i=0;i<3;i++){mesh(new T.CylinderGeometry(.55,.62,10,18),M(0xd8dce6,{roughness:.8}),sx*8.5,5,-2-i*3,sc);mesh(new T.BoxGeometry(1.5,.4,1.5),gold,sx*8.5,10,-2-i*3,sc)}
+ mesh(new T.BoxGeometry(13,1.1,1.4),M(0x4a2c14,{roughness:.5}),0,.55,-4,sc);mesh(new T.BoxGeometry(13.3,.1,1.7),gold,0,1.15,-4,sc);mesh(new T.BoxGeometry(13,1.7,.05),new T.MeshStandardMaterial({color:0xaad0ff,transparent:true,opacity:.22,roughness:.1}),0,2,-4.7,sc);
+ const tel=[];[-4.2,0,4.2].forEach((x,i)=>{const p=person({stand:false});p.g.rotation.y=PI;p.g.position.set(x,0,-6);sc.add(p.g);tel.push(p);const s=txt((i+1)+'番窓',48,'#ffe9a0',256,90);s.scale.set(2,.7,1);s.position.set(x,4,-4.3);sc.add(s)});
+ const cus=[];[-4.4,-.4,4.1].forEach(x=>{const p=person({stand:true});p.g.position.set(x,0,-2);sc.add(p.g);cus.push(p)});
+ const nb=cvs(512,128);mesh(new T.BoxGeometry(5.6,1.5,.25),M(0x07090d),0,6.4,-8,sc);mesh(new T.PlaneGeometry(5.3,1.25),B(0xffffff),0,6.4,-7.86,sc).material.map=nb;
+ let flash=0;const atm=[-1,1].map(sx=>{const g=new T.Group();g.position.set(sx*6,0,-8);g.rotation.y=-sx*.35;sc.add(g);mesh(new T.BoxGeometry(1.3,2.3,1),M(0xdfe5ee,{metalness:.5,roughness:.3}),0,1.15,0,g);const s=mesh(new T.PlaneGeometry(.9,.6),B(0x3aff9c),0,1.65,.51,g);mesh(new T.BoxGeometry(.8,.25,.3),M(0x333844),0,1.0,.55,g);g.userData.tap=()=>{flash=1};return s});
+ const coins=[];for(let i=0;i<16;i++)coins.push(mesh(new T.CylinderGeometry(.22,.22,.05,18),gold,0,0,0,sc));
+ const sg=txt('かにかま銀行',70,'#ffe9a0',1000,130,'#ffb020');sg.scale.set(9,1.2,1);sg.position.set(0,9,-11.4);sc.add(sg);let n=42,tn=9;
+ return{P,title:'💴 かにかま銀行　本店ロビー',upd(t,dt){tn+=dt;if(tn>4){tn=0;n=(n+1)%100}const g=nb.userData.g;g.fillStyle='#05080e';g.fillRect(0,0,512,128);g.fillStyle='#ff9a3a';g.font='900 44px '+JP;g.textBaseline='middle';g.fillText('お呼び出し  No.'+String(n).padStart(3,'0'),24,66);nb.needsUpdate=true;
+  coins.forEach((c,i)=>{const u=(t*.25+i/16)%1;c.position.set(Math.sin(u*TAU*2+i)*2.2+Math.sin(i)*3,1.4+u*3.2,-4+Math.cos(u*TAU*2+i)*.8);c.rotation.set(t*3+i,0,t*2);c.visible=u<.95});
+  tel.forEach((p,i)=>{p.aL.rotation.x=1.1+Math.sin(t*9+i)*.06;p.aR.rotation.x=1.1+Math.sin(t*8+i*2)*.06});cus.forEach((p,i)=>{p.g.position.y=Math.abs(Math.sin(t*1.5+i*2))*.01;p.head.rotation.y=Math.sin(t*.6+i)*.3});flash*=Math.pow(.2,dt);atm.forEach((s,i)=>s.material.color.setHSL(.4,1,Math.min(.95,.4+Math.sin(t*3+i)*.1+flash*.5)))}}},
+fix(sc){const P={x:0,y:3.3,z:9,lx:0,ly:3.4,lz:-9};
+ floor(sc,'#1a1d27','#232836',44,18,.25);mesh(new T.BoxGeometry(26,18,1),M(0x2a2e3a,{roughness:.6,metalness:.4}),0,9,-10.8,sc);
+ const vg=new T.Group();vg.position.set(0,4.3,-10);sc.add(vg);mesh(new T.TorusGeometry(3.7,.55,16,56),steel,0,0,0,vg);const dr=mesh(new T.CylinderGeometry(3.3,3.3,.7,48),steel,0,0,0,vg);dr.rotation.x=PI/2;mesh(new T.TorusGeometry(2.4,.12,10,48),gold,0,0,.4,vg);
+ for(let i=0;i<14;i++){const a=i*TAU/14,b=mesh(new T.CylinderGeometry(.14,.14,.3,10),gold,Math.cos(a)*3,Math.sin(a)*3,.4,vg);b.rotation.x=PI/2}
+ const wh=new T.Group();wh.position.z=.6;vg.add(wh);let spin=0,wa=0;wh.userData.tap=()=>{spin=7};vg.userData.tap=wh.userData.tap;for(let i=0;i<3;i++){const s=mesh(new T.BoxGeometry(.2,3.4,.2),gold,0,0,0,wh);s.rotation.z=i*PI/3}mesh(new T.SphereGeometry(.45,16,12),gold,0,0,0,wh);glowS('rgba(255,220,120,.8)',13,0,0,-1,vg);
+ for(const sx of[-1,1])for(let r=0;r<4;r++)for(let c=0;c<4-r;c++)mesh(new T.BoxGeometry(1.2,.45,.6),gold,sx*(6.2+c*1.3+r*.65),.3+r*.47,-5,sc);
+ const lc=cvs(512,128);mesh(new T.BoxGeometry(5,1.3,.2),M(0x07090d),0,8.4,-9.6,sc);mesh(new T.PlaneGeometry(4.7,1.1),B(0xffffff),0,8.4,-9.48,sc).material.map=lc;
+ const beams=[];for(let i=0;i<5;i++)beams.push(mesh(new T.BoxGeometry(9,.03,.03),glowM(),0,.5+i*.7,2-i*.9,sc));
+ function glowM(){return new T.MeshBasicMaterial({color:0xff2a2a,transparent:true,blending:T.AdditiveBlending})}
+ return{P,title:'🔒 大金庫室　定期預金',spinWheel:()=>{spin=7},upd(t,dt){spin*=Math.pow(.4,dt);wa+=spin*dt;wh.rotation.z=Math.sin(t*.3)*.5+wa;const d=new Date(),g=lc.userData.g;g.fillStyle='#05080e';g.fillRect(0,0,512,128);g.fillStyle='#3aff9c';g.font='900 64px '+JP;g.textBaseline='middle';g.textAlign='center';g.fillText(d.toTimeString().slice(0,8),256,64);g.textAlign='left';lc.needsUpdate=true;beams.forEach((b,i)=>{b.material.opacity=.45+.4*Math.sin(t*3+i*1.7);b.position.x=Math.sin(t*.7+i)*1.2})}}},
+tx(sc){const P={x:0,y:4,z:11,lx:0,ly:3,lz:-4};let sp=0,ph=0;
+ floor(sc,'#0a1426','#102040',44,22,.2);
+ const tw=sx=>{const g=new T.Group();g.position.set(sx*7,0,-3);sc.add(g);g.userData.tap=()=>{sp=1.2};mesh(new T.CylinderGeometry(1.2,1.5,.4,24),gold,0,.2,0,g);mesh(new T.BoxGeometry(1.6,4.2,1.2),M(0x1a2a4a,{metalness:.6,roughness:.3}),0,2.5,0,g);mesh(new T.PlaneGeometry(1.2,1.6),B(0x4ac8ff),0,3,.62,g);const r=mesh(new T.TorusGeometry(1.5,.06,8,40),B(0x7af0ff),0,5.1,0,g);glowS('rgba(90,200,255,.8)',7,0,3.2,0,g);return r};
+ const rings=[tw(-1),tw(1)],mid=mesh(new T.TorusGeometry(1.8,.08,8,48),B(0xffd76a),0,4.5,-3,sc),mid2=mesh(new T.TorusGeometry(1.2,.06,8,48),B(0x7af0ff),0,4.5,-3,sc);
+ const env=[];for(let i=0;i<7;i++){const g=new T.Group();sc.add(g);mesh(new T.BoxGeometry(.7,.45,.06),M(0xfdfdf5),0,0,0,g);mesh(new T.CylinderGeometry(.09,.09,.08,12),M(0xc8322f),0,0,.06,g).rotation.x=PI/2;glowS('rgba(255,230,140,.9)',1.6,0,0,0,g);env.push(g)}
+ const co=[];for(let i=0;i<20;i++)co.push(mesh(new T.CylinderGeometry(.14,.14,.04,14),gold,0,0,0,sc));
+ const t1=txt('送る',60,'#ffe9a0',256,100);t1.scale.set(2.2,.9,1);t1.position.set(-7,6.6,-3);sc.add(t1);const t2=txt('受け取る',60,'#9af0ff',320,100);t2.scale.set(2.8,.9,1);t2.position.set(7,6.6,-3);sc.add(t2);
+ return{P,title:'✉️ 振込センター',upd(t,dt){ph+=dt*(.2+sp);sp*=Math.pow(.3,dt);rings.forEach((r,i)=>{r.rotation.x=PI/2+Math.sin(t*2+i)*.3;r.rotation.z=t*1.2});mid.rotation.x=t*.9;mid.rotation.y=t*.6;mid2.rotation.x=-t*1.1;
+  env.forEach((g,i)=>{const u=(ph+i/env.length)%1;g.position.set(-7+14*u,3.2+Math.sin(u*PI)*4.2,-3+Math.sin(u*TAU)*.4);g.rotation.set(Math.sin(t*2+i)*.2,0,-Math.cos(u*PI)*.5);g.scale.setScalar(.7+Math.sin(u*PI)*.5)});
+  co.forEach((c,i)=>{const u=(t*.35+i/co.length)%1;c.position.set(-7+14*u,3+Math.sin(u*PI)*2.6+Math.sin(t*4+i)*.15,-3+(i%3-1)*.7);c.rotation.set(t*4+i,0,0)})}}},
+loan(sc){const P={x:0,y:3.4,z:8.5,lx:0,ly:2.2,lz:-4};
+ floor(sc,'#3a2a1c','#4a3624',40,12,.35);mesh(new T.BoxGeometry(26,14,.5),M(0x14203a),0,7,-9,sc);
+ for(let i=0;i<20;i++){const h=2+Math.random()*5;mesh(new T.BoxGeometry(1.4,h,.4),M(0x0a1224),-13+i*1.3,h/2+3,-8.6,sc);for(let k=0;k<h*1.2;k++)if(Math.random()<.5)mesh(new T.PlaneGeometry(.18,.22),B(0xffe9a0),-13.4+i*1.3+(k%2)*.4,3.3+Math.floor(k/2)*.7,-8.38,sc)}
+ mesh(new T.BoxGeometry(7,.2,2.6),M(0x4a2c14,{roughness:.45}),0,1.1,-1.4,sc);mesh(new T.BoxGeometry(6.6,1.05,2.3),M(0x3a220f),0,.52,-1.4,sc);
+ const pg=new T.Group();pg.position.set(-.8,1.25,-1.2);sc.add(pg);mesh(new T.BoxGeometry(2.4,.03,1.7),M(0xfdfdf5),0,0,0,pg);const sk=cvs(256,128,g=>{g.fillStyle='#c8322f';g.font='900 80px '+JP;g.textAlign='center';g.textBaseline='middle';g.fillText('承認',128,66);g.strokeStyle='#c8322f';g.lineWidth=7;g.strokeRect(34,10,188,108)});const mk=mesh(new T.PlaneGeometry(1.1,.55),new T.MeshBasicMaterial({map:sk,transparent:true,opacity:0}),.5,.03,.2,pg);mk.rotation.x=-PI/2;
+ const stp=new T.Group();stp.position.set(-.3,2.4,-1);sc.add(stp);mesh(new T.CylinderGeometry(.28,.34,.5,16),M(0x7a1020),0,.3,0,stp);mesh(new T.CylinderGeometry(.45,.5,.18,18),gold,0,-.05,0,stp);mesh(new T.SphereGeometry(.2,12,10),gold,0,.62,0,stp);
+ for(let i=0;i<4;i++)for(let k=0;k<3;k++)mesh(new T.BoxGeometry(.8,.12,.5),M(0xd8c88a),2.3+i*.05,1.26+k*.13,-1,sc);
+ const bk=person({suit:0x1c2438});bk.g.rotation.y=PI;bk.g.position.set(0,0,-3);sc.add(bk.g);const cu=person({stand:false,suit:0x3b2a2a});cu.g.position.set(-.8,0,1.4);sc.add(cu.g);
+ let t0=0,tn=0;stp.userData.tap=()=>{t0=tn};
+ return{P,title:'🏛️ 融資窓口',upd(t){tn=t;const c=((t-t0)*.35)%3;let y=2.4;if(c<.4)y=2.4-(c/.4)*.98;else if(c<.55)y=1.42;else if(c<.95)y=1.42+(c-.55)/.4*.98;stp.position.set(-.3,y,-1);mk.material.opacity=c<.4?0:c<.55?(c-.4)/.15:c<2.5?1:(3-c)/.5;
+  bk.aL.rotation.x=1.0+Math.sin(t*2)*.1;bk.aR.rotation.x=1.0;cu.head.rotation.y=Math.sin(t*.5)*.3}}},
+lv(sc){const P={x:0,y:3.6,z:10,lx:0,ly:3,lz:-3};
+ floor(sc,'#1a1424','#241a34',40,16,.2);
+ const bm=mesh(new T.CylinderGeometry(1.2,4.5,14,28,1,true),new T.MeshBasicMaterial({color:0xffe9a0,opacity:.12,transparent:true,blending:T.AdditiveBlending,side:T.DoubleSide,depthWrite:false}),0,7,-3,sc);
+ [[0,1.6,0xe8c24a],[-2.6,1.1,0xc0c8d4],[2.6,.8,0xc0804a]].forEach(([x,h,c])=>mesh(new T.BoxGeometry(2.4,h,2.2),M(c,{metalness:.8,roughness:.3}),x,h/2,-3,sc));
+ const tr=new T.Group();tr.position.set(0,1.6,-3);sc.add(tr);mesh(new T.CylinderGeometry(.5,.18,1.4,16),gold,0,1.1,0,tr);mesh(new T.CylinderGeometry(.9,.5,.9,20,1,true),M(0xe8c24a,{metalness:.9,roughness:.2,side:T.DoubleSide}),0,2.1,0,tr);mesh(new T.CylinderGeometry(.45,.5,.15,16),gold,0,.3,0,tr);glowS('rgba(255,225,120,.9)',5,0,2.1,0,tr);
+ const st=[];for(let i=0;i<10;i++){const s=mesh(new T.OctahedronGeometry(.28),M(0xffe27a,{emissive:0x8a6a10,metalness:.6,roughness:.3}),0,0,0,sc);st.push(s)}
+ const cf=[];for(let i=0;i<60;i++)cf.push(mesh(new T.PlaneGeometry(.16,.1),new T.MeshBasicMaterial({color:[0xffd76a,0xff5a7a,0x5ab0ff,0x5aff9a][i%4],side:T.DoubleSide}),(Math.random()-.5)*14,Math.random()*10,-3+(Math.random()-.5)*6,sc));
+ const t1=txt('LEVEL UP',70,'#ffe9a0',700,120,'#ffb020');t1.scale.set(7,1.2,1);t1.position.set(0,7.2,-3);sc.add(t1);
+ let ry=0,sp=0;tr.userData.tap=()=>{sp=9};
+ return{P,title:'🏅 殿堂　銀行レベル',upd(t,dt){ry+=dt*(.9+sp);sp*=Math.pow(.35,dt);tr.rotation.y=ry;bm.rotation.y=t*.2;st.forEach((s,i)=>{const a=t*.8+i*TAU/10;s.position.set(Math.cos(a)*3.6,3.4+Math.sin(t*1.3+i)*.6,-3+Math.sin(a)*3.6);s.rotation.set(t*2,t*1.5,0)});cf.forEach((c,i)=>{c.position.y-=dt*(.8+i%4*.2);if(c.position.y<0)c.position.y=10;c.rotation.set(t*2+i,t*1.4,0)})}}},
+msg(sc){const P={x:0,y:3.3,z:8.5,lx:0,ly:2.8,lz:-4};
+ floor(sc,'#e9ecf2','#9aa6b8',40,14,.25);mesh(new T.BoxGeometry(26,14,.5),M(0x1a2a4a),0,7,-8,sc);
+ mesh(new T.BoxGeometry(6,1.1,1.6),M(0x4a2c14),0,.55,-3,sc);mesh(new T.BoxGeometry(6.2,.1,1.8),gold,0,1.15,-3,sc);
+ let bs=0,ph=0;const op=person({suit:0x1f6fd1,tie:0xffffff});op.g.userData.tap=()=>{bs=1.6};op.g.rotation.y=PI;op.g.position.set(0,0,-4.4);sc.add(op.g);const hs=mesh(new T.TorusGeometry(.2,.03,6,20,PI),B(0x222222),0,1.5,-4.4,sc);mesh(new T.SphereGeometry(.06,8,6),B(0x222222),.2,1.43,-4.4,sc);
+ mesh(new T.BoxGeometry(1.3,.8,.06),M(0x08080c),-1.6,1.6,-3.2,sc);const cl=cvs(256,256,g=>{g.fillStyle='#fff';g.beginPath();g.arc(128,128,120,0,TAU);g.fill();g.strokeStyle='#222';g.lineWidth=10;g.stroke()});mesh(new T.PlaneGeometry(1.5,1.5),new T.MeshBasicMaterial({map:cl}),6,6,-7.7,sc);
+ const bub=[];['？','…','💬','OK','✉','！'].forEach((s,i)=>{const sp=txt(s,64,'#ffffff',200,110,'#5ab0ff');sp.scale.set(1.4,.8,1);sc.add(sp);bub.push(sp)});
+ const sg=txt('カスタマーサポート',60,'#9af0ff',800,120,'#4ac8ff');sg.scale.set(8,1.2,1);sg.position.set(0,6.6,-7.6);sc.add(sg);
+ return{P,title:'💬 カスタマーサポート　運営',upd(t,dt){ph+=dt*(.18+bs);bs*=Math.pow(.3,dt);op.head.rotation.y=Math.sin(t*.6)*.3;op.aL.rotation.x=1.0+Math.sin(t*8)*.05;op.aR.rotation.x=1.0+Math.sin(t*7)*.05;bub.forEach((b,i)=>{const u=(ph+i/bub.length)%1;b.position.set(-4+(i%3)*4+Math.sin(t+i)*.5,2.4+u*4.5,-5.2);b.material.opacity=Math.sin(u*PI)})}}}
+};
+/* ================= stations: 3D devices that replace the HTML forms =================
+   Every device ends in the bank's own act(...) call, so the server logic is unchanged. */
+const pn=()=>performance.now(),PRESS=[],MAXV=10n**72n,STN={};
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const rr=(g,x,y,w,h,r)=>{g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()};
+const keyTexC={};
+function keyTex(l,u){const id=l+(u?'u':'');return keyTexC[id]||(keyTexC[id]=cvs(128,128,(g)=>{const gr=g.createLinearGradient(0,0,0,128);gr.addColorStop(0,u?'#f8e68a':'#f6f8fc');gr.addColorStop(1,u?'#c8962a':'#b4bed2');g.fillStyle=gr;rr(g,6,6,116,116,20);g.fill();g.fillStyle='#18203a';g.font='900 '+(l.length>1?52:70)+'px '+JP;g.textAlign='center';g.textBaseline='middle';g.fillText(l,64,68)}))}
+function paintBtn(t,l,c){const g=t.userData.g,col='#'+c.toString(16).padStart(6,'0');g.clearRect(0,0,256,96);g.fillStyle=col;rr(g,4,4,248,88,22);g.fill();g.fillStyle='rgba(255,255,255,.3)';rr(g,10,8,236,34,16);g.fill();g.fillStyle='#fff';g.font='900 '+(l.length>4?32:40)+'px '+JP;g.textAlign='center';g.textBaseline='middle';g.shadowColor='#0009';g.shadowBlur=6;g.fillText(l,128,52);g.shadowBlur=0;t.needsUpdate=true}
+const fitT=(g,s,x,y,mw,fs,al)=>{g.textAlign=al||'left';let f=fs;do{g.font='800 '+f+'px '+JP;f-=2}while(g.measureText(s).width>mw&&f>14);g.fillText(s,x,y)};
+function panel(g,w,h,title,col){const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#0c2148');gr.addColorStop(1,'#050c1e');g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle=col;g.fillRect(0,0,w,78);g.fillStyle='#fff';g.textBaseline='middle';fitT(g,title,28,40,w-56,42);g.strokeStyle='#e8c24a';g.lineWidth=6;g.strokeRect(3,3,w-6,h-6)}
+const say=(C,m,ok)=>{C.msg=m;C.ok=ok;C.mt=pn();C.dirty=1};
+const msgLine=(g,w,h,C)=>{if(C.msg&&pn()-C.mt<4500){g.fillStyle=C.ok?'#3aff9c':'#ff8a8a';g.textBaseline='middle';fitT(g,C.msg,w/2,h-30,w-60,36,'center')}};
+const kvRow=(g,l,v,y,w,col)=>{g.fillStyle='#9fb4d8';g.textBaseline='middle';g.font='700 30px '+JP;g.textAlign='left';g.fillText(l,40,y);g.fillStyle=col||'#fff';fitT(g,v,w-40,y,w*.62,40,'right')};
+/* number entry shared by every keypad: digits, 00, and unit keys (only for high bank levels, like the old form) */
+function numKey(C,l){if(l==='C')C.v=0n;else if(l==='⌫')C.v=C.v/10n;else if(l==='00')C.v=C.v*100n;else if(/^\d$/.test(l))C.v=C.v*10n+BigInt(l);
+ else{const k={'万':4,'億':8,'兆':12}[l];if(!k)return;let ok=false;try{ok=bigOk()}catch(e){}if(!ok){try{toast('単位キーは銀行レベル1000兆から使えます','err')}catch(e){}return}C.v=(C.v===0n?1n:C.v)*10n**BigInt(k)}
+ if(C.v>MAXV)C.v=MAXV;C.dirty=1}
+function makeKeypad(onKey){const kp=new T.Group();mesh(new T.BoxGeometry(1.95,1.95,.08),M(0x0a0e18,{metalness:.5,roughness:.5}),.69,-.69,-.06,kp);
+ [['7','8','9','万'],['4','5','6','億'],['1','2','3','兆'],['C','0','00','⌫']].forEach((row,ri)=>row.forEach((l,ci)=>{const u='万億兆'.includes(l),k=new T.Group();k.position.set(ci*.46,-ri*.46,0);k.userData.bz=0;kp.add(k);
+  mesh(new T.BoxGeometry(.4,.4,.12),M(0x0f1522,{metalness:.5,roughness:.4}),0,0,0,k);mesh(new T.PlaneGeometry(.34,.34),new T.MeshBasicMaterial({map:keyTex(l,u)}),0,0,.065,k);
+  k.userData.tap=()=>{k.userData.p=1;onKey(l)};PRESS.push(k)}));return kp}
+/* the generic ATM-style console: body + live screen + keypad + side buttons + receipt printer */
+function makeConsole(parent,x,z,ry,cfg){
+ const root=new T.Group();root.position.set(x,0,z);root.rotation.y=ry||0;parent.add(root);root.userData.st=cfg.id;
+ const C=Object.assign({v:cfg.v0||0n,dirty:1,msg:'',ok:0,mt:0,rt:0,book:0,ci:0,li:0,mins:60,active:false,id:cfg.id,pt:0},cfg.state||{});
+ const sd=M(0x1a2236,{metalness:.7,roughness:.35});
+ mesh(new T.BoxGeometry(3.9,3.5,.5),sd,0,1.75,0,root);mesh(new T.BoxGeometry(4.05,.1,.62),gold,0,3.55,0,root);mesh(new T.BoxGeometry(4.2,.25,.9),M(0x10141f),0,.12,.1,root);
+ const scr=cvs(1280,512);mesh(new T.BoxGeometry(3.3,1.38,.06),M(0x05070c),0,2.8,.25,root);mesh(new T.PlaneGeometry(3.2,1.28),new T.MeshBasicMaterial({map:scr}),0,2.8,.29,root);
+ const kp=makeKeypad(l=>numKey(C,l));kp.position.set(.25,1.82,.26);root.add(kp);
+ const bt=[];(cfg.buttons||[]).forEach((b,i)=>{const col=i%2,row=Math.floor(i/2),g=new T.Group();g.position.set(-1.5+col*.72,1.82-row*.46,.26);g.userData.bz=.26;root.add(g);
+  const tx=cvs(256,96);paintBtn(tx,b.l,b.c);mesh(new T.BoxGeometry(.66,.38,.12),M(0x0f1522),0,0,0,g);mesh(new T.PlaneGeometry(.62,.34),new T.MeshBasicMaterial({map:tx}),0,0,.065,g);
+  g.userData.tap=()=>{g.userData.p=1;b.f(C)};PRESS.push(g);bt.push(tx)});
+ C.setBtn=(i,l,c)=>{if(bt[i])paintBtn(bt[i],l,c==null?cfg.buttons[i].c:c)};
+ /* receipt printer on the right */
+ mesh(new T.BoxGeometry(.55,1.1,.5),sd,2.25,1.9,0,root);mesh(new T.BoxGeometry(.5,.06,.1),M(0x000000),2.25,2.4,.2,root);
+ const pg=new T.PlaneGeometry(.46,.9);pg.translate(0,-.45,0);const pc=cvs(256,512),paper=new T.Mesh(pg,new T.MeshBasicMaterial({map:pc,side:T.DoubleSide}));paper.position.set(2.25,2.38,.26);paper.visible=false;root.add(paper);
+ C.print=(lines,col)=>{const g=pc.userData.g;g.fillStyle='#fffdf2';g.fillRect(0,0,256,512);g.fillStyle=col||'#c8322f';g.fillRect(0,0,256,10);g.fillStyle='#222';g.textAlign='left';g.textBaseline='middle';g.font='800 24px '+JP;g.fillText('かにかま銀行',16,40);g.font='600 18px '+JP;g.fillStyle='#666';g.fillText(new Date().toLocaleString('ja-JP'),16,66);
+  g.strokeStyle='#bbb';g.setLineDash([6,5]);g.beginPath();g.moveTo(12,84);g.lineTo(244,84);g.stroke();g.setLineDash([]);g.fillStyle='#222';lines.slice(0,8).forEach((s,i)=>{g.font='700 22px '+JP;fitT(g,s,16,118+i*44,226,22)});pc.needsUpdate=true;C.pt=pn();paper.visible=true};
+ const hint=txt('👆 タップして操作',44,'#ffe9a0',600,100,'#ffb020');hint.scale.set(4.2,.7,1);hint.position.set(0,4.15,0);root.add(hint);
+ const o={id:cfg.id,root,C,w:cfg.w||5.2,h:3.9,cx:.3,oy:2.2,ly:1.95,lz:0,
+  upd(t,dt){const n=pn();if(C.dirty||n-C.rt>400){C.rt=n;C.dirty=0;cfg.draw(scr.userData.g,1280,512,C);scr.needsUpdate=true}
+   if(C.pt){const u=clamp((n-C.pt)/900,0,1);paper.scale.y=u*u*(3-2*u)}hint.visible=!C.active;hint.scale.x=4.2*(1+Math.sin(t*3)*.04);cfg.upd&&cfg.upd(C,t,dt)},
+  onEnter(){C.active=true;C.dirty=1},onLeave(){C.active=false;C.pt=0;paper.visible=false}};
+ return o}
+function regStation(s,o){o.root.traverse(x=>{if(x.userData.tap||x.userData.tapUV)x.userData.need=o.id});(s.stations=s.stations||[]).push(o)}
+const mulPx=(q,p)=>{try{return mulP(q,p)}catch(e){return 0n}};
+const col4=c=>c>0?'#ff4d5e':c<0?'#4d9bff':'#cfd8ea';
+/* ---------- 口座: ATM ---------- */
+STN.acct=(g,s)=>{
+ async function go(C,dir){if(!S)return;const a=C.v;if(a<1n)return say(C,'金額を入力してください',0);
+  if(dir==='in'){if(a>BigInt(wallet()))return say(C,'手持ちチップが足りません',0);setWallet(wallet()-Number(a));const r=await act('bank_deposit',{p_amt:a},`${fmt(a)}チップを預金に入金しました`);
+   if(r.ok){say(C,'入金しました',1);fx=1;fxT=pn();C.print(['【ご入金】','金額　'+fmt(a),'預金残高','　'+fmt(S.dep)],'#1f9d55')}else{setWallet(wallet()+Number(a));say(C,'入金できませんでした',0)}updateLive()}
+  else{if(a>S.dep)return say(C,'預金残高が足りません',0);if(a>BigInt(CAP-wallet()))return say(C,'手持ちは1000兆までです',0);const r=await act('bank_withdraw',{p_amt:a},`${fmt(a)}チップを手持ちへ出金しました`);
+   if(r.ok){setWallet(wallet()+Number(a));say(C,'出金しました',1);fx=2;fxT=pn();C.print(['【ご出金】','金額　'+fmt(a),'預金残高','　'+fmt(S.dep)],'#1f6fd1')}else say(C,'出金できませんでした',0);updateLive()}}
+ let fx=0,fxT=0;
+ const o=makeConsole(g,-4.7,3.8,.32,{id:'atm',draw(q,w,h,C){panel(q,w,h,'🏦 かにかま銀行　ATM','#1a56b0');
+   if(C.book){q.fillStyle='#9fb4d8';q.font='800 30px '+JP;q.textAlign='left';q.textBaseline='middle';q.fillText('通帳（直近の取引）',36,112);const L=(S&&S.led||[]).slice(0,6);
+    L.forEach((e,i)=>{const y=162+i*52;q.fillStyle='#cfe0ff';q.font='700 27px '+JP;q.textAlign='left';q.fillText(fmtD(e.t),36,y);q.fillStyle='#fff';fitT(q,String(e.m||'').slice(0,16),190,y,420,27);q.fillStyle=e.o?'#ff9a9a':'#8affc0';fitT(q,e.o?'-'+fmt(e.o):'+'+fmt(e.i),w-36,y,330,27,'right')});
+    if(!L.length){q.fillStyle='#9fb4d8';fitT(q,'取引はまだありません',w/2,260,900,36,'center')}}
+   else{kvRow(q,'手持ちチップ',fmt(wallet()),122,w);kvRow(q,'預金残高',S?fmt(S.dep):'—',182,w,'#ffe9a0');q.strokeStyle='#2a4a7a';q.lineWidth=2;q.beginPath();q.moveTo(40,222);q.lineTo(w-40,222);q.stroke();
+    q.fillStyle='#9fb4d8';q.font='700 28px '+JP;q.textAlign='left';q.fillText('お取引金額',40,262);q.fillStyle='#0a1a38';rr(q,40,284,w-80,120,18);q.fill();q.strokeStyle='#e8c24a';q.lineWidth=3;q.stroke();q.fillStyle='#ffe9a0';fitT(q,fmt(C.v)+' チップ',w/2,346,w-140,76,'center');
+    q.fillStyle='#7f93b8';fitT(q,'数字キーで金額 → 入金／出金',w/2,432,w-80,28,'center')}msgLine(q,w,h,C)},
+  buttons:[{l:'入金',c:0x1f9d55,f:C=>go(C,'in')},{l:'出金',c:0x1f6fd1,f:C=>go(C,'out')},{l:'手持全部',c:0xb8860b,f:C=>{C.v=BigInt(Math.floor(wallet()));C.dirty=1}},{l:'預金全部',c:0xb8860b,f:C=>{C.v=S?S.dep:0n;C.dirty=1}},{l:'通帳',c:0x6a4a9a,f:C=>{C.book=!C.book;C.dirty=1}},{l:'クリア',c:0x555d6e,f:C=>{C.v=0n;C.dirty=1}}],
+  upd(){const u=(pn()-fxT)/1300;bills.forEach((b,i)=>{const p=clamp(u*1.6-i*.12,0,1);b.visible=fx>0&&u<2.4&&(fx===2?p>0:p<1&&u<1.5);b.position.z=fx===2?.2+p*.65:.85-p*.65;b.position.y=.31+i*.025})}});
+ const bills=[];mesh(new T.BoxGeometry(1.7,.06,.7),M(0x10141f),-1.0,.27,.62,o.root);for(let i=0;i<5;i++){const b=mesh(new T.BoxGeometry(.9,.02,.42),M(0x3a9a5a,{roughness:.6}),-1.0,.31,.4,o.root);b.visible=false;bills.push(b)}
+ regStation(s,o)};
+/* ---------- 投資: 注文端末 ---------- */
+STN.inv=(g,s)=>{
+ const cur=()=>{try{return SYMS.find(x=>x.id===ui.sel)||SYMS[0]}catch(e){return null}};
+ const step=d=>{try{const i=Math.max(0,SYMS.findIndex(x=>x.id===ui.sel));selSym(SYMS[(i+d+SYMS.length)%SYMS.length].id)}catch(e){}};
+ async function buyIt(C){const d=cur();if(!d||!S)return;if(C.v<1n)return say(C,'株数を入力してください',0);if(P(d.id)<=0)return say(C,NEGMSG,0);
+  const q=C.v,r=await act('bank_buy',{p_sym:d.id,p_qty:q},r=>`${d.name}を${q}株買いました（${(+r.price).toFixed(1)}）`);
+  if(r.ok){say(C,'約定しました（買い）',1);C.print(['【買い約定】',d.name,fmt(q)+'株','@ '+(+r.r.price).toFixed(1)],'#c62839')}else say(C,'注文できませんでした',0)}
+ async function sellIt(C){const d=cur();if(!d||!S)return;if(C.v<1n)return say(C,'株数を入力してください',0);if(C.v>H(d.id).q)return say(C,'保有は'+fmt(H(d.id).q)+'株です',0);
+  const q=C.v,r=await act('bank_sell',{p_sym:d.id,p_qty:q},r=>`${d.name}を${q}株売りました（${(+r.price).toFixed(1)}）`);
+  if(r.ok){say(C,'約定しました（売り）',1);C.print(['【売り約定】',d.name,fmt(q)+'株','@ '+(+r.r.price).toFixed(1)],'#1f6fd1')}else say(C,'注文できませんでした',0)}
+ const o=makeConsole(g,4.9,5.6,-.3,{id:'order',v0:1n,draw(q,w,h,C){panel(q,w,h,'📈 かにかま証券　注文端末','#b8242f');const d=cur();if(!d||!S){q.fillStyle='#9fb4d8';fitT(q,'相場データを読み込み中…',w/2,260,900,40,'center');return}
+   const p=P(d.id),hh=H(d.id),hist=(typeof MK!=='undefined'&&MK[d.id]&&MK[d.id].h?MK[d.id].h.map(Number):[]),chg=hist.length&&hist[0]?(p-hist[0])/Math.abs(hist[0]):0,c=col4(chg);
+   q.fillStyle='#cfe0ff';q.textBaseline='middle';fitT(q,d.name+'  '+d.id,36,116,620,36);q.fillStyle=c;fitT(q,jpx(p),36,178,560,72);q.font='800 30px '+JP;q.textAlign='left';q.fillText((chg>=0?'▲ ':'▼ ')+(chg*100>=0?'+':'')+(chg*100).toFixed(2)+'%',36,236);
+   if(hist.length>1){const a=hist.slice(-80),mn=Math.min(...a),mx=Math.max(...a),pd=(mx-mn)||1;q.beginPath();a.forEach((v,i)=>{const X=700+i*(w-740)/(a.length-1),Y=230-(v-mn)/pd*120;i?q.lineTo(X,Y):q.moveTo(X,Y)});q.strokeStyle=c;q.lineWidth=4;q.stroke()}
+   q.fillStyle='#9fb4d8';q.font='700 26px '+JP;q.textAlign='left';q.fillText('保有 '+fmt(hh.q)+'株　評価 '+fmt(mulPx(hh.q,p)),36,280);
+   q.fillStyle='#0a1a38';rr(q,36,306,w-72,110,16);q.fill();q.strokeStyle='#e8c24a';q.lineWidth=3;q.stroke();q.fillStyle='#9fb4d8';q.font='700 24px '+JP;q.textAlign='left';q.fillText('注文株数',56,334);q.fillStyle='#ffe9a0';fitT(q,fmt(C.v)+' 株',56+300,362,w-440,60,'center');
+   q.fillStyle='#cfe0ff';fitT(q,'約 '+fmt(mulPx(C.v,p))+' チップ　預金 '+fmt(S.dep),w-56,392,560,26,'right');msgLine(q,w,h,C)},
+  buttons:[{l:'買う',c:0xc62839,f:buyIt},{l:'売る',c:0x1f6fd1,f:sellIt},{l:'◀ 銘柄',c:0x3a4a6a,f:()=>step(-1)},{l:'銘柄 ▶',c:0x3a4a6a,f:()=>step(1)},{l:'買える最大',c:0xb8860b,f:C=>{try{C.v=maxBuy();if(C.v<1n)C.v=1n;C.dirty=1}catch(e){}}},{l:'全部売る',c:0xb8860b,f:C=>{const d=cur();if(d){C.v=H(d.id).q>0n?H(d.id).q:1n;C.dirty=1}}},{l:'1株',c:0x555d6e,f:C=>{C.v=1n;C.dirty=1}},{l:'クリア',c:0x555d6e,f:C=>{C.v=0n;C.dirty=1}}]});
+ regStation(s,o)};
+const jpx=p=>{p=+p;if(!isFinite(p))return'—';return Math.abs(p)>=1e8?fmt(Math.round(p)):p.toFixed(1)};
+/* ---------- 定期: 預入機 ---------- */
+STN.fix=(g,s)=>{
+ const PRE=[[10,'10分'],[60,'1時間'],[1440,'1日'],[10080,'7日'],[43200,'30日']];
+ async function open(C){if(!S)return;const a=C.v;if(a<10n)return say(C,'10チップ以上で預けられます',0);if(a>S.dep)return say(C,'預金が足りません',0);const m=C.mins;
+  const r=await act('bank_fixed_open',{p_amt:a,p_mins:m},`定期預金を開始：${fmt(a)}チップを${fmtMin(m)}ロック`);
+  if(r.ok){say(C,'定期預金を預け入れました',1);const rt=rateFor(m),i=(a*BigInt(Math.round(rt*100))+5000n)/10000n;C.print(['【定期預金】',fmt(a)+'チップ','ロック '+fmtMin(m),'利率 '+rt+'%','満期 '+fmt(a+i)],'#b8860b');if(s.spinWheel)s.spinWheel()}else say(C,'預け入れできませんでした',0)}
+ const o=makeConsole(g,-4.9,5.2,.3,{id:'vault',v0:0n,state:{mins:60},draw(q,w,h,C){panel(q,w,h,'🔒 定期預金　預入機','#8a6a12');kvRow(q,'預金残高',S?fmt(S.dep):'—',122,w,'#ffe9a0');
+   q.fillStyle='#0a1a38';rr(q,40,150,w-80,100,16);q.fill();q.strokeStyle='#e8c24a';q.lineWidth=3;q.stroke();q.fillStyle='#9fb4d8';q.font='700 24px '+JP;q.textAlign='left';q.fillText('預入金額',58,176);q.fillStyle='#ffe9a0';fitT(q,fmt(C.v)+' チップ',w-60,212,w-300,56,'right');
+   const m=C.mins,rt=rateFor(m),a=C.v,i=(a*BigInt(Math.round(rt*100))+5000n)/10000n;kvRow(q,'ロック期間',fmtMin(m),292,w);kvRow(q,'利率',rt+'%',342,w,'#8affc0');kvRow(q,'満期受取',fmt(a+i),392,w,'#8affc0');
+   q.fillStyle='#7f93b8';fitT(q,'満期日時 '+fmtDate(now()+m*60000),w/2,440,w-80,26,'center');msgLine(q,w,h,C)},
+  buttons:[{l:'預け入れ',c:0xb8860b,f:open},...PRE.map(([m,l])=>({l,c:0x3a4a6a,f:C=>{C.mins=m;C.dirty=1}})),{l:'預金全部',c:0x555d6e,f:C=>{C.v=S?S.dep:0n;C.dirty=1}}]});
+ regStation(s,o)};
+/* ---------- 融資: 契約端末 ---------- */
+STN.loan=(g,s)=>{
+ const co=C=>LOANS[((C.ci%LOANS.length)+LOANS.length)%LOANS.length];
+ const lim=c=>{const used=S.loans.filter(l=>l.co==c.id).reduce((a,l)=>a+l.amt,0),pend=S.apps.some(a=>a.co==c.id),left=c.max-used,mx=Math.floor(left/c.step)*c.step;return{mx,ok:mx>=c.min&&!pend,pend}};
+ const snap=(c,v)=>{const L=lim(c);return clamp(Math.round(Number(v)/c.step)*c.step,c.min,Math.max(c.min,L.mx))};
+ async function applyIt(C){if(!S||!LOANS.length)return;const c=co(C),L=lim(c);if(!L.ok)return say(C,L.pend?'審査中の申込があります':'この会社の限度額いっぱいです',0);const a=snap(c,C.v||c.min);
+  const r=await act('bank_loan_apply',{p_co:c.id,p_amt:a},()=>`${c.name}に${fmt(a)}チップの融資を申し込みました。審査結果をお待ちください`);if(r.ok){say(C,'申し込みました',1);C.print(['【融資申込】',c.name,'借入 '+fmt(a),'返済 '+fmt(a+Math.round(a*c.rate/100)),'審査をお待ちください'],'#6a4a9a')}else say(C,'申し込めませんでした',0)}
+ async function repayIt(C){if(!S||!S.loans.length)return say(C,'返済する借入がありません',0);const l=S.loans[((C.li%S.loans.length)+S.loans.length)%S.loans.length];
+  const r=await act('bank_loan_repay',{p_id:l.id},r=>r.late?'延滞分も含めて返済しました':'期限内に返済しました。信用スコア＋4');if(r.ok){say(C,'返済しました',1);C.print(['【ご返済】',CO(l.co).name,'返済 完了'],'#1f9d55')}else say(C,'返済できませんでした',0)}
+ const o=makeConsole(g,4.7,4.4,-.28,{id:'loan',v0:0n,draw(q,w,h,C){panel(q,w,h,'🏛️ 融資　契約端末','#5a3a8a');if(!S||!LOANS.length){q.fillStyle='#9fb4d8';fitT(q,'融資会社を読み込み中…',w/2,260,900,40,'center');return}
+   const c=co(C),L=lim(c),a=snap(c,C.v||c.min),pa=pApprove(c,a),i=Math.round(a*c.rate/100);q.fillStyle='#ffe9a0';q.textBaseline='middle';fitT(q,c.name+'　'+(c.tier||''),36,114,w-72,44);
+   q.fillStyle='#9fb4d8';q.font='700 26px '+JP;q.textAlign='left';q.fillText('利率 '+c.rate+'%　返済期限 '+fmtMin(c.term)+'　限度 '+fmt(c.min)+'〜'+fmt(Math.max(c.min,L.mx)),36,164);
+   q.fillStyle='#0a1a38';rr(q,36,186,w-72,92,16);q.fill();q.strokeStyle=L.ok?'#e8c24a':'#ff8a8a';q.lineWidth=3;q.stroke();q.fillStyle='#9fb4d8';q.font='700 24px '+JP;q.textAlign='left';q.fillText('借入希望額',56,210);q.fillStyle='#ffe9a0';fitT(q,fmt(a)+' チップ',w-56,248,w-300,54,'right');
+   kvRow(q,'返済額',fmt(a+i),316,w);kvRow(q,'審査時間 / 通過見込み',fmtDur(reviewSec(c,a)*1000)+' / '+pa+'%',366,w,pa>=60?'#8affc0':'#ffd36a');
+   q.fillStyle='#7f93b8';fitT(q,L.ok?'信用スコア '+S.credit+'　借入中 '+S.loans.length+'件　審査中 '+S.apps.length+'件':(L.pend?'この会社は審査中です':'この会社は限度額いっぱいです'),w/2,422,w-80,26,'center');msgLine(q,w,h,C)},
+  buttons:[{l:'◀ 会社',c:0x3a4a6a,f:C=>{C.ci--;C.dirty=1}},{l:'会社 ▶',c:0x3a4a6a,f:C=>{C.ci++;C.dirty=1}},{l:'申し込む',c:0x6a4a9a,f:applyIt},{l:'返済する',c:0x1f9d55,f:repayIt},{l:'最小',c:0x555d6e,f:C=>{C.v=BigInt(co(C).min);C.dirty=1}},{l:'半分',c:0x555d6e,f:C=>{const c=co(C);C.v=BigInt(snap(c,lim(c).mx/2));C.dirty=1}},{l:'最大',c:0x555d6e,f:C=>{const c=co(C);C.v=BigInt(lim(c).mx);C.dirty=1}},{l:'次の借入',c:0x3a4a6a,f:C=>{C.li++;say(C,S&&S.loans.length?'返済対象：'+CO(S.loans[((C.li%S.loans.length)+S.loans.length)%S.loans.length].co).name:'借入はありません',1)}}]});
+ regStation(s,o)};
+/* ---------- レベル: 募金箱 ---------- */
+STN.lv=(g,s)=>{
+ const coins=[];let cfx=0;
+ async function give(C){if(!S)return;const a=C.v;if(a<1n)return say(C,'寄付する金額を入力してください',0);if(a>S.dep)return say(C,'預金残高が足りません',0);
+  const r=await act('bank_donate',{p_amount:a},r=>r.up>0?`🏅 レベルが${fmt(r.up)}上がりました！ Lv.${fmt(r.level)}`:`寄付しました（Lv.${fmt(r.level)}・進捗${r.pct}%）`);
+  if(r.ok){LV=r.r;lvSave();cfx=pn();say(C,r.r.up>0?'レベルアップ！':'寄付しました',1);C.print(['【ご寄付】',fmt(a)+'チップ','Lv.'+fmt(r.r.level),'進捗 '+r.r.pct+'%'],'#d4af37')}else say(C,'寄付できませんでした',0)}
+ const o=makeConsole(g,4.9,4.0,-.3,{id:'donate',draw(q,w,h,C){panel(q,w,h,'🏅 銀行レベル　募金箱','#8a6a12');q.textBaseline='middle';
+   if(LV&&LV.level!=null){q.fillStyle='#ffe9a0';fitT(q,'Lv.'+fmt(LV.level),36,140,520,84);q.fillStyle='#cfe0ff';fitT(q,String(lvTitle(lvN())),w-36,130,520,36,'right');q.fillStyle='#0a1a38';rr(q,36,196,w-72,34,17);q.fill();q.fillStyle='#e8c24a';rr(q,36,196,Math.max(34,(w-72)*(LV.pct||0)/100),34,17);q.fill();q.fillStyle='#9fb4d8';fitT(q,'次のレベルまで '+(LV.pct||0)+'%'+(LV.rank?'　現在 '+fmt(LV.rank)+'位':''),w/2,262,w-72,26,'center')}
+   else{q.fillStyle='#9fb4d8';fitT(q,'レベルを確認中…',w/2,180,900,40,'center')}
+   kvRow(q,'預金残高',S?fmt(S.dep):'—',308,w,'#ffe9a0');q.fillStyle='#0a1a38';rr(q,36,340,w-72,88,16);q.fill();q.strokeStyle='#e8c24a';q.lineWidth=3;q.stroke();q.fillStyle='#9fb4d8';q.font='700 24px '+JP;q.textAlign='left';q.fillText('寄付額',56,362);q.fillStyle='#ffe9a0';fitT(q,fmt(C.v)+' チップ',w-56,396,w-240,52,'right');msgLine(q,w,h,C)},
+  buttons:[{l:'寄付する',c:0xb8860b,f:give},{l:'預金全部',c:0x3a4a6a,f:C=>{C.v=S?S.dep:0n;C.dirty=1}},{l:'クリア',c:0x555d6e,f:C=>{C.v=0n;C.dirty=1}},{l:'明細',c:0x3a4a6a,f:C=>{try{fetchLv()}catch(e){}say(C,'ランキングを更新しました',1)}}],
+  upd(C,t){const u=(pn()-cfx)/1400;coins.forEach((c,i)=>{const p=clamp(u*1.4-i*.1,0,1);c.visible=cfx>0&&p>0&&p<1;c.position.set(-1.2+Math.sin(i)*.15,1.2-p*.75,.55);c.rotation.x=t*8+i})}});
+ for(let i=0;i<6;i++)coins.push(mesh(new T.CylinderGeometry(.12,.12,.03,14),gold,0,0,0,o.root));
+ mesh(new T.BoxGeometry(1.5,.9,.7),M(0x7a1020,{roughness:.4}),-1.0,.55,.7,o.root);mesh(new T.BoxGeometry(.9,.05,.08),M(0x000000),-1.0,1.02,.7,o.root);
+ const lt=txt('募金',46,'#ffe9a0',200,90);lt.scale.set(1,.45,1);lt.position.set(-1.0,.6,1.07);o.root.add(lt);
+ regStation(s,o)};
+/* ---------- 振込: 小切手を書いて振り出す ---------- */
+STN.tx=(g,s)=>{
+ const id='check',root=new T.Group();root.position.set(0,0,3.2);g.add(root);root.userData.st=id;
+ const MEMOS=['','ありがとう','お疲れさま','割り勘','お礼','返済','プレゼント'],F={acct:'',payee:null,active:'acct',memo:0,signed:false,stamped:false,msg:'',mt:0,ok:0,busy:0,dirty:1},AM={v:0n,dirty:0};
+ const A={sign:0,stamp:0,fly:null,inT:0};let lastRt=0;
+ const wood=M(0x5a3a1c,{roughness:.55});
+ mesh(new T.BoxGeometry(5.6,.16,2.8),wood,0,1.0,0,root);[[-2.6,-1.2],[2.6,-1.2],[-2.6,1.2],[2.6,1.2]].forEach(([a,b])=>mesh(new T.BoxGeometry(.18,1,.18),wood,a,.5,b,root));
+ mesh(new T.BoxGeometry(4.6,.03,2.3),M(0x17342a,{roughness:.8}),-.2,1.09,.05,root);
+ const sl=new T.Group();sl.position.set(-.2,1.15,.1);sl.rotation.x=-1.0;root.add(sl);
+ const ck=new T.Group();sl.add(ck);
+ const CW=1024,CH=440,cc=cvs(CW,CH),plane=mesh(new T.PlaneGeometry(3.4,1.45),new T.MeshBasicMaterial({map:cc}),0,0,.02,ck);mesh(new T.BoxGeometry(3.5,1.55,.03),M(0xcdbf94),0,0,-.012,ck);
+ const px=x=>(x/CW-.5)*3.4,py=y=>(.5-y/CH)*1.45;
+ const BX={acct:[190,88,330,72],amt:[190,184,570,96],memo:[190,300,380,64],sig:[610,292,230,124]},SEAL=[925,360,62];
+ const inb=(x,y,b)=>x>=b[0]&&x<=b[0]+b[2]&&y>=b[1]&&y<=b[1]+b[3];
+ const myName=()=>S?String(S.name||''):'',myAcct=()=>S?String(S.acct||''):'';
+ const sigPts=nm=>{let sd=7;for(const c of nm)sd+=c.charCodeAt(0);const r=()=>{sd=(sd*9301+49297)%233280;return sd/233280},n=Math.max(4,Math.min(9,nm.length*2)),pts=[];for(let i=0;i<=70;i++){const u=i/70;pts.push([628+u*200,352+Math.sin(u*TAU*n/2)*14+Math.sin(u*TAU*n)*20*(.6+r()*.7)-u*14])}return pts};
+ let SIG=sigPts('');
+ function drawCheck(g,t){g.fillStyle='#f4ecd0';g.fillRect(0,0,CW,CH);g.strokeStyle='rgba(180,150,70,.25)';g.lineWidth=1;for(let i=0;i<40;i++){g.beginPath();for(let x=0;x<=CW;x+=16){const y=CH/2+Math.sin(x/60+i*.4)*(60+i*3);x?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}
+  g.strokeStyle='#b8860b';g.lineWidth=6;g.strokeRect(8,8,CW-16,CH-16);g.fillStyle='#17342a';g.fillRect(8,8,CW-16,66);g.fillStyle='#ffe9a0';g.textBaseline='middle';g.font='900 38px '+JP;g.textAlign='left';g.fillText('小　切　手　CHEQUE',34,42);g.font='700 22px '+JP;g.textAlign='right';g.fillText('かにかま銀行　'+new Date().toLocaleDateString('ja-JP'),CW-34,42);
+  g.fillStyle='#2a2a2a';g.font='800 26px '+JP;g.textAlign='left';g.fillText('支払先口座',34,124);g.fillText('金　　額',34,232);g.fillText('摘　　要',34,332);g.fillText('振出人',630,276);
+  const box=(b,k)=>{g.fillStyle='rgba(255,255,255,.7)';rr(g,b[0],b[1],b[2],b[3],10);g.fill();g.strokeStyle=F.active===k?'rgba(232,194,74,'+(.65+.35*Math.sin(t*6))+')':'#9a8a5a';g.lineWidth=F.active===k?6:3;g.stroke()};
+  box(BX.acct,'acct');box(BX.amt,'amt');box(BX.memo,'memo');
+  g.fillStyle='#111';g.font='900 46px '+JP;g.textAlign='left';const d=F.acct.padEnd(6,'·').split('').join(' ');g.fillText(d,BX.acct[0]+20,BX.acct[1]+38);
+  g.font='800 26px '+JP;g.fillStyle=F.payee===null?'#7a6a3a':F.payee===''?'#c62839':'#1f6f3a';fitT(g,F.payee===null?(F.acct.length===6?'宛先を確認中…':'6桁の口座番号を入力'):F.payee===''?'この口座番号は見つかりません':'宛先：'+F.payee,540,BX.acct[1]+38,440,28);
+  g.fillStyle='#111';g.textAlign='left';g.font='900 36px '+JP;g.fillText('¥',BX.amt[0]+18,BX.amt[1]+50);g.fillStyle=AM.v>0n?'#111':'#9a8a5a';fitT(g,AM.v>0n?fmt(AM.v):'金額を入力',BX.amt[0]+BX.amt[2]-18,BX.amt[1]+50,BX.amt[2]-90,58,'right');
+  g.fillStyle='#111';fitT(g,MEMOS[F.memo]||'（タップで選択）',BX.memo[0]+18,BX.memo[1]+34,BX.memo[2]-36,32);
+  g.strokeStyle='#8a7a4a';g.lineWidth=2;g.beginPath();g.moveTo(610,396);g.lineTo(850,396);g.stroke();g.fillStyle='#555';g.font='700 22px '+JP;g.textAlign='left';g.fillText(myName()+'  ('+myAcct()+')',612,424);
+  if(F.signed||A.sign>0){const n=F.signed?SIG.length:Math.floor(SIG.length*clamp(A.sign,0,1));g.strokeStyle='#1b2f6e';g.lineWidth=5;g.lineCap='round';g.lineJoin='round';g.beginPath();SIG.slice(0,Math.max(2,n)).forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
+  if(F.stamped){g.strokeStyle='#c8322f';g.fillStyle='rgba(200,50,47,.1)';g.lineWidth=7;g.beginPath();g.arc(SEAL[0],SEAL[1],SEAL[2]-6,0,TAU);g.fill();g.stroke();g.fillStyle='#c8322f';g.textAlign='center';g.font='900 54px '+JP;g.fillText((myName()||'印').slice(0,1),SEAL[0],SEAL[1]+3)}
+  else{g.setLineDash([8,8]);g.strokeStyle='rgba(120,100,50,.55)';g.lineWidth=3;g.beginPath();g.arc(SEAL[0],SEAL[1],SEAL[2]-6,0,TAU);g.stroke();g.setLineDash([]);g.fillStyle='rgba(120,100,50,.6)';g.textAlign='center';g.font='700 22px '+JP;g.fillText('押印',SEAL[0],SEAL[1])}
+  if(!F.signed){g.fillStyle='rgba(120,100,50,.55)';g.font='700 22px '+JP;g.textAlign='left';g.fillText('署名（ペンをタップ）',626,330)}
+  if(F.msg&&pn()-F.mt<5000){g.fillStyle=F.ok?'rgba(31,111,58,.92)':'rgba(198,40,57,.92)';rr(g,120,370,760,56,14);g.fill();g.fillStyle='#fff';g.textAlign='center';fitT(g,F.msg,500,399,720,30,'center')}}
+ /* pen & seal */
+ const pen=new T.Group();sl.add(pen);mesh(new T.CylinderGeometry(.045,.05,1.0,10),M(0x111827,{metalness:.6,roughness:.3}),0,.5,0,pen);mesh(new T.ConeGeometry(.045,.16,10),gold,0,-.08,0,pen).rotation.x=PI;mesh(new T.CylinderGeometry(.05,.05,.12,10),gold,0,.9,0,pen);
+ const PEN0=[2.35,-.2,.08];pen.position.set(...PEN0);pen.rotation.z=.9;
+ const sg=new T.Group();sl.add(sg);const sb=mesh(new T.CylinderGeometry(.2,.2,.34,18),M(0x7a1020,{roughness:.4}),0,0,.2,sg);sb.rotation.x=PI/2;mesh(new T.SphereGeometry(.17,14,10),M(0x7a1020,{roughness:.4}),0,0,.5,sg);mesh(new T.CylinderGeometry(.22,.22,.05,18),gold,0,0,.04,sg).rotation.x=PI/2;
+ const SG0=[-2.45,-.35,.12];sg.position.set(...SG0);
+ /* tap handlers */
+ const keyIn=l=>{if(F.busy)return;if(F.active==='acct'){if(l==='C')F.acct='';else if(l==='⌫')F.acct=F.acct.slice(0,-1);else if(/^\d$/.test(l)&&F.acct.length<6)F.acct+=l;else if(l==='00'&&F.acct.length<5)F.acct+='00';else return;lookup()}
+  else numKey(AM,l);F.dirty=1};
+ let lkId=0;async function lookup(){F.payee=null;if(F.acct.length!==6)return;const my=++lkId,v=F.acct;try{const n=await rpc('bank_lookup',{p_acct:v});if(my===lkId)F.payee=n||''}catch(e){if(my===lkId)F.payee=null}F.dirty=1}
+ const kp=makeKeypad(keyIn);kp.position.set(2.15,2.35,.3);kp.rotation.set(-.25,-.3,0);kp.scale.setScalar(.95);root.add(kp);
+ plane.userData.tapUV=uv=>{if(F.busy)return;const x=uv.x*CW,y=(1-uv.y)*CH;if(inb(x,y,BX.acct))F.active='acct';else if(inb(x,y,BX.amt))F.active='amt';else if(inb(x,y,BX.memo)){F.memo=(F.memo+1)%MEMOS.length}else if(inb(x,y,BX.sig))doSign();else if(Math.hypot(x-SEAL[0],y-SEAL[1])<SEAL[2]+10)doStamp();F.dirty=1};
+ const doSign=()=>{if(F.busy||A.sign>0&&!F.signed)return;if(F.signed){F.signed=false;A.sign=0;F.dirty=1;return}SIG=sigPts(myName());A.sign=.001;A.st=pn()};
+ const doStamp=()=>{if(F.busy||A.stamp>0)return;if(F.stamped){F.stamped=false;F.dirty=1;return}A.stamp=.001;A.st2=pn()};
+ pen.userData.tap=doSign;sg.userData.tap=doStamp;
+ /* issue button */
+ const ib=new T.Group();ib.position.set(.1,1.2,1.25);ib.userData.bz=1.25;root.add(ib);const ibt=cvs(512,128);const paintIssue=ready=>{const q=ibt.userData.g;q.clearRect(0,0,512,128);q.fillStyle=ready?'#d4a017':'#4a4a52';rr(q,4,4,504,120,28);q.fill();q.fillStyle='rgba(255,255,255,.3)';rr(q,12,10,488,44,22);q.fill();q.fillStyle='#fff';q.font='900 52px '+JP;q.textAlign='center';q.textBaseline='middle';q.shadowColor='#0009';q.shadowBlur=8;q.fillText('小切手を振り出す',256,70);ibt.needsUpdate=true};paintIssue(false);
+ mesh(new T.BoxGeometry(2.2,.14,.62),M(0x2a1a0a),0,0,0,ib);const ibf=mesh(new T.PlaneGeometry(2.1,.52),new T.MeshBasicMaterial({map:ibt}),0,.075,0,ib);ibf.rotation.x=-PI/2+.35;ib.userData.tap=()=>{ib.userData.p=1;issue()};
+ const ready=()=>F.acct.length===6&&F.payee&&AM.v>0n&&F.signed&&F.stamped;
+ async function issue(){if(F.busy||!S)return;const miss=[];if(F.acct.length!==6)miss.push('口座番号');else if(F.payee==='')miss.push('宛先');if(AM.v<1n)miss.push('金額');if(!F.signed)miss.push('署名');if(!F.stamped)miss.push('押印');
+  if(miss.length){F.msg=miss.join('・')+'が未記入です';F.ok=0;F.mt=pn();F.dirty=1;return}if(F.acct===myAcct()){F.msg='自分の口座には振り込めません';F.ok=0;F.mt=pn();F.dirty=1;return}if(AM.v>S.dep){F.msg='預金が足りません';F.ok=0;F.mt=pn();F.dirty=1;return}
+  F.busy=1;A.fly={t0:pn(),res:null,t1:0};const to=F.acct,a=AM.v,memo=MEMOS[F.memo].slice(0,30);
+  const r=await act('bank_transfer',{p_to:to,p_amt:a,p_memo:memo},`${to} に ${fmt(a)}チップを振り込みました`);A.fly.t1=pn();
+  if(r.ok){A.fly.res='ok';F.msg='✔ 振込が完了しました';F.ok=1;F.mt=pn();lastDone=[to,F.payee,a]}else{A.fly.res='ng';F.msg='振込できませんでした';F.ok=0;F.mt=pn()}F.dirty=1}
+ let lastDone=null;
+ const reset=()=>{F.acct='';F.payee=null;F.memo=0;F.signed=false;F.stamped=false;F.active='acct';AM.v=0n;A.sign=0;A.stamp=0;F.dirty=1};
+ const o={id,root,C:F,w:6.8,h:3.4,cx:.6,oy:3.9,ly:1.2,lz:.1,
+  upd(t,dt){const n=pn();
+   if(A.sign>0&&!F.signed){const u=(n-A.st)/1500;A.sign=Math.max(.001,u);if(u>=1){F.signed=true;A.sign=0;}const pr=clamp(u,0,1),pi=SIG[Math.min(SIG.length-1,Math.floor(pr*(SIG.length-1)))];pen.position.set(px(pi[0]),py(pi[1]),.1);pen.rotation.z=.5;F.dirty=1}
+   else if(A.sign===0&&!F.signed){pen.position.x+=(PEN0[0]-pen.position.x)*Math.min(1,dt*8);pen.position.y+=(PEN0[1]-pen.position.y)*Math.min(1,dt*8);pen.position.z+=(PEN0[2]-pen.position.z)*Math.min(1,dt*8);pen.rotation.z+=(.9-pen.rotation.z)*Math.min(1,dt*8)}
+   else if(F.signed&&A.sign===0){pen.position.x+=(PEN0[0]-pen.position.x)*Math.min(1,dt*6);pen.position.y+=(PEN0[1]-pen.position.y)*Math.min(1,dt*6);pen.position.z+=(PEN0[2]-pen.position.z)*Math.min(1,dt*6);pen.rotation.z+=(.9-pen.rotation.z)*Math.min(1,dt*6)}
+   if(A.stamp>0){const u=(n-A.st2)/1500,tx=px(SEAL[0]),ty=py(SEAL[1]);let x=SG0[0],y=SG0[1],z=SG0[2];if(u<.35){const k=u/.35;x=SG0[0]+(tx-SG0[0])*k;y=SG0[1]+(ty-SG0[1])*k;z=SG0[2]+.5*Math.sin(k*PI)}else if(u<.55){x=tx;y=ty;z=.7-(u-.35)/.2*.66}else if(u<.75){x=tx;y=ty;z=.04+(u-.55)/.2*.66;if(!F.stamped){F.stamped=true;F.dirty=1}}else{const k=(u-.75)/.25;x=tx+(SG0[0]-tx)*k;y=ty+(SG0[1]-ty)*k;z=.7+(SG0[2]-.7)*k}sg.position.set(x,y,z);if(u>=1){A.stamp=0;sg.position.set(...SG0)}}
+   if(A.fly){const f=A.fly;let u=0;if(f.res===null)u=clamp((n-f.t0)/1600,0,1);else if(f.res==='ok'){u=1;if(n-f.t1>1400){A.fly=null;reset();A.inT=n}}else{u=1-clamp((n-f.t1)/900,0,1);if(u<=0){A.fly=null;F.busy=0;F.dirty=1}}
+    if(A.fly){const e=u*u*(3-2*u);ck.position.set(e*5.5,e*2.2+Math.sin(e*PI)*1.2,-e*4.2);ck.scale.setScalar(1-e*.7);ck.rotation.set(e*1.1,e*2.4,e*.5);ck.visible=u<.97}}
+   else{const u=A.inT?clamp((n-A.inT)/700,0,1):1;if(u<1){const e=1-(1-u)*(1-u);ck.position.set(0,-(1-e)*1.4,0);ck.scale.setScalar(.6+.4*e);ck.visible=true;if(u>=1)A.inT=0}else{ck.position.set(0,0,0);ck.scale.setScalar(1);ck.rotation.set(0,0,0);ck.visible=true}if(F.busy&&!A.fly&&F.ok){F.busy=0}}
+   if(F.busy&&!A.fly)F.busy=0;
+   const rd=!!ready();if(rd!==lastRt){lastRt=rd;paintIssue(rd)}
+   if(F.dirty||(n-(F.rt||0)>120)){F.rt=n;F.dirty=0;drawCheck(cc.userData.g,t);cc.needsUpdate=true}},
+  onEnter(){F.dirty=1},onLeave(){}};
+ PRESS.push(ib);
+ const hint=txt('👆 タップして小切手を書く',44,'#ffe9a0',720,100,'#ffb020');hint.scale.set(5,.7,1);hint.position.set(0,3.3,0);root.add(hint);const u0=o.upd;o.upd=(t,dt)=>{u0(t,dt);hint.visible=!o.active;hint.scale.x=5*(1+Math.sin(t*3)*.04)};
+ const en=o.onEnter,lv=o.onLeave;o.onEnter=()=>{o.active=true;en()};o.onLeave=()=>{o.active=false;lv()};
+ regStation(s,o)};
+
+/* ================= the hall: all zones in one first-person room ================= */
+const ORDER=['inv','acct','fix','tx','loan','lv','msg'],NAME={inv:'📈 投資',acct:'💴 口座',fix:'🔒 定期預金',tx:'✉️ 振込',loan:'🏛️ 融資',lv:'🏅 レベル',msg:'💬 運営'},N=ORDER.length,RR=15,ZS=.5;
+const wrapA=v=>((v+PI)%TAU+TAU)%TAU-PI;
+const sc=new T.Scene();sc.background=new T.Color(0x050914);sc.fog=new T.FogExp2(0x050914,.011);
+const cam=new T.PerspectiveCamera(62,1,.1,160);
+sc.add(new T.AmbientLight(0x9aa8d0,1.0),new T.HemisphereLight(0xcfe0ff,0x201830,.55));
+const wl=new T.PointLight(0xffe2b0,1.5,60);wl.position.set(0,9,0);sc.add(wl);
+mesh(new T.SphereGeometry(80,24,12),new T.MeshBasicMaterial({map:cvs(8,256,(g,w,h)=>{const q=g.createLinearGradient(0,0,0,h);q.addColorStop(0,'#04061a');q.addColorStop(.5,'#10204a');q.addColorStop(.62,'#0a1430');q.addColorStop(1,'#04060e');g.fillStyle=q;g.fillRect(0,0,w,h)}),side:T.BackSide,fog:false}),0,0,0,sc);
+{const n=160,pg=new T.BufferGeometry(),pp=new Float32Array(n*3);for(let i=0;i<n;i++){const a=Math.random()*TAU,y=8+Math.random()*50;pp[i*3]=Math.cos(a)*60;pp[i*3+1]=y;pp[i*3+2]=Math.sin(a)*60}pg.setAttribute('position',new T.BufferAttribute(pp,3));sc.add(new T.Points(pg,new T.PointsMaterial({color:0xcfe0ff,size:.5,sizeAttenuation:true,fog:false})))}
+const hallTex=cvs(1024,1024,(g,w,h)=>{g.fillStyle='#0a1630';g.fillRect(0,0,w,h);const c=w/2;g.strokeStyle='rgba(232,194,74,.55)';g.lineWidth=3;[.12,.25,.38,.5,.62,.75,.9].forEach(k=>{g.beginPath();g.arc(c,c,c*k,0,TAU);g.stroke()});g.lineWidth=2;for(let i=0;i<N;i++){const a=i*TAU/N;g.beginPath();g.moveTo(c,c);g.lineTo(c+Math.sin(a)*c,c-Math.cos(a)*c);g.stroke()}
+ const r=g.createRadialGradient(c,c,0,c,c,c*.3);r.addColorStop(0,'rgba(232,194,74,.5)');r.addColorStop(1,'rgba(232,194,74,0)');g.fillStyle=r;g.fillRect(0,0,w,h)});
+{const f=mesh(new T.CircleGeometry(48,64),M(0xffffff,{map:hallTex,roughness:.25,metalness:.45}),0,-.02,0,sc);f.rotation.x=-PI/2}
+const chand=new T.Group();chand.position.y=10.5;sc.add(chand);
+for(let r=0;r<3;r++){const rr_=1.8+r*1.4,tr=mesh(new T.TorusGeometry(rr_,.09,8,48),gold,0,-r*.7,0,chand);tr.rotation.x=PI/2;const n=10+r*4;for(let i=0;i<n;i++){const a=i*TAU/n;mesh(new T.SphereGeometry(.14,8,6),B(i%2?0xfff0c0:0xffd070),Math.cos(a)*rr_,-r*.7,Math.sin(a)*rr_,chand)}}
+glowS('rgba(255,220,140,.8)',10,0,10,0,sc);
+const zones=ORDER.map((k,i)=>{const g=new T.Group(),a=i*TAU/N;g.position.set(Math.sin(a)*RR,0,-Math.cos(a)*RR);g.scale.setScalar(ZS);g.lookAt(0,0,0);sc.add(g);g.userData.zone=i;
+ let s;try{s=BUILD[k](g)}catch(e){console.warn('BK3 zone',k,e);s={P:{x:0,y:3,z:9,lx:0,ly:3,lz:-5},upd(){}}}
+ try{STN[k]&&STN[k](g,s)}catch(e){console.warn('BK3 station',k,e)}
+ const ring=mesh(new T.TorusGeometry(12.6,.14,8,72),B(0xe8c24a),0,.08,-5,g);ring.rotation.x=PI/2;
+ const lb=txt(NAME[k],64,'#ffe9a0',900,130,'#ffb020');lb.scale.set(12,1.75,1);lb.position.set(0,12,-3);g.add(lb);
+ g.updateMatrixWorld(true);return{k,g,s,a,zp:g.localToWorld(new T.Vector3(s.P.x,s.P.y,s.P.z)),zl:g.localToWorld(new T.Vector3(s.P.lx,s.P.ly,s.P.lz)),lb}});
+/* ---- state & camera ---- */
+const body=document.body,V=new T.Vector3(),V2=new T.Vector3(),L2=new T.Vector3(),Hp=new T.Vector3(0,1.75,0),Ht=new T.Vector3(),ray=new T.Raycaster(),mv=new T.Vector2();
+let zoneI=-1,lastZ=0,dd=0,sd=0,curSt=null,stObj=null,yaw=0,yawT=0,pitch=0,pitchT=0,lastIn=0,hovI=-1,drag=null,t=0,last=performance.now(),W=1,H_=1,forced=0,sheet=false,raf=0;
+const hint=document.createElement('div');hint.className='bk3hint';hint.textContent='ドラッグで見回す ・ 設備をタップして入る';body.appendChild(hint);
+const bb=document.createElement('button');bb.className='bk3back';bb.onclick=()=>back();body.appendChild(bb);
+const bd=document.createElement('button');bd.className='bk3det';bd.textContent='📖 明細・履歴';bd.onclick=()=>setSheet(!sheet);body.appendChild(bd);
+function setSheet(v){sheet=!!v;body.classList.toggle('bk3sheet',sheet);if(sheet)view.scrollTop=0;bd.textContent=sheet?'✖ 閉じる':'📖 明細・履歴'}
+function labelBack(){bb.textContent=curSt?'← 戻る':'← ホールへ'}
+function leaveSt(){if(stObj&&stObj.onLeave)try{stObj.onLeave()}catch(e){}curSt=null;labelBack()}
+function enterSt(id){const z=zones[zoneI];const o=z&&(z.s.stations||[]).find(x=>x.id===id);if(!o||(typeof S!=='undefined'&&!S))return;setSheet(false);curSt=id;stObj=o;labelBack();try{o.onEnter&&o.onEnter()}catch(e){}}
+function open(tab){const i=ORDER.indexOf(tab);if(i<0)return;if(curSt)leaveSt();zoneI=lastZ=i;body.classList.add('bk3zone');view.scrollTop=0;setSheet(tab==='msg'||!(zones[i].s.stations||[]).length);labelBack()}
+function back(){if(curSt){leaveSt();return}zoneI=-1;setSheet(false);body.classList.remove('bk3zone')}
+function fit(){W=innerWidth;H_=innerHeight;R.setSize(W,H_,false);cam.aspect=W/H_;cam.fov=W/H_<.8?78:W/H_<1.3?68:60;cam.updateProjectionMatrix()}
+function pick(e){mv.set(e.clientX/W*2-1,-(e.clientY/H_)*2+1);ray.setFromCamera(mv,cam);const hs=ray.intersectObjects(zones.map(z=>z.g),true);
+ for(const x of hs){let o=x.object,tap=null,uvf=null,stId=null,zi=-1;while(o){const u=o.userData;if(u.zone!==undefined){zi=u.zone;break}if(u.st&&!stId)stId=u.st;if(!tap&&!uvf&&(u.tap||u.tapUV)&&(!u.need||u.need===curSt)){tap=u.tap||null;uvf=u.tapUV||null}o=o.parent}if(zi>=0)return{zi,tap,uvf,uv:x.uv,stId}}return null}
+cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw:yawT,pitch:pitchT,m:0};lastIn=performance.now();try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.m=Math.max(drag.m,Math.abs(dx)+Math.abs(dy));if(zoneI<0){yawT=drag.yaw-dx*.005;pitchT=clamp(drag.pitch-dy*.003,-.3,.3)}lastIn=performance.now();return}
+ const p=pick(e);hovI=p?p.zi:-1;cv.style.cursor=p&&(p.tap||p.uvf||p.stId||zoneI<0)?'pointer':'default'});
+cv.addEventListener('pointerup',e=>{if(!drag)return;const wasTap=drag.m<8;drag=null;lastIn=performance.now();if(!wasTap)return;const p=pick(e);if(!p)return;
+ if(zoneI<0||p.zi!==zoneI){window.setTab(ORDER[p.zi]);return}
+ if(curSt){if(p.tap)p.tap();else if(p.uvf&&p.uv)p.uvf(p.uv);return}
+ if(p.stId){enterSt(p.stId);return}
+ if(p.tap)p.tap()});
+cv.addEventListener('pointercancel',()=>{drag=null});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!forced)back()});
+function frame(ts){raf=requestAnimationFrame(frame);const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(document.hidden)return;t+=dt;
+ const nolog=typeof S!=='undefined'&&!S;body.classList.toggle('bk3nolog',nolog);if(nolog&&!forced){forced=1;open('acct');setSheet(true)}else if(!nolog&&forced){forced=0;back()}
+ if(zoneI>=0)yawT=yaw+wrapA(-zones[zoneI].a-yaw);else if(!drag&&performance.now()-lastIn>2500)yawT+=dt*.07;if(zoneI>=0)pitchT=0;
+ yaw+=(yawT-yaw)*Math.min(1,dt*6);pitch+=(pitchT-pitch)*Math.min(1,dt*6);
+ dd+=((zoneI>=0?1:0)-dd)*(1-Math.exp(-dt*3.4));const e=dd*dd*(3-2*dd);
+ sd+=((curSt?1:0)-sd)*(1-Math.exp(-dt*3.8));const e2=sd*sd*(3-2*sd);
+ Ht.set(-Math.sin(yaw)*10,1.75+pitch*10,-Math.cos(yaw)*10);V.copy(Hp);
+ const z=zones[lastZ];if(e>.001){V.lerp(z.zp,e);Ht.lerp(z.zl,e)}
+ if(e2>.001&&stObj){const th=Math.tan(cam.fov*PI/360),d=Math.max(3.4,(stObj.w/2+.3)/(th*cam.aspect),(stObj.h/2+.25)/th);stObj.root.localToWorld(V2.set(stObj.cx||0,stObj.oy,(stObj.lz||0)+d));stObj.root.localToWorld(L2.set(stObj.cx||0,stObj.ly,stObj.lz||0));V.lerp(V2,e2);Ht.lerp(L2,e2)}
+ cam.position.copy(V);cam.position.y+=Math.sin(t*.5)*.03*e;cam.lookAt(Ht);cam.setViewOffset(W,H_,0,Math.round(H_*(sheet?.17:0)*Math.min(1,e)),W,H_);
+ for(const k of PRESS){const p=k.userData.p||0;if(p>0){k.userData.p=Math.max(0,p-dt*6);k.position.z=(k.userData.bz||0)-.07*k.userData.p}}
+ zones.forEach((zz,i)=>{zz.s.upd&&zz.s.upd(t,dt);(zz.s.stations||[]).forEach(o=>o.upd&&o.upd(t,dt));const k=i===hovI&&zoneI<0?1.18:1;zz.lb.scale.x+=(12*k-zz.lb.scale.x)*Math.min(1,dt*8);zz.lb.scale.y=zz.lb.scale.x*.1458});
+ chand.rotation.y=t*.15;R.render(sc,cam)}
+try{addEventListener('resize',fit);fit();
+ const o=window.setTab;if(typeof o==='function')window.setTab=function(x){const r=o.apply(this,arguments);try{open(x)}catch(err){console.warn('BK3',err)}return r};
+ body.classList.add('bk3on');raf=requestAnimationFrame(frame)}catch(e){console.warn('BK3 off',e);body.classList.remove('bk3on');cv.remove()}
+return{open,back,zones,BUILD,ORDER,STN,enterSt,pick}})();
 </script>
 </body></html>
