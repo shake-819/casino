@@ -1391,8 +1391,9 @@ STN.tx=(g,s)=>{
  const wood=M(0x5a3a1c,{roughness:.55});
  mesh(new T.BoxGeometry(5.6,.16,2.8),wood,0,1.0,0,root);[[-2.6,-1.2],[2.6,-1.2],[-2.6,1.2],[2.6,1.2]].forEach(([a,b])=>mesh(new T.BoxGeometry(.18,1,.18),wood,a,.5,b,root));
  mesh(new T.BoxGeometry(4.6,.03,2.3),M(0x17342a,{roughness:.8}),-.2,1.09,.05,root);
- const sl=new T.Group();sl.position.set(-.2,1.15,.1);sl.rotation.x=-1.0;root.add(sl);
+ const sl=new T.Group();sl.position.set(-.2,1.54,.1);sl.rotation.x=-1.0;root.add(sl);   // 小切手の下端が机の面(y≈1.1)に乗る高さ（半分の高さ.725×cos(1.0)=.39 を持ち上げる）
  const ck=new T.Group();sl.add(ck);
+ mesh(new T.BoxGeometry(3.7,1.62,.05),M(0x3a2310,{roughness:.6}),0,0,-.05,sl);mesh(new T.BoxGeometry(3.7,.09,.16),M(0x3a2310,{roughness:.6}),0,-.8,.03,sl);   // 立てかけ板と下の受け
  const CW=1024,CH=440,cc=cvs(CW,CH),plane=mesh(new T.PlaneGeometry(3.4,1.45),new T.MeshBasicMaterial({map:cc}),0,0,.02,ck);mesh(new T.BoxGeometry(3.5,1.55,.03),M(0xcdbf94),0,0,-.012,ck);
  const px=x=>(x/CW-.5)*3.4,py=y=>(.5-y/CH)*1.45;
  const BX={acct:[190,88,330,72],amt:[190,184,570,96],memo:[190,300,380,64],sig:[610,292,230,124]},SEAL=[925,360,62];
@@ -1417,9 +1418,9 @@ STN.tx=(g,s)=>{
   if(F.msg&&pn()-F.mt<5000){g.fillStyle=F.ok?'rgba(31,111,58,.92)':'rgba(198,40,57,.92)';rr(g,120,370,760,56,14);g.fill();g.fillStyle='#fff';g.textAlign='center';fitT(g,F.msg,500,399,720,30,'center')}}
  /* pen & seal */
  const pen=new T.Group();sl.add(pen);mesh(new T.CylinderGeometry(.045,.05,1.0,10),M(0x111827,{metalness:.6,roughness:.3}),0,.5,0,pen);mesh(new T.ConeGeometry(.045,.16,10),gold,0,-.08,0,pen).rotation.x=PI;mesh(new T.CylinderGeometry(.05,.05,.12,10),gold,0,.9,0,pen);
- const PEN0=[2.35,-.2,.08];pen.position.set(...PEN0);pen.rotation.z=.9;
+ const PEN0=[2.35,-.72,.03];pen.position.set(...PEN0);pen.rotation.z=.9;
  const sg=new T.Group();sl.add(sg);const sb=mesh(new T.CylinderGeometry(.2,.2,.34,18),M(0x7a1020,{roughness:.4}),0,0,.2,sg);sb.rotation.x=PI/2;mesh(new T.SphereGeometry(.17,14,10),M(0x7a1020,{roughness:.4}),0,0,.5,sg);mesh(new T.CylinderGeometry(.22,.22,.05,18),gold,0,0,.04,sg).rotation.x=PI/2;
- const SG0=[-2.45,-.35,.12];sg.position.set(...SG0);
+ const SG0=[-2.45,-.72,.1];sg.position.set(...SG0);
  /* tap handlers */
  const keyIn=l=>{if(F.busy)return;if(F.active==='acct'){if(l==='C')F.acct='';else if(l==='⌫')F.acct=F.acct.slice(0,-1);else if(/^\d$/.test(l)&&F.acct.length<6)F.acct+=l;else if(l==='00'&&F.acct.length<5)F.acct+='00';else return;lookup()}
   else numKey(AM,l);F.dirty=1};
@@ -1440,7 +1441,7 @@ STN.tx=(g,s)=>{
   if(r.ok){A.fly.res='ok';F.msg='✔ 振込が完了しました';F.ok=1;F.mt=pn();lastDone=[to,F.payee,a]}else{A.fly.res='ng';F.msg=r.err||'振込できませんでした';F.ok=0;F.mt=pn()}F.dirty=1}
  let lastDone=null;
  const reset=()=>{F.acct='';F.payee=null;F.memo=0;F.signed=false;F.stamped=false;F.active='acct';AM.v=0n;A.sign=0;A.stamp=0;F.dirty=1};
- const o={id,root,C:F,w:6.8,h:3.4,cx:.6,oy:3.9,ly:1.2,lz:.1,
+ const o={id,root,C:F,w:6.8,h:3.4,cx:.6,oy:3.9,ly:1.45,lz:.1,
   upd(t,dt){const n=pn();
    if(A.sign>0&&!F.signed){const u=(n-A.st)/1500;A.sign=Math.max(.001,u);if(u>=1){F.signed=true;A.sign=0;}const pr=clamp(u,0,1),pi=SIG[Math.min(SIG.length-1,Math.floor(pr*(SIG.length-1)))];pen.position.set(px(pi[0]),py(pi[1]),.1);pen.rotation.z=.5;F.dirty=1}
    else if(A.sign===0&&!F.signed){pen.position.x+=(PEN0[0]-pen.position.x)*Math.min(1,dt*8);pen.position.y+=(PEN0[1]-pen.position.y)*Math.min(1,dt*8);pen.position.z+=(PEN0[2]-pen.position.z)*Math.min(1,dt*8);pen.rotation.z+=(.9-pen.rotation.z)*Math.min(1,dt*8)}
