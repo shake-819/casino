@@ -1386,7 +1386,7 @@ STN.lv=(g,s)=>{
 /* ---------- 振込: 小切手を書いて振り出す ---------- */
 STN.tx=(g,s)=>{
  const id='check',root=new T.Group();root.position.set(0,0,3.2);g.add(root);root.userData.st=id;
- const MEMOS=['','ありがとう','お疲れさま','割り勘','お礼','返済','プレゼント'],F={acct:'',payee:null,active:'acct',memo:0,signed:false,stamped:false,msg:'',mt:0,ok:0,busy:0,dirty:1},AM={v:0n,dirty:0};
+ const MEMOS=['','ありがとう','お疲れさま','割り勘','お礼','返済','プレゼント'],F={acct:'',payee:null,active:'acct',memo:0,memoT:'',signed:false,stamped:false,msg:'',mt:0,ok:0,busy:0,dirty:1},AM={v:0n,dirty:0};
  const A={sign:0,stamp:0,fly:null,inT:0};let lastRt=0;
  const wood=M(0x5a3a1c,{roughness:.55});
  mesh(new T.BoxGeometry(5.6,.16,2.8),wood,0,1.0,0,root);[[-2.6,-1.2],[2.6,-1.2],[-2.6,1.2],[2.6,1.2]].forEach(([a,b])=>mesh(new T.BoxGeometry(.18,1,.18),wood,a,.5,b,root));
@@ -1409,7 +1409,7 @@ STN.tx=(g,s)=>{
   g.fillStyle='#111';g.font='900 46px '+JP;g.textAlign='left';const d=F.acct.padEnd(6,'·').split('').join(' ');g.fillText(d,BX.acct[0]+20,BX.acct[1]+38);
   g.font='800 26px '+JP;g.fillStyle=F.payee===null?'#7a6a3a':F.payee===''?'#c62839':'#1f6f3a';fitT(g,F.payee===null?(F.acct.length===6?'宛先を確認中…':'6桁の口座番号を入力'):F.payee===''?'この口座番号は見つかりません':'宛先：'+F.payee,540,BX.acct[1]+38,440,28);
   g.fillStyle='#111';g.textAlign='left';g.font='900 36px '+JP;g.fillText('¥',BX.amt[0]+18,BX.amt[1]+50);g.fillStyle=AM.v>0n?'#111':'#9a8a5a';fitT(g,AM.v>0n?fmt(AM.v):'金額を入力',BX.amt[0]+BX.amt[2]-18,BX.amt[1]+50,BX.amt[2]-90,58,'right');
-  g.fillStyle='#111';fitT(g,MEMOS[F.memo]||'（タップで選択）',BX.memo[0]+18,BX.memo[1]+34,BX.memo[2]-36,32);
+  g.fillStyle='#111';g.fillStyle=F.memoT?'#111':'#9a8a5a';fitT(g,F.memoT||'（タップして入力）',BX.memo[0]+18,BX.memo[1]+34,BX.memo[2]-36,32);
   g.strokeStyle='#8a7a4a';g.lineWidth=2;g.beginPath();g.moveTo(610,396);g.lineTo(850,396);g.stroke();g.fillStyle='#555';g.font='700 22px '+JP;g.textAlign='left';g.fillText(myName()+'  ('+myAcct()+')',612,424);
   if(F.signed||A.sign>0){const n=F.signed?SIG.length:Math.floor(SIG.length*clamp(A.sign,0,1));g.strokeStyle='#1b2f6e';g.lineWidth=5;g.lineCap='round';g.lineJoin='round';g.beginPath();SIG.slice(0,Math.max(2,n)).forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
   if(F.stamped){g.strokeStyle='#c8322f';g.fillStyle='rgba(200,50,47,.1)';g.lineWidth=7;g.beginPath();g.arc(SEAL[0],SEAL[1],SEAL[2]-6,0,TAU);g.fill();g.stroke();g.fillStyle='#c8322f';g.textAlign='center';g.font='900 54px '+JP;g.fillText((myName()||'印').slice(0,1),SEAL[0],SEAL[1]+3)}
@@ -1426,7 +1426,11 @@ STN.tx=(g,s)=>{
   else numKey(AM,l);F.dirty=1};
  let lkId=0;async function lookup(){F.payee=null;if(F.acct.length!==6)return;const my=++lkId,v=F.acct;try{const n=await rpc('bank_lookup',{p_acct:v});if(my===lkId)F.payee=n||''}catch(e){if(my===lkId)F.payee=null}F.dirty=1}
  const kp=makeKeypad(keyIn);kp.position.set(2.15,2.35,.3);kp.rotation.set(-.25,-.3,0);kp.scale.setScalar(.95);root.add(kp);
- plane.userData.tapUV=uv=>{if(F.busy)return;const x=uv.x*CW,y=(1-uv.y)*CH;if(inb(x,y,BX.acct))F.active='acct';else if(inb(x,y,BX.amt))F.active='amt';else if(inb(x,y,BX.memo)){F.memo=(F.memo+1)%MEMOS.length}else if(inb(x,y,BX.sig))doSign();else if(Math.hypot(x-SEAL[0],y-SEAL[1])<SEAL[2]+10)doStamp();F.dirty=1};
+ plane.userData.tapUV=uv=>{if(F.busy)return;const x=uv.x*CW,y=(1-uv.y)*CH;if(inb(x,y,BX.acct))F.active='acct';else if(inb(x,y,BX.amt))F.active='amt';else if(inb(x,y,BX.memo)){askMemo()}else if(inb(x,y,BX.sig))doSign();else if(Math.hypot(x-SEAL[0],y-SEAL[1])<SEAL[2]+10)doStamp();F.dirty=1};
+ function askMemo(){if(document.getElementById('memoBox'))return;const w=document.createElement('div');w.id='memoBox';w.style.cssText='position:fixed;left:0;right:0;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:50;display:flex;justify-content:center;padding:0 12px';
+  w.innerHTML='<div style="display:flex;gap:8px;align-items:center;width:min(520px,100%);padding:10px;background:#0b1a36f2;border:2px solid #e8c24a;border-radius:14px;box-shadow:0 8px 30px #000b"><b style="color:#f6e27a;white-space:nowrap">摘要</b><input id="memoIn" maxlength="30" placeholder="30文字まで（空でもOK）" style="flex:1;min-width:0;font-size:16px"><button class="btn s gold" id="memoOk" style="white-space:nowrap">決定</button></div>';
+  document.body.appendChild(w);const i=w.querySelector('#memoIn');i.value=F.memoT;const done=ok=>{if(ok)F.memoT=i.value.slice(0,30);F.dirty=1;w.remove()};
+  w.querySelector('#memoOk').onclick=()=>done(1);i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();done(1)}else if(e.key==='Escape'){done(0)}});setTimeout(()=>i.focus(),50)}
  const doSign=()=>{if(F.busy||A.sign>0&&!F.signed)return;if(F.signed){F.signed=false;A.sign=0;F.dirty=1;return}SIG=sigPts(myName());A.sign=.001;A.st=pn()};
  const doStamp=()=>{if(F.busy||A.stamp>0)return;if(F.stamped){F.stamped=false;F.dirty=1;return}A.stamp=.001;A.st2=pn()};
  pen.userData.tap=doSign;sg.userData.tap=doStamp;
@@ -1436,11 +1440,11 @@ STN.tx=(g,s)=>{
  const ready=()=>F.acct.length===6&&F.payee&&AM.v>0n&&F.signed&&F.stamped;
  async function issue(){if(F.busy||!S)return;const miss=[];if(F.acct.length!==6)miss.push('口座番号');else if(F.payee==='')miss.push('宛先');if(AM.v<1n)miss.push('金額');if(!F.signed)miss.push('署名');if(!F.stamped)miss.push('押印');
   if(miss.length){F.msg=miss.join('・')+'が未記入です';F.ok=0;F.mt=pn();F.dirty=1;return}if(F.acct===myAcct()){F.msg='自分の口座には振り込めません';F.ok=0;F.mt=pn();F.dirty=1;return}if(AM.v>S.dep){F.msg='預金が足りません';F.ok=0;F.mt=pn();F.dirty=1;return}
-  F.busy=1;A.fly={t0:pn(),res:null,t1:0};const to=F.acct,a=AM.v,memo=MEMOS[F.memo].slice(0,30);
+  F.busy=1;A.fly={t0:pn(),res:null,t1:0};const to=F.acct,a=AM.v,memo=F.memoT.trim().slice(0,30);
   const r=await act('bank_transfer',{p_to:to,p_amt:a,p_memo:memo},`${to} に ${fmt(a)}チップを振り込みました`);A.fly.t1=pn();
   if(r.ok){A.fly.res='ok';F.msg='✔ 振込が完了しました';F.ok=1;F.mt=pn();lastDone=[to,F.payee,a]}else{A.fly.res='ng';F.msg=r.err||'振込できませんでした';F.ok=0;F.mt=pn()}F.dirty=1}
  let lastDone=null;
- const reset=()=>{F.acct='';F.payee=null;F.memo=0;F.signed=false;F.stamped=false;F.active='acct';AM.v=0n;A.sign=0;A.stamp=0;F.dirty=1};
+ const reset=()=>{F.acct='';F.payee=null;F.memo=0;F.memoT='';F.signed=false;F.stamped=false;F.active='acct';AM.v=0n;A.sign=0;A.stamp=0;F.dirty=1};
  const o={id,root,C:F,w:6.8,h:3.4,cx:.6,oy:3.9,ly:1.45,lz:.1,
   upd(t,dt){const n=pn();
    if(A.sign>0&&!F.signed){const u=(n-A.st)/1500;A.sign=Math.max(.001,u);if(u>=1){F.signed=true;A.sign=0;}const pr=clamp(u,0,1),pi=SIG[Math.min(SIG.length-1,Math.floor(pr*(SIG.length-1)))];pen.position.set(px(pi[0]),py(pi[1]),.1);pen.rotation.z=.5;F.dirty=1}
