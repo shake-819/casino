@@ -466,13 +466,13 @@ async function pollMk(){
 }
 /* 操作を実行 → 状態を取り直す */
 async function act(fn,args,okMsg){
-  if(busy)return{ok:false};busy=true;
+  if(busy)return{ok:false,err:'処理中です。少し待ってからもう一度どうぞ'};busy=true;
   try{
     const r=await rpc(fn,Object.assign({p_acct:A.acct,p_secret:A.secret},args||{}));
-    await refresh();
+    try{await refresh()}catch(e){console.warn('refresh after '+fn,e)}   // 送金自体は成功しているので、再読込の失敗で「失敗」扱いにしない
     if(okMsg)toast(typeof okMsg=='function'?okMsg(r):okMsg,'ok');
     return{ok:true,r};
-  }catch(e){toast(e.message,'err');return{ok:false}}
+  }catch(e){toast(e.message,'err');console.warn(fn,e);return{ok:false,err:e.message}}
   finally{busy=false}
 }
 
@@ -1437,7 +1437,7 @@ STN.tx=(g,s)=>{
   if(miss.length){F.msg=miss.join('・')+'が未記入です';F.ok=0;F.mt=pn();F.dirty=1;return}if(F.acct===myAcct()){F.msg='自分の口座には振り込めません';F.ok=0;F.mt=pn();F.dirty=1;return}if(AM.v>S.dep){F.msg='預金が足りません';F.ok=0;F.mt=pn();F.dirty=1;return}
   F.busy=1;A.fly={t0:pn(),res:null,t1:0};const to=F.acct,a=AM.v,memo=MEMOS[F.memo].slice(0,30);
   const r=await act('bank_transfer',{p_to:to,p_amt:a,p_memo:memo},`${to} に ${fmt(a)}チップを振り込みました`);A.fly.t1=pn();
-  if(r.ok){A.fly.res='ok';F.msg='✔ 振込が完了しました';F.ok=1;F.mt=pn();lastDone=[to,F.payee,a]}else{A.fly.res='ng';F.msg='振込できませんでした';F.ok=0;F.mt=pn()}F.dirty=1}
+  if(r.ok){A.fly.res='ok';F.msg='✔ 振込が完了しました';F.ok=1;F.mt=pn();lastDone=[to,F.payee,a]}else{A.fly.res='ng';F.msg=r.err||'振込できませんでした';F.ok=0;F.mt=pn()}F.dirty=1}
  let lastDone=null;
  const reset=()=>{F.acct='';F.payee=null;F.memo=0;F.signed=false;F.stamped=false;F.active='acct';AM.v=0n;A.sign=0;A.stamp=0;F.dirty=1};
  const o={id,root,C:F,w:6.8,h:3.4,cx:.6,oy:3.9,ly:1.2,lz:.1,
