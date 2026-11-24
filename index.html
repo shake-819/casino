@@ -1768,8 +1768,8 @@ async function onMsg(e){const d=e.data;if(!on||!d||d.gp!==1)return;const f=$('#g
     case 'take':{const a=sBI(d.a);if(a<=0n||a>svD)return rep({ok:0,dep:dep()});try{await svTake(a);o.bet+=a;return rep({ok:1,dep:dep()})}catch(x){return rep({ok:0,dep:dep()})}}
     case 'win':{const a=sBI(d.a);if(a>0n)o.win+=a;return}
     case 'fish':{const a=sBI(d.a);if(a>0n){const x=o;x.fish+=a;x.q=x.q.then(async()=>{try{if(a>svD)throw 0;await svTake(a);x.paid+=a;const e=$('#sdp');if(e)e.innerHTML=svJ(svD,4)}catch(e){x.debt+=a}})}return}   // 漁の消費：使った瞬間に回収
-    case 'rank':{const net=String(d.net||'');if(!/^-?[0-9]{1,80}$/.test(net))return;try{await sRpc('gp_rank_submit',{p_net:net,p_fish:Math.max(0,Math.min(200,+d.fish|0)),p_gold:Math.max(0,Math.min(20,+d.gold|0))})}catch(e){}return}
-    case 'rank-top':{const k=['total','best','fish','gold'].includes(d.a)?d.a:'total';try{const t=await sPub('gp_rank_top',{p_kind:k,p_limit:20});return rep({ok:1,l:JSON.parse(t)})}catch(e){return rep({ok:0})}}
+    case 'rank':{const net=String(d.net||'');if(!/^-?[0-9]{1,80}$/.test(net))return;try{await sRpc('gp_rank_submit',{p_net:net,p_fish:Math.max(0,Math.min(200,+d.fish|0)),p_kk:(/^[0-9]{1,80}$/.test(String(d.kk||'0'))?String(d.kk||'0'):'0')})}catch(e){}return}
+    case 'rank-top':{const k=['total','best','fish','kk'].includes(d.a)?d.a:'total';try{const t=await sPub('gp_rank_top',{p_kind:k,p_limit:20});return rep({ok:1,l:JSON.parse(t)})}catch(e){return rep({ok:0})}}
     case 'rank-me':{try{const t=await sRpc('gp_rank_me',{});return rep({ok:1,me:JSON.parse(t)})}catch(e){return rep({ok:0})}}
     case 'drawing':o.drawing=!!d.a;return;
     case 'net-join':return netJoin(rep);
